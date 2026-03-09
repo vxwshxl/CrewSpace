@@ -285,9 +285,9 @@ sendBtn.addEventListener('click', () => {
 const welcomeScreenHTML = `
                 <div class="welcome-screen">
                     <div class="welcome-icon">
-                        <img src="logoCS.png" alt="CrewSpace Logo" width="48" height="48" style="border-radius: 8px;">
+                        <img src="logoCS.png" alt="CrewAgent Logo" width="48" height="48" style="border-radius: 8px;">
                     </div>
-                    <h2>Welcome to CrewSpace Assistant</h2>
+                    <h2>Welcome to CrewAgent Assistant</h2>
                     <p>Designed for Pure Intelligence.</p>
                     <p class="subtitle">I can read the page, answer questions, translate, and perform browser actions.
                     </p>
@@ -377,7 +377,7 @@ async function performTranslation(targetLang, langName) {
             console.log('Translation aborted.');
             return;
         }
-        addMessage("Translation failed. CrewSpace may be incorrect. Please verify connection.", "ai", "error");
+        addMessage("Translation failed. CrewAgent may be incorrect. Please verify connection.", "ai", "error");
         console.error(error);
         translateLang.value = "";
     } finally {
@@ -618,7 +618,7 @@ async function runAgentLoop() {
         } else {
             console.error('Chat error:', error);
             removeElement(typingId);
-            addMessage("CrewSpace encountered an error connecting to the backend. Please verify your connection.", 'ai', 'error');
+            addMessage("CrewAgent encountered an error connecting to the backend. Please verify your connection.", 'ai', 'error');
         }
 
         // On error, let the user retry
@@ -983,3 +983,68 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         }
     }
 });
+
+// Tab Switching Logic
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanes = document.querySelectorAll('.tab-pane');
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});
+
+// Activity & Memory Logging
+function addActivityLog(type, content) {
+    const container = document.getElementById('activity-log');
+    if (!container) return;
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) emptyState.remove();
+
+    const item = document.createElement('div');
+    item.className = `activity-item type-${type}`;
+    
+    const header = document.createElement('div');
+    header.className = `activity-header type-${type}`;
+    header.textContent = `${type.toUpperCase()} • ${new Date().toLocaleTimeString()}`;
+
+    const body = document.createElement('div');
+    body.className = 'activity-body';
+    body.textContent = content;
+
+    item.appendChild(header);
+    item.appendChild(body);
+    
+    container.insertBefore(item, container.firstChild);
+}
+
+function addMemoryLog(content) {
+    const container = document.getElementById('memory-log');
+    if (!container) return;
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) emptyState.remove();
+
+    const item = document.createElement('div');
+    item.className = 'memory-item';
+    
+    const body = document.createElement('div');
+    body.className = 'memory-body';
+    body.textContent = content;
+
+    item.appendChild(body);
+    container.insertBefore(item, container.firstChild);
+}
+
+// Intercept existing message handling to add logs
+const originalAppendMessage = appendMessage;
+appendMessage = function(role, content) {
+    originalAppendMessage(role, content);
+    if (role === 'assistant') {
+        addActivityLog('action', 'Agent responded to user');
+    }
+}

@@ -20,7 +20,7 @@
               "name": "Start",
               "role": "General Assistant",
               "personality": "Helpful and adaptable",
-              "model": "gemini-flash-latest",
+              "model": "sarvam-m",
               "modelIcon": "gemini",
               "tools": [],
               "memoryEnabled": false,
@@ -35,12 +35,12 @@
             "width": 200,
             "height": 114
           },
-          "selected": true
+          "selected": false
         }
       ],
       "edges": [],
       "createdAt": 1773084410621,
-      "updatedAt": 1773084667409
+      "updatedAt": 1773086213494
     },
     {
       "id": "flow-1773081858906",

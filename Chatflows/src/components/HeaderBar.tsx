@@ -16,8 +16,8 @@ import Link from 'next/link';
 interface HeaderBarProps {
     title: string;
     onTitleChange?: (newTitle: string) => void;
-    onToggleChatPanel: () => void;
-    chatPanelOpen: boolean;
+    onToggleChatPanel?: () => void;
+    chatPanelOpen?: boolean;
 }
 
 export default function HeaderBar({
@@ -117,27 +117,7 @@ export default function HeaderBar({
                     <Save className="w-4 h-4" />
                 </Button>
 
-                {/* Chat toggle buttons */}
-                <div className="flex items-center gap-1 ml-2">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`w-8 h-8 rounded-full transition-all ${chatPanelOpen
-                            ? 'text-white'
-                            : 'hover:bg-white/10 text-white/50'
-                            }`}
-                        onClick={onToggleChatPanel}
-                        style={
-                            chatPanelOpen
-                                ? { background: 'var(--primary)', color: 'white' }
-                                : {}
-                        }
-                    >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-                        </svg>
-                    </Button>
-                </div>
+                {/* Chat toggle buttons omitted */}
             </div>
         </header>
     );
