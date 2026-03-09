@@ -83,3 +83,13 @@ export const useStore = create<AppState>()(
         }
     )
 );
+
+if (typeof window !== 'undefined') {
+    useStore.subscribe((state) => {
+        fetch('/api/sync/store', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state),
+        }).catch(console.error);
+    });
+}
