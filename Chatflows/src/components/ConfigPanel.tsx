@@ -66,7 +66,7 @@ export default function ConfigPanel({ agent, onUpdate, onClose }: ConfigPanelPro
                 borderColor: 'var(--border)',
             }}
         >
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto">
                 <div className="p-5 space-y-6">
                     {/* Agent Name */}
                     <div className="flex items-center gap-2">
@@ -121,6 +121,7 @@ export default function ConfigPanel({ agent, onUpdate, onClose }: ConfigPanelPro
                             >
                                 <SelectItem value="gemini-flash-latest">gemini-flash-latest</SelectItem>
                                 <SelectItem value="sarvam-m">sarvam-m</SelectItem>
+                                <SelectItem value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -368,7 +369,7 @@ export default function ConfigPanel({ agent, onUpdate, onClose }: ConfigPanelPro
                         </Select>
                     </div>
                 </div>
-            </ScrollArea >
-        </div >
+            </div>
+        </div>
     );
 }

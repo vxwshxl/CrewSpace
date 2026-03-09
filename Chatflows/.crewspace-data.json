@@ -23,7 +23,7 @@
               "model": "sarvam-m",
               "modelIcon": "gemini",
               "tools": [],
-              "memoryEnabled": false,
+              "memoryEnabled": true,
               "memoryType": "All Messages",
               "messages": [],
               "knowledgeSources": [],
@@ -40,7 +40,7 @@
       ],
       "edges": [],
       "createdAt": 1773084410621,
-      "updatedAt": 1773087787060
+      "updatedAt": 1773088278099
     },
     {
       "id": "flow-1773081858906",
