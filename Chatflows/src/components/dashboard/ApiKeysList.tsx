@@ -57,6 +57,7 @@ export default function ApiKeysList() {
                             >
                                 <option value="sarvam">Sarvam</option>
                                 <option value="gemini">Google Gemini</option>
+                                <option value="groq">Groq</option>
                             </select>
                         </div>
                         <div className="space-y-1">
@@ -116,7 +117,7 @@ export default function ApiKeysList() {
                                 <tr key={k.id} className="hover:bg-accent/30 transition-colors group">
                                     <td className="px-6 py-4 capitalize text-white flex items-center gap-2">
                                         <div className="w-6 h-6 rounded bg-black/40 flex items-center justify-center text-[10px] border border-border">
-                                            {k.provider === 'sarvam' ? 'S' : 'G'}
+                                            {k.provider === 'sarvam' ? 'S' : k.provider === 'groq' ? 'Q' : 'G'}
                                         </div>
                                         {k.provider}
                                     </td>
@@ -136,6 +137,6 @@ export default function ApiKeysList() {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div >
     );
 }

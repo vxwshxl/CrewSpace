@@ -366,3 +366,13 @@ function injectNewTranslations(translatedTexts, nodeIds) {
         }
     }
 }
+
+// Listen for messages from the web page (e.g., Chatflows Dashboard)
+window.addEventListener("message", (event) => {
+    // Only accept messages from the same window
+    if (event.source !== window) return;
+
+    if (event.data && event.data.type === 'TOGGLE_CREWAGENT') {
+        chrome.runtime.sendMessage({ type: "TOGGLE_CREWAGENT" });
+    }
+}, false);

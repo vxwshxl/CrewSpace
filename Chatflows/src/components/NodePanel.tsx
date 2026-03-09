@@ -99,7 +99,7 @@ export default function NodePanel({ isOpen, onClose, onDragStart }: NodePanelPro
                 {filteredCategories.map((category) => (
                     <div key={category.name} className="mb-1">
                         <button
-                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold hover:bg-white/5 rounded transition-colors"
+                            className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold hover:bg-white/5 rounded transition-colors"
                             style={{ color: 'var(--muted-foreground)' }}
                             onClick={() => toggleCategory(category.name)}
                         >
@@ -144,8 +144,8 @@ export default function NodePanel({ isOpen, onClose, onDragStart }: NodePanelPro
                                             {iconMap[item.icon] || <Bot className="w-4 h-4" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-medium text-white truncate">{item.name}</p>
-                                            <p className="text-[10px] leading-tight mt-0.5 line-clamp-2" style={{ color: 'var(--muted-foreground)' }}>
+                                            <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                                            <p className="text-xs leading-tight mt-0.5 line-clamp-2" style={{ color: 'var(--muted-foreground)' }}>
                                                 {item.description}
                                             </p>
                                         </div>
