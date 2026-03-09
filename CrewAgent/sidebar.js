@@ -9,7 +9,26 @@ const equalizer = document.getElementById('mic-equalizer');
 const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 
 // Replace this with your actual local backend URL during testing
-const BACKEND_URL = 'http://127.0.0.1:8000';
+const BACKEND_URL = 'http://localhost:3000/api/extension';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch(`${BACKEND_URL}/models`);
+        const data = await res.json();
+        const select = document.getElementById('model-select');
+        if (select && data.models) {
+            select.innerHTML = '';
+            data.models.forEach(model => {
+                const opt = document.createElement('option');
+                opt.value = model.id;
+                opt.textContent = model.name;
+                select.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.warn("Failed to fetch models from backend", e);
+    }
+});
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "TRANSLATE_NEW_NODES") {
@@ -266,9 +285,9 @@ sendBtn.addEventListener('click', () => {
 const welcomeScreenHTML = `
                 <div class="welcome-screen">
                     <div class="welcome-icon">
-                        <img src="1e.png" alt="1e Logo" width="48" height="48" style="border-radius: 8px;">
+                        <img src="logoCS.png" alt="CrewSpace Logo" width="48" height="48" style="border-radius: 8px;">
                     </div>
-                    <h2>Welcome to 1e Assistant</h2>
+                    <h2>Welcome to CrewSpace Assistant</h2>
                     <p>Designed for Pure Intelligence.</p>
                     <p class="subtitle">I can read the page, answer questions, translate, and perform browser actions.
                     </p>
@@ -358,7 +377,7 @@ async function performTranslation(targetLang, langName) {
             console.log('Translation aborted.');
             return;
         }
-        addMessage("Translation failed. 1e may be incorrect. Please verify connection.", "ai", "error");
+        addMessage("Translation failed. CrewSpace may be incorrect. Please verify connection.", "ai", "error");
         console.error(error);
         translateLang.value = "";
     } finally {
@@ -599,7 +618,7 @@ async function runAgentLoop() {
         } else {
             console.error('Chat error:', error);
             removeElement(typingId);
-            addMessage("1e encountered an error connecting to the backend. Please verify your connection.", 'ai', 'error');
+            addMessage("CrewSpace encountered an error connecting to the backend. Please verify your connection.", 'ai', 'error');
         }
 
         // On error, let the user retry
@@ -627,7 +646,7 @@ function addMessage(text, sender, type = 'normal') {
         msgDiv.innerHTML = `
             <div class="success-msg">
                 <div class="success-msg-header">
-                    <img src="1e.png" alt="Success Logo" width="16" height="16" style="border-radius: 2px;">
+                    <img src="logoCS.png" alt="Success Logo" width="16" height="16" style="border-radius: 2px;">
                     ${text}
                 </div>
                 ${isTranslation ? '<button class="cancel-translate-btn">Cancel Translation</button>' : ''}
@@ -887,7 +906,7 @@ function showOnboardingGuides() {
 
             if (guide.position === 'bottom') {
                 top = rect.bottom + 12;
-                left = rect.left + (rect.width / 2) - 90; 
+                left = rect.left + (rect.width / 2) - 90;
             } else if (guide.position === 'top') {
                 top = rect.top - 50;
                 left = rect.left + (rect.width / 2) - 90;

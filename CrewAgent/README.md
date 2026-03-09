@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="1e.png" width="200"/>
+  <img src="logoCS.png" width="200"/>
 </p>
 
-<h1 align="center">1e Agentic Engine</h1>
+<h1 align="center">CrewSpace Agentic Engine</h1>
 
-# 1e — Regional Language AI Browser Assistant
+# CrewSpace — Regional Language AI Browser Assistant
 
-1e is a production-ready, AI-powered browser sidebar assistant built using Chrome Extension MV3, FastAPI, Sarvam AI, and Bhashini AI.
+CrewSpace is a production-ready, AI-powered browser sidebar assistant built using Chrome Extension MV3, Next.js, Sarvam AI, and Bhashini AI.
 
 ## Features
 
 1. **Read and understand the current webpage:** Extracts page text, links, buttons, and inputs for reasoning context.
-2. **Answer contextual questions:** Powered by Sarvam AI (`sarvam-m`).
+2. **Answer contextual questions:** Powered by available LLMs.
 3. **Agentic Browser Actions:** Autonomously executes UI commands on the user's behalf:
    - `CLICK` (e.g. "Click login")
    - `SCROLL` (e.g. "Scroll down to footer")
@@ -25,13 +25,13 @@
 ## Project Structure
 
 ```
-1e/
+CrewAgent/
 │
 ├ manifest.json       # Chrome Extension MV3 Manifest
 ├ background.js       # Background service worker (sidebar configuration)
 ├ content.js          # DOM extraction and Agentic execution engine
 ├ sidebar.html        # Floating chat sidebar UI markup
-├ sidebar.css         # Premium dark mode styles (LoopSync inspired)
+├ sidebar.css         # Premium dark mode styles
 ├ sidebar.js          # Extension frontend logic and API integration
 │
 ├ backend/
@@ -51,18 +51,18 @@
 2. Go to `chrome://extensions/`.
 3. Enable **Developer mode** in the top right corner.
 4. Click on **Load unpacked** in the top left.
-5. Select the `1e` root folder (where `manifest.json` is located).
-6. Pin the 1e extension to your toolbar.
-7. Click the 1e icon to open the Sidebar Assistant on any website!
+5. Select the `CrewAgent` root folder (where `manifest.json` is located).
+6. Pin the CrewSpace extension to your toolbar.
+7. Click the CrewSpace icon to open the Sidebar Assistant on any website!
 
 ---
 
 ## How to Run the Backend
 
 1. Ensure you have [Node.js](https://nodejs.org/) installed.
-2. Navigate to the `backend` directory:
+2. Navigate to the `Chatflows` directory:
    ```bash
-   cd 1e/backend
+   cd Chatflows
    ```
 3. Install dependencies:
    ```bash
@@ -70,17 +70,17 @@
    ```
 4. Run the Express server:
    ```bash
-   npm start
+   npm run dev
    ```
-   *The server will start at `http://localhost:8000`*.
+   *The server will start at `http://localhost:3000`*.
 
 ---
 
 ## How to Test
 
-1. Ensure the Python backend is running.
+1. Ensure the Chatflows Next server is running.
 2. Open a webpage (e.g., Wikipedia, a blog, or a login page) in Chrome.
-3. Click the **1e Extension Icon** to open the side panel.
+3. Click the **CrewSpace Extension Icon** to open the side panel.
 4. **Test Prompts:**
    - *"Explain this page"* (Agent will summarize based on page context)
    - *"Click login"* (Agent will find and click the nearest login button)

@@ -1,0 +1,58 @@
+{
+  "chatflows": [
+    {
+      "id": "flow-1773081858906",
+      "name": "New Chatflow",
+      "nodes": [
+        {
+          "id": "node-1773081864894",
+          "type": "agent",
+          "position": {
+            "x": 374.31063809200646,
+            "y": 170.10473404769985
+          },
+          "data": {
+            "label": "Start",
+            "nodeType": "agent",
+            "status": "idle",
+            "agentConfig": {
+              "id": "node-1773081864894",
+              "name": "Start",
+              "role": "General Assistant",
+              "personality": "Helpful and adaptable",
+              "model": "gemini-flash-latest",
+              "modelIcon": "gemini",
+              "tools": [],
+              "memoryEnabled": false,
+              "memoryType": "All Messages",
+              "messages": [],
+              "knowledgeSources": [],
+              "inputMessage": "",
+              "responseFormat": "Use Markdown"
+            }
+          },
+          "measured": {
+            "width": 200,
+            "height": 114
+          },
+          "selected": false,
+          "dragging": false
+        }
+      ],
+      "edges": [],
+      "createdAt": 1773081858906,
+      "updatedAt": 1773082012276
+    }
+  ],
+  "apiKeys": [
+    {
+      "provider": "gemini",
+      "name": "gemini-flash-latest",
+      "key": "AIzaSyDmPehirDIDDjc6fjmE5L3lj32-aisy4x0",
+      "id": "dd547951-d132-46ef-8608-c5e4f2f29334",
+      "createdAt": 1773084147493
+    }
+  ],
+  "flowiseUrl": "http://localhost:3000",
+  "flowiseApiKey": ""
+}

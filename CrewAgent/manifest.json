@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "1e",
+  "name": "CrewSpace",
   "version": "1.0.0",
-  "description": "Regional Language AI Browser Assistant",
+  "description": "CrewSpace Browser Assistant",
   "permissions": [
     "activeTab",
     "scripting",
@@ -26,19 +26,19 @@
     }
   ],
   "action": {
-    "default_title": "Open 1e Assistant",
+    "default_title": "Open CrewSpace Assistant",
     "default_icon": {
-      "16": "1e.png",
-      "32": "1e.png",
-      "48": "1e.png",
-      "128": "1e.png"
+      "16": "logoCS.png",
+      "32": "logoCS.png",
+      "48": "logoCS.png",
+      "128": "logoCS.png"
     }
   },
   "icons": {
-    "16": "1e.png",
-    "32": "1e.png",
-    "48": "1e.png",
-    "128": "1e.png"
+    "16": "logoCS.png",
+    "32": "logoCS.png",
+    "48": "logoCS.png",
+    "128": "logoCS.png"
   },
   "side_panel": {
     "default_path": "sidebar.html"
