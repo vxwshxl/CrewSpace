@@ -20,25 +20,17 @@
   <div class="container">
     <header class="header">
       <div class="header-content">
-        <div class="logo">
-          <!-- CrewAgent Logo/Icon placeholder -->
-          <img src="logoCS.png" alt="CrewAgent Logo" width="24" height="24" style="border-radius: 4px" />
-          <span>CrewAgent</span>
+        <div class="header-left">
+          <div class="logo">
+            <!-- CrewAgent Logo/Icon placeholder -->
+            <img src="logoCS.png" alt="CrewAgent Logo" width="24" height="24" style="border-radius: 4px" />
+            <span>CrewAgent</span>
+          </div>
         </div>
         <div class="header-actions">
           <div class="select-wrapper">
             <select id="model-select" class="action-btn" title="Chatflow">
               <option value="">Select Chatflow...</option>
-            </select>
-          </div>
-          <div class="select-wrapper">
-            <select id="translate-lang" class="action-btn" title="Translate Page">
-              <option value="">Default</option>
-              <option value="as">Assamese</option>
-              <option value="bn">Bengali</option>
-              <option value="brx">Bodo</option>
-              <option value="hi">Hindi</option>
-              <option value="en">English</option>
             </select>
           </div>
           <button id="clear-btn" class="action-btn" title="Clear Chat">
@@ -54,6 +46,17 @@
       <button class="tab-btn active" data-target="chat-view">Chat</button>
       <button class="tab-btn" data-target="activity-view">Activity</button>
       <button class="tab-btn" data-target="memory-view">Memory</button>
+
+      <div class="select-wrapper" style="margin-left: auto; display: flex; align-items: center; padding-right: 8px;">
+        <select id="translate-lang" class="action-btn" title="Translate Page">
+          <option value="">Translate</option>
+          <option value="as">Assamese</option>
+          <option value="bn">Bengali</option>
+          <option value="brx">Bodo</option>
+          <option value="hi">Hindi</option>
+          <option value="en">English</option>
+        </select>
+      </div>
     </div>
 
     <div class="main-content">

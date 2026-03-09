@@ -35,12 +35,12 @@
             "width": 200,
             "height": 114
           },
-          "selected": false
+          "selected": true
         }
       ],
       "edges": [],
       "createdAt": 1773084410621,
-      "updatedAt": 1773086213494
+      "updatedAt": 1773087787060
     },
     {
       "id": "flow-1773081858906",
