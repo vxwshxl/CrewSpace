@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CrewSpace Sidebar</title>
+  <title>CrewAgent Sidebar</title>
   <link rel="stylesheet" href="sidebar.css" />
 
   <!-- Markdown Parser & Sanitizer -->
@@ -21,9 +21,9 @@
     <header class="header">
       <div class="header-content">
         <div class="logo">
-          <!-- CrewSpace Logo/Icon placeholder -->
-          <img src="logoCS.png" alt="CrewSpace Logo" width="24" height="24" style="border-radius: 4px" />
-          <span>CrewSpace</span>
+          <!-- CrewAgent Logo/Icon placeholder -->
+          <img src="logoCS.png" alt="CrewAgent Logo" width="24" height="24" style="border-radius: 4px" />
+          <span>CrewAgent</span>
         </div>
         <div class="header-actions">
           <div class="select-wrapper">
@@ -50,20 +50,53 @@
       </div>
     </header>
 
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-target="chat-view">Chat</button>
+      <button class="tab-btn" data-target="activity-view">Activity</button>
+      <button class="tab-btn" data-target="memory-view">Memory</button>
+    </div>
+
     <div class="main-content">
-      <div id="chat-container" class="chat-container">
-        <div class="welcome-screen">
-          <div class="welcome-icon">
-            <img src="logoCS.png" alt="CrewSpace Logo" width="48" height="48" style="border-radius: 8px" />
+      <div id="chat-view" class="tab-pane active">
+        <div id="chat-container" class="chat-container">
+          <div class="welcome-screen">
+            <div class="welcome-icon">
+              <img src="logoCS.png" alt="CrewAgent Logo" width="48" height="48" style="border-radius: 8px" />
+            </div>
+            <h2>Welcome to<br />CrewAgent Agentic Engine</h2>
+            <p>Designed for Pure Intelligence.</p>
+            <p class="subtitle">
+              I can read the page, answer questions, translate, and perform
+              browser actions.
+            </p>
           </div>
-          <h2>Welcome to<br />CrewSpace Agentic Engine</h2>
-          <p>Designed for Pure Intelligence.</p>
-          <p class="subtitle">
-            I can read the page, answer questions, translate, and perform
-            browser actions.
-          </p>
+          <!-- Messages will be injected here -->
         </div>
-        <!-- Messages will be injected here -->
+      </div>
+
+      <div id="activity-view" class="tab-pane">
+        <div class="log-header">Real-time Activity Log</div>
+        <div id="activity-log" class="log-container">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+            <p>Activity will appear here when you chat</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="memory-view" class="tab-pane">
+        <div class="log-header">Current Context & Tasks</div>
+        <div id="memory-log" class="log-container">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2" />
+            </svg>
+            <p>No memory recorded yet</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -101,7 +134,7 @@
           <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          CrewSpace Agentic Engine
+          CrewAgent Agentic Engine
         </span>
       </div>
     </div>

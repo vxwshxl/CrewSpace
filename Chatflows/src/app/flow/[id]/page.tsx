@@ -13,7 +13,7 @@ import HeaderBar from '@/components/HeaderBar';
 import NodePanel from '@/components/NodePanel';
 import AgentCanvas from '@/components/AgentCanvas';
 import ConfigPanel from '@/components/ConfigPanel';
-import ChatPanel from '@/components/ChatPanel';
+
 import { useStore } from '@/lib/store';
 import { AgentConfig, ChatMessage } from '@/lib/types';
 import { useParams } from 'next/navigation';
@@ -33,12 +33,7 @@ function DashboardContent() {
   const [showConfig, setShowConfig] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
-  // Chat state
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [chatError, setChatError] = useState<string | null>(null);
-  const [streamingText, setStreamingText] = useState<string>('');
-  const chatHistoryRef = useRef<{ role: string; content: string }[]>([]);
+
 
   // Auto-save effect
   React.useEffect(() => {
@@ -79,93 +74,7 @@ function DashboardContent() {
     [id, store]
   );
 
-  const handleSendMessage = useCallback(
-    async (message: string) => {
-      // Find the first agent node to use its model, or just default to gemini if none
-      const agentNode = nodes.find(n => n.type === 'agent') as Node | undefined;
-      const agentConfig = agentNode?.data?.agentConfig as AgentConfig | undefined;
 
-      const model = agentConfig?.model || 'gemini-flash-latest';
-
-      // Determine provider from model name naively
-      let provider = 'gemini';
-      if (model.includes('gpt') || model.includes('o1')) provider = 'openai';
-      if (model.includes('claude')) provider = 'anthropic';
-
-      // Find API key
-      const apiKeyObj = store.apiKeys.find(k => k.provider === provider);
-      const apiKey = apiKeyObj?.key;
-
-      if (!apiKey) {
-        setChatError(`No API key found for provider '${provider}'. Go to API Keys page to add one.`);
-        return;
-      }
-
-      // Add user message
-      const userMsg: ChatMessage = {
-        id: `msg-${Date.now()}`,
-        role: 'user',
-        content: message,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, userMsg]);
-      setChatError(null);
-      setIsLoading(true);
-
-      try {
-        const chatMessages = [
-          ...chatHistoryRef.current,
-          { role: 'user', content: message }
-        ];
-
-        // Add system prompt if agent has personality/role
-        if (agentConfig && agentConfig.role) {
-          chatMessages.unshift({ role: 'system', content: `You are a ${agentConfig.role}. ${agentConfig.personality || ''}` });
-        }
-
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            provider,
-            model,
-            apiKey,
-            messages: chatMessages,
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to get response');
-        }
-
-        const responseText = data.text;
-
-        // Add assistant message
-        const assistantMsg: ChatMessage = {
-          id: `msg-${Date.now() + 1}`,
-          role: 'assistant',
-          content: responseText,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, assistantMsg]);
-
-        // Update chat history for context
-        chatHistoryRef.current.push(
-          { role: 'user', content: message },
-          { role: 'assistant', content: responseText }
-        );
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
-        setChatError(errorMessage);
-      } finally {
-        setIsLoading(false);
-        setStreamingText('');
-      }
-    },
-    [nodes, store.apiKeys]
-  );
 
   const handleAgentUpdate = useCallback(
     (updatedAgent: AgentConfig) => {
@@ -317,20 +226,7 @@ function DashboardContent() {
           />
         )}
 
-        {chatPanelOpen && !showConfig && (
-          <ChatPanel
-            isOpen={chatPanelOpen}
-            onClose={() => setChatPanelOpen(false)}
-            messages={messages}
-            processFlow={[]}
-            activityLog={[]}
-            memoryItems={[]}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            streamingText={streamingText || undefined}
-            error={chatError}
-          />
-        )}
+        {/* Chat window logic removed since extension manages interaction */}
       </div>
     </div>
   );
