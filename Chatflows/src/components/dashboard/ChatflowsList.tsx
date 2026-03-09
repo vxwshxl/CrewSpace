@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { useStore } from '@/lib/store';
-import { Share2, Plus, Trash2 } from 'lucide-react';
+import { Share2, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function ChatflowsList() {
-    const { chatflows, deleteChatflow, addChatflow } = useStore();
+    const { chatflows, deleteChatflow, addChatflow, updateChatflow } = useStore();
     const router = useRouter();
 
     const handleCreateNew = () => {
@@ -54,34 +54,91 @@ export default function ChatflowsList() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {chatflows.map((flow) => (
-                        <div key={flow.id} className="group relative">
-                            <Link href={`/flow/${flow.id}`}>
-                                <div className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{flow.name}</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            {flow.nodes.length} Nodes • {flow.edges.length} Connections
-                                        </p>
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>Updated {new Date(flow.updatedAt).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            </Link>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    deleteChatflow(flow.id);
-                                }}
-                                className="absolute right-4 top-4 p-2 text-muted-foreground hover:text-destructive bg-card/80 backdrop-blur rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </div>
+                        <ChatflowCard
+                            key={flow.id}
+                            flow={flow}
+                            onDelete={deleteChatflow}
+                            onUpdate={updateChatflow}
+                        />
                     ))}
                 </div>
             )}
+        </div>
+    );
+}
+
+function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: string) => void; onUpdate: (id: string, data: any) => void }) {
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [editValue, setEditValue] = React.useState(flow.name);
+
+    const handleSave = () => {
+        setIsEditing(false);
+        if (editValue.trim() && editValue !== flow.name) {
+            onUpdate(flow.id, { name: editValue.trim() });
+        } else {
+            setEditValue(flow.name);
+        }
+    };
+
+    return (
+        <div className="group relative">
+            <Link href={`/flow/${flow.id}`}>
+                <div className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
+                    <div className="flex-1">
+                        {isEditing ? (
+                            <input
+                                autoFocus
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onBlur={handleSave}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSave();
+                                    if (e.key === 'Escape') {
+                                        setIsEditing(false);
+                                        setEditValue(flow.name);
+                                    }
+                                }}
+                                onClick={(e) => e.preventDefault()}
+                                className="text-lg font-semibold text-white mb-2 bg-transparent border-b border-primary outline-none w-full"
+                            />
+                        ) : (
+                            <div className="flex items-center gap-2 mb-2 group-hover:text-primary transition-colors">
+                                <h3 className="text-lg font-semibold text-white">{flow.name}</h3>
+                            </div>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                            {flow.nodes.length} Nodes • {flow.edges.length} Connections
+                        </p>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Updated {new Date(flow.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            </Link>
+            <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsEditing(true);
+                    }}
+                    className="p-1.5 text-muted-foreground hover:text-primary bg-card/80 backdrop-blur rounded-lg"
+                    title="Rename"
+                >
+                    <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete(flow.id);
+                    }}
+                    className="p-1.5 text-muted-foreground hover:text-destructive bg-card/80 backdrop-blur rounded-lg"
+                    title="Delete"
+                >
+                    <Trash2 className="w-4 h-4" />
+                </button>
+            </div>
         </div>
     );
 }

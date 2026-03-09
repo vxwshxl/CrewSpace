@@ -103,18 +103,13 @@ export default function HeaderBar({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="w-8 h-8 rounded-full hover:bg-white/10"
-                    style={{ color: 'var(--muted-foreground)' }}
+                    className="w-8 h-8 rounded-full hover:bg-white/10 p-0 overflow-hidden"
+                    title="Toggle CrewAgent"
+                    onClick={() => {
+                        window.postMessage({ type: 'TOGGLE_CREWAGENT' }, '*');
+                    }}
                 >
-                    <Code2 className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-8 h-8 rounded-full hover:bg-white/10"
-                    style={{ color: 'var(--muted-foreground)' }}
-                >
-                    <Save className="w-4 h-4" />
+                    <Image src="/logoCS.png" alt="CrewAgent" width={22} height={22} className="rounded" />
                 </Button>
 
                 {/* Chat toggle buttons omitted */}

@@ -233,6 +233,17 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center w-screen h-screen bg-black">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <ReactFlowProvider>
       <DashboardContent />
