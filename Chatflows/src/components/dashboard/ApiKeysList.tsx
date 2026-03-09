@@ -7,7 +7,7 @@ import { Trash2, Plus, Key } from 'lucide-react';
 export default function ApiKeysList() {
     const { apiKeys, addApiKey, deleteApiKey } = useStore();
     const [isAdding, setIsAdding] = React.useState(false);
-    const [newProvider, setNewProvider] = React.useState('openai');
+    const [newProvider, setNewProvider] = React.useState('sarvam');
     const [newName, setNewName] = React.useState('');
     const [newKey, setNewKey] = React.useState('');
 
@@ -55,8 +55,7 @@ export default function ApiKeysList() {
                                 value={newProvider}
                                 onChange={(e) => setNewProvider(e.target.value)}
                             >
-                                <option value="openai">OpenAI</option>
-                                <option value="anthropic">Anthropic</option>
+                                <option value="sarvam">Sarvam</option>
                                 <option value="gemini">Google Gemini</option>
                             </select>
                         </div>
@@ -117,7 +116,7 @@ export default function ApiKeysList() {
                                 <tr key={k.id} className="hover:bg-accent/30 transition-colors group">
                                     <td className="px-6 py-4 capitalize text-white flex items-center gap-2">
                                         <div className="w-6 h-6 rounded bg-black/40 flex items-center justify-center text-[10px] border border-border">
-                                            {k.provider === 'openai' ? '▲' : k.provider === 'anthropic' ? '◉' : 'G'}
+                                            {k.provider === 'sarvam' ? 'S' : 'G'}
                                         </div>
                                         {k.provider}
                                     </td>

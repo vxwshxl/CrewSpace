@@ -119,8 +119,8 @@ export default function ConfigPanel({ agent, onUpdate, onClose }: ConfigPanelPro
                                     borderColor: 'var(--border)',
                                 }}
                             >
-                                <SelectItem value="gemini-flash-latest">Gemini Flash</SelectItem>
-                                <SelectItem value="sarvam">Sarvam</SelectItem>
+                                <SelectItem value="gemini-flash-latest">gemini-flash-latest</SelectItem>
+                                <SelectItem value="sarvam-m">sarvam-m</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
