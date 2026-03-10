@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
-import { Bot, Sparkles, CheckCircle2, Copy, Trash2, Info } from 'lucide-react';
+import { Bot, Sparkles, CheckCircle2, Copy, Trash2, Info, GitMerge, Code, MessageCircle, Workflow, Globe } from 'lucide-react';
 
 const modelIcons: Record<string, { icon: React.ReactNode; color: string }> = {
     openai: {
@@ -84,6 +84,48 @@ function AgentNode(props: NodeProps) {
     const isCompleted = status === 'completed';
     const isRunning = status === 'running';
 
+    const originalType = (nodeData.originalType as string) || 'agent';
+    const nodeIcon = (nodeData.icon as string) || 'bot';
+
+    const colorMap: Record<string, string> = {
+        agent: 'var(--chart-1)',
+        condition: 'var(--chart-4)',
+        start: 'var(--chart-2)',
+        function: 'var(--chart-2)',
+        reply: 'var(--chart-2)',
+        flow: 'var(--chart-2)',
+        http: 'var(--chart-2)',
+    };
+    const outlineColor = colorMap[originalType] || 'var(--chart-1)';
+
+    const shadowColorMap: Record<string, string> = {
+        agent: 'oklch(0.488 0.243 264.376',
+        condition: 'oklch(0.627 0.265 303.9',
+        start: 'oklch(0.696 0.17 162.48',
+        function: 'oklch(0.696 0.17 162.48',
+        reply: 'oklch(0.696 0.17 162.48',
+        flow: 'oklch(0.696 0.17 162.48',
+        http: 'oklch(0.696 0.17 162.48',
+    };
+    const shadowColor = shadowColorMap[originalType] || 'oklch(0.488 0.243 264.376';
+
+    const renderIcon = () => {
+        switch (nodeIcon) {
+            case 'bot': return <Bot className="w-5 h-5 text-white" />;
+            case 'git-merge': return <GitMerge className="w-5 h-5 text-white" />;
+            case 'code': return <Code className="w-5 h-5 text-white" />;
+            case 'message-circle': return <MessageCircle className="w-5 h-5 text-white" />;
+            case 'workflow': return <Workflow className="w-5 h-5 text-white" />;
+            case 'globe': return <Globe className="w-5 h-5 text-white" />;
+            default: return <Bot className="w-5 h-5 text-white" />;
+        }
+    };
+
+    let handleColorClass = '!bg-[var(--chart-1)] !border-[var(--chart-1)]';
+    if (originalType === 'function' || originalType === 'reply' || originalType === 'flow' || originalType === 'http') {
+        handleColorClass = '!bg-[var(--chart-2)] !border-[var(--chart-2)]';
+    }
+
     return (
         <div className="group relative">
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
@@ -104,7 +146,7 @@ function AgentNode(props: NodeProps) {
                 type="target"
                 position={Position.Left}
                 id="agent-in"
-                className="!bg-[var(--chart-1)] !border-[var(--chart-1)]"
+                className={handleColorClass}
             />
 
             <div
@@ -115,10 +157,10 @@ function AgentNode(props: NodeProps) {
         `}
                 style={{
                     background: 'oklch(0.16 0 0)',
-                    borderColor: selected ? 'var(--chart-1)' : 'var(--border)',
+                    borderColor: selected ? outlineColor : 'var(--border)',
                     boxShadow: selected
-                        ? '0 0 25px oklch(0.488 0.243 264.376 / 25%)'
-                        : '0 0 15px oklch(0.488 0.243 264.376 / 8%)',
+                        ? `0 0 25px ${shadowColor} / 25%)`
+                        : `0 0 15px ${shadowColor} / 8%)`,
                 }}
             >
                 {/* Status indicator */}
@@ -148,10 +190,10 @@ function AgentNode(props: NodeProps) {
                     <div
                         className="w-9 h-9 rounded-lg flex items-center justify-center"
                         style={{
-                            background: 'var(--chart-1)',
+                            background: outlineColor,
                         }}
                     >
-                        <Bot className="w-5 h-5 text-white" />
+                        {renderIcon()}
                     </div>
                     <span className="text-foreground font-bold text-sm">{name}</span>
                 </div>
@@ -195,14 +237,14 @@ function AgentNode(props: NodeProps) {
                 position={Position.Right}
                 id="agent-out-0"
                 style={{ top: '35%' }}
-                className="!bg-[var(--chart-1)] !border-[var(--chart-1)]"
+                className={handleColorClass}
             />
             <Handle
                 type="source"
                 position={Position.Right}
                 id="agent-out-1"
                 style={{ top: '65%' }}
-                className="!bg-[var(--chart-1)] !border-[var(--chart-1)]"
+                className={handleColorClass}
             />
         </div>
     );

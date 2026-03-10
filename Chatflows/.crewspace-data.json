@@ -1,29 +1,31 @@
 {
   "chatflows": [
     {
-      "id": "flow-1773084410621",
-      "name": "Calculator",
+      "id": "flow-1773118214049",
+      "name": "BuyOnAmazon",
       "nodes": [
         {
-          "id": "node-1773084666525",
-          "type": "agent",
+          "id": "node-1773118222115",
+          "type": "start",
           "position": {
-            "x": 319,
-            "y": 185
+            "x": 640,
+            "y": 225
           },
           "data": {
             "label": "Start",
-            "nodeType": "agent",
+            "nodeType": "start",
+            "originalType": "start",
+            "icon": "play",
             "status": "idle",
             "agentConfig": {
-              "id": "node-1773084666525",
+              "id": "node-1773118222115",
               "name": "Start",
               "role": "General Assistant",
               "personality": "Helpful and adaptable",
-              "model": "sarvam-m",
-              "modelIcon": "gemini",
+              "model": "Manual",
+              "modelIcon": "play",
               "tools": [],
-              "memoryEnabled": true,
+              "memoryEnabled": false,
               "memoryType": "All Messages",
               "messages": [],
               "knowledgeSources": [],
@@ -32,34 +34,62 @@
             }
           },
           "measured": {
-            "width": 200,
-            "height": 114
-          },
-          "selected": true
-        }
-      ],
-      "edges": [],
-      "createdAt": 1773084410621,
-      "updatedAt": 1773088278099
-    },
-    {
-      "id": "flow-1773081858906",
-      "name": "Online Agent",
-      "nodes": [
+            "width": 120,
+            "height": 59
+          }
+        },
         {
-          "id": "node-1773081864894",
+          "id": "node-1773118227974",
           "type": "agent",
           "position": {
-            "x": 374.31063809200646,
-            "y": 170.10473404769985
+            "x": 832.5440000000001,
+            "y": 199.52000000000007
           },
           "data": {
-            "label": "Start",
+            "label": "Agent",
             "nodeType": "agent",
+            "originalType": "agent",
+            "icon": "bot",
             "status": "idle",
             "agentConfig": {
-              "id": "node-1773081864894",
-              "name": "Start",
+              "id": "node-1773118227974",
+              "name": "Agent",
+              "role": "General Assistant",
+              "personality": "Helpful and adaptable",
+              "model": "gemini-flash-latest",
+              "modelIcon": "gemini",
+              "tools": [],
+              "memoryEnabled": true,
+              "memoryType": "All Messages",
+              "messages": [],
+              "knowledgeSources": [],
+              "inputMessage": "Buy a MacBook on Amazon.in",
+              "responseFormat": "Use Markdown"
+            }
+          },
+          "measured": {
+            "width": 200,
+            "height": 113
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node-1773118365373",
+          "type": "condition",
+          "position": {
+            "x": 1107.2334706137185,
+            "y": 298.6045793501807
+          },
+          "data": {
+            "label": "Condition",
+            "nodeType": "condition",
+            "originalType": "condition",
+            "icon": "git-branch",
+            "status": "idle",
+            "agentConfig": {
+              "id": "node-1773118365373",
+              "name": "Condition",
               "role": "General Assistant",
               "personality": "Helpful and adaptable",
               "model": "gemini-flash-latest",
@@ -74,34 +104,166 @@
             }
           },
           "measured": {
+            "width": 220,
+            "height": 113
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node-1773118438719",
+          "type": "agent",
+          "position": {
+            "x": 1131.2329249422855,
+            "y": 131.15333135706618
+          },
+          "data": {
+            "label": "HTTP",
+            "nodeType": "agent",
+            "originalType": "http",
+            "icon": "globe",
+            "status": "idle",
+            "agentConfig": {
+              "id": "node-1773118438719",
+              "name": "HTTP",
+              "role": "General Assistant",
+              "personality": "Helpful and adaptable",
+              "model": "GET",
+              "modelIcon": "globe",
+              "tools": [],
+              "memoryEnabled": false,
+              "memoryType": "All Messages",
+              "messages": [],
+              "knowledgeSources": [],
+              "inputMessage": "",
+              "responseFormat": "Use Markdown"
+            }
+          },
+          "measured": {
             "width": 200,
-            "height": 114
+            "height": 113
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node-1773118478826",
+          "type": "sticky",
+          "position": {
+            "x": 776.5561415816691,
+            "y": 26.80454215001788
+          },
+          "data": {
+            "label": "Sticky Note",
+            "nodeType": "sticky",
+            "originalType": "sticky",
+            "icon": "sticky-note",
+            "status": "idle",
+            "agentConfig": {
+              "id": "node-1773118478826",
+              "name": "Sticky Note",
+              "role": "General Assistant",
+              "personality": "Helpful and adaptable",
+              "model": "gemini-flash-latest",
+              "modelIcon": "gemini",
+              "tools": [],
+              "memoryEnabled": false,
+              "memoryType": "All Messages",
+              "messages": [],
+              "knowledgeSources": [],
+              "inputMessage": "",
+              "responseFormat": "Use Markdown"
+            }
+          },
+          "measured": {
+            "width": 260,
+            "height": 120
           },
           "selected": false,
           "dragging": false
         }
       ],
-      "edges": [],
-      "createdAt": 1773081858906,
-      "updatedAt": 1773084405776
-    }
-  ],
-  "apiKeys": [
-    {
-      "provider": "gemini",
-      "name": "gemini-flash-latest",
-      "key": "AIzaSyBjue0lHg6h3cUfpanw2AyHWD_GJznzPug",
-      "id": "44a87991-fa13-477a-9278-be1a7e75f809",
-      "createdAt": 1773084329240
+      "edges": [
+        {
+          "type": "default",
+          "animated": true,
+          "style": {
+            "stroke": "var(--muted-foreground)",
+            "strokeWidth": 2,
+            "opacity": 0.6
+          },
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "var(--muted-foreground)",
+            "width": 15,
+            "height": 15
+          },
+          "source": "node-1773118222115",
+          "sourceHandle": "start-out",
+          "target": "node-1773118227974",
+          "targetHandle": "agent-in",
+          "id": "xy-edge__node-1773118222115start-out-node-1773118227974agent-in"
+        },
+        {
+          "type": "default",
+          "animated": true,
+          "style": {
+            "stroke": "var(--muted-foreground)",
+            "strokeWidth": 2,
+            "opacity": 0.6
+          },
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "var(--muted-foreground)",
+            "width": 15,
+            "height": 15
+          },
+          "source": "node-1773118227974",
+          "sourceHandle": "agent-out-1",
+          "target": "node-1773118365373",
+          "targetHandle": "condition-in",
+          "id": "xy-edge__node-1773118227974agent-out-1-node-1773118365373condition-in"
+        },
+        {
+          "type": "default",
+          "animated": true,
+          "style": {
+            "stroke": "var(--muted-foreground)",
+            "strokeWidth": 2,
+            "opacity": 0.6
+          },
+          "markerEnd": {
+            "type": "arrowclosed",
+            "color": "var(--muted-foreground)",
+            "width": 15,
+            "height": 15
+          },
+          "source": "node-1773118227974",
+          "sourceHandle": "agent-out-0",
+          "target": "node-1773118438719",
+          "targetHandle": "agent-in",
+          "id": "xy-edge__node-1773118227974agent-out-0-node-1773118438719agent-in"
+        }
+      ],
+      "createdAt": 1773118214049,
+      "updatedAt": 1773118555156
     },
     {
-      "provider": "sarvam",
-      "name": "sarvam-m",
-      "key": "sk_4wguqvkh_dQLb5VzLUJSblWRlL4F0HGhw",
-      "id": "08d255c4-6c0e-4b02-b499-33e6152fba3b",
-      "createdAt": 1773084961157
+      "id": "flow-tutorial-1773117796811",
+      "name": "Amazon Order Agent",
+      "nodes": [],
+      "edges": [],
+      "createdAt": 1773117796811,
+      "updatedAt": 1773117796968
+    },
+    {
+      "id": "flow-tutorial-1773117698777",
+      "name": "Amazon Order Agent",
+      "nodes": [],
+      "edges": [],
+      "createdAt": 1773117698777,
+      "updatedAt": 1773117699031
     }
   ],
-  "flowiseUrl": "http://localhost:3000",
-  "flowiseApiKey": ""
+  "apiKeys": []
 }

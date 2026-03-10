@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useStore } from '@/lib/store';
-import { Share2, Plus, Trash2, Pencil } from 'lucide-react';
+import { Workflow, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -25,9 +25,10 @@ export default function ChatflowsList() {
         <div className="p-8 max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Share2 className="w-6 h-6" /> Chatflows
+                    <Workflow className="w-6 h-6" /> Chatflows
                 </h1>
                 <button
+                    id="tutorial-create-new-btn"
                     onClick={handleCreateNew}
                     className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
                 >
@@ -38,13 +39,14 @@ export default function ChatflowsList() {
             {chatflows.length === 0 ? (
                 <div className="border border-dashed border-border rounded-xl p-12 text-center">
                     <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4">
-                        <Share2 className="w-6 h-6" />
+                        <Workflow className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg font-medium text-white mb-2">No Chatflows Yet</h3>
                     <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                         Create your first agentic workflow combining multiple AI agents, conditions, and custom functions.
                     </p>
                     <button
+                        id="tutorial-create-new-btn-empty"
                         onClick={handleCreateNew}
                         className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors mx-auto"
                     >

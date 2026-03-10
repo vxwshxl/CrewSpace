@@ -25,6 +25,17 @@ import StartNode from './nodes/StartNode';
 import AgentNode from './nodes/AgentNode';
 import ConditionNode from './nodes/ConditionNode';
 import StickyNode from './nodes/StickyNode';
+import NodePanel from './NodePanel';
+import { useStore } from '@xyflow/react';
+
+function ZoomIndicator() {
+    const zoom = useStore((s) => s.transform[2]);
+    return (
+        <div className="flex items-center justify-center w-12 h-8 rounded-lg shadow-lg border text-xs font-mono font-medium tracking-tight bg-card border-border text-muted-foreground mr-1.5">
+            {Math.round(zoom * 100)}%
+        </div>
+    );
+}
 
 const nodeTypes = {
     start: StartNode,
@@ -45,9 +56,8 @@ interface AgentCanvasProps {
     onNodeDuplicate?: (node: Node) => void;
     onDrop: (event: React.DragEvent) => void;
     onDragOver: (event: React.DragEvent) => void;
+    onDragStart: (event: React.DragEvent, nodeType: string, label: string, icon: string) => void;
     setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-    onToggleNodePanel?: () => void;
-    nodePanelOpen?: boolean;
 }
 
 export default function AgentCanvas({
@@ -61,9 +71,8 @@ export default function AgentCanvas({
     onNodeDuplicate,
     onDrop,
     onDragOver,
+    onDragStart,
     setEdges,
-    onToggleNodePanel,
-    nodePanelOpen,
 }: AgentCanvasProps) {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -137,23 +146,11 @@ export default function AgentCanvas({
                     size={1.5}
                     color="oklch(0.5 0 0 / 25%)"
                 />
-                <Panel position="bottom-right" className="!mb-[7.5rem] !mr-4 !z-50">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`w-8 h-8 rounded-full shadow-lg border border-border transition-all ${nodePanelOpen
-                            ? 'bg-[var(--primary)]/20 text-[var(--primary)]'
-                            : 'bg-card text-muted-foreground hover:bg-card/80 hover:text-foreground'
-                            }`}
-                        onClick={onToggleNodePanel}
-                        style={
-                            nodePanelOpen
-                                ? { color: 'var(--primary)', background: 'var(--card)' }
-                                : {}
-                        }
-                    >
-                        <Zap className="w-4 h-4" />
-                    </Button>
+                <Panel position="top-left" className="!mt-4 !ml-4 !z-50">
+                    <NodePanel onDragStart={onDragStart} />
+                </Panel>
+                <Panel position="bottom-right" className="!mb-[7.5rem] !mr-4 !z-50 flex items-center gap-2">
+                    <ZoomIndicator />
                 </Panel>
                 <Controls
                     position="bottom-right"
