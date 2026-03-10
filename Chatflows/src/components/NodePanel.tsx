@@ -48,7 +48,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
 
             {isOpen && (
                 <div
-                    className="absolute top-full left-0 mt-2 w-[260px] max-h-[70vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
+                    className="absolute top-full left-0 mt-2 w-[260px] max-h-[45vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
                     style={{
                         borderColor: 'var(--border)',
                     }}

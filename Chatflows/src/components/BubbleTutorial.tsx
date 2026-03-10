@@ -66,6 +66,7 @@ export default function BubbleTutorial() {
   const [isVisible, setIsVisible] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [isReady, setIsReady] = useState(false);
   
   const router = useRouter();
   const pathname = usePathname();
@@ -94,14 +95,17 @@ export default function BubbleTutorial() {
         } else {
             setTargetRect(null);
         }
+        setIsReady(true);
     };
     
-    updateRect();
+    // Slight delay on mount to ensure DOM layout is painted before checking offsets
+    const initialTimer = setTimeout(updateRect, 100);
     const interval = setInterval(updateRect, 300);
     window.addEventListener('resize', updateRect);
     window.addEventListener('scroll', updateRect, true);
 
     return () => {
+        clearTimeout(initialTimer);
         clearInterval(interval);
         window.removeEventListener('resize', updateRect);
         window.removeEventListener('scroll', updateRect, true);
@@ -138,7 +142,7 @@ export default function BubbleTutorial() {
     }
   };
 
-  if (!isVisible || pathname === '/') return null;
+  if (!isVisible || pathname === '/' || !isReady) return null;
 
   const step = steps[currentStep];
 
@@ -146,14 +150,23 @@ export default function BubbleTutorial() {
   let bubbleStyle: React.CSSProperties = {
       position: 'fixed',
       zIndex: 100,
+      opacity: isReady ? 1 : 0,
+      transition: isReady ? 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
   };
   
-  if (step.placement === 'center' || !targetRect) {
+  if (!isReady) {
+       // Prevents rendering bounce
+       bubbleStyle.top = '50%';
+       bubbleStyle.left = '50%';
+       bubbleStyle.transform = 'translate(-50%, -50%)';
+  } else if (step.placement === 'center' || !targetRect) {
       bubbleStyle = {
           ...bubbleStyle,
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
+          opacity: isReady ? 1 : 0, // Wait until coordinates are parsed to reveal
+          transition: isReady ? 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
       };
   } else if (step.placement === 'bottom-left') {
       bubbleStyle = {

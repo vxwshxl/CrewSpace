@@ -19,6 +19,7 @@ import {
 } from '@xyflow/react';
 import { Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 
 import StartNode from './nodes/StartNode';
@@ -26,6 +27,7 @@ import AgentNode from './nodes/AgentNode';
 import ConditionNode from './nodes/ConditionNode';
 import StickyNode from './nodes/StickyNode';
 import NodePanel from './NodePanel';
+import AIGeneratorInline from './AIGeneratorInline';
 import { useStore } from '@xyflow/react';
 
 function ZoomIndicator() {
@@ -58,6 +60,7 @@ interface AgentCanvasProps {
     onDragOver: (event: React.DragEvent) => void;
     onDragStart: (event: React.DragEvent, nodeType: string, label: string, icon: string) => void;
     setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+    onAIGenerate?: (nodes: Node[], edges: Edge[]) => void;
 }
 
 export default function AgentCanvas({
@@ -73,6 +76,7 @@ export default function AgentCanvas({
     onDragOver,
     onDragStart,
     setEdges,
+    onAIGenerate,
 }: AgentCanvasProps) {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -145,7 +149,8 @@ export default function AgentCanvas({
                     size={1.5}
                     color="oklch(0.5 0 0 / 25%)"
                 />
-                <Panel position="top-left" className="!mt-4 !ml-4 !z-50">
+                <Panel position="top-left" className="!mt-4 !ml-4 !z-50 flex flex-col gap-2">
+                    {onAIGenerate && <AIGeneratorInline onGenerate={onAIGenerate} />}
                     <NodePanel onDragStart={onDragStart} />
                 </Panel>
                 <Panel position="bottom-right" className="!mb-[7.5rem] !mr-4 !z-50 flex items-center gap-2">
