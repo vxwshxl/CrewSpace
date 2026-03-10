@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Workflow, Key, BookOpen } from 'lucide-react';
 
 interface SidebarProps {
@@ -11,12 +12,12 @@ interface SidebarProps {
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     return (
         <div className="w-64 h-full border-r bg-black/40 border-[var(--border)] flex flex-col">
-            <div className="h-14 flex items-center px-4 border-b border-[var(--border)] gap-2">
+            <Link href="/" className="h-14 flex items-center px-4 border-b border-[var(--border)] gap-2 hover:bg-white/5 transition-colors cursor-pointer">
                 <div className="w-6 h-6 rounded bg-black flex items-center justify-center">
                     <img src="/logoCS.png" alt="Logo" className="w-full h-full rounded" />
                 </div>
                 <span className="font-semibold text-white tracking-wide text-sm">CrewSpace</span>
-            </div>
+            </Link>
 
             <nav className="flex-1 py-4 px-2 space-y-1">
                 <button

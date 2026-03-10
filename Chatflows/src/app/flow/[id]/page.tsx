@@ -34,6 +34,7 @@ function DashboardContent() {
   const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
   const [selectedNodeType, setSelectedNodeType] = useState<string>('agent');
   const [showConfig, setShowConfig] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
 
@@ -203,6 +204,13 @@ function DashboardContent() {
     []
   );
 
+  const handleAIGenerate = useCallback((newNodes: Node[], newEdges: Edge[]) => {
+      setNodes((nds) => [...nds, ...newNodes]);
+      setEdges((eds) => [...eds, ...newEdges]);
+      setToastMessage('Workflow is done and we can start using in the extension.');
+      setTimeout(() => setToastMessage(null), 5000);
+  }, [setNodes, setEdges]);
+
   const [isMobile, setIsMobile] = useState(false);
 
   React.useEffect(() => {
@@ -254,6 +262,7 @@ function DashboardContent() {
           onDragOver={onDragOver}
           onDragStart={onDragStart}
           setEdges={setEdges}
+          onAIGenerate={handleAIGenerate}
         />
 
         {/* Right panel - Config or Chat */}
@@ -271,25 +280,38 @@ function DashboardContent() {
 
         {/* Chat window logic removed since extension manages interaction */}
       </div>
+
+      {toastMessage && (
+        <div className="absolute top-16 right-5 z-[60] bg-green-500/20 border border-green-500/50 backdrop-blur-md text-white px-4 py-3 rounded-lg shadow-xl animate-fade-in-up flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span className="text-sm font-medium">{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
 
+import AnimatedLoader from '@/components/AnimatedLoader';
+
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
-  React.useEffect(() => setMounted(true), []);
+  const [showLoader, setShowLoader] = useState(true);
 
-  if (!mounted) {
-    return (
-      <div className="flex items-center justify-center w-screen h-screen bg-black">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  React.useEffect(() => {
+    setMounted(true);
+    const timer = setTimeout(() => setShowLoader(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <ReactFlowProvider>
-      <DashboardContent />
-    </ReactFlowProvider>
+    <>
+      {(!mounted || showLoader) && <AnimatedLoader type="flow" />}
+      
+      {mounted && (
+        <ReactFlowProvider>
+          <DashboardContent />
+        </ReactFlowProvider>
+      )}
+    </>
   );
 }

@@ -17,7 +17,7 @@ export default function TutorialsList() {
 
             {/* Quick Start Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all group">
+                <div className="bg-card border border-border p-6 hover:border-primary/50 transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <PlayCircle className="w-6 h-6 text-primary" />
                     </div>
@@ -26,7 +26,7 @@ export default function TutorialsList() {
                         Learn the core concepts of CrewSpace and how autonomous agents work together to solve complex tasks.
                     </p>
                 </div>
-                <div className="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all group">
+                <div className="bg-card border border-border p-6 hover:border-primary/50 transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Workflow className="w-6 h-6 text-blue-500" />
                     </div>
@@ -35,7 +35,7 @@ export default function TutorialsList() {
                         Step-by-step guide to creating your very first multi-agent chatflow from scrap to deployment.
                     </p>
                 </div>
-                <div className="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all group">
+                <div className="bg-card border border-border p-6 hover:border-primary/50 transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <ExternalLink className="w-6 h-6 text-green-500" />
                     </div>
@@ -53,7 +53,7 @@ export default function TutorialsList() {
                 <div className="space-y-6">
                     {/* The Dashboard */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted rounded-xl border border-border overflow-hidden relative flex items-center justify-center">
+                        <div className="md:w-1/3 aspect-video bg-muted border border-border overflow-hidden relative flex items-center justify-center">
                              <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
                              <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">The Dashboard</span>
                         </div>
@@ -64,14 +64,14 @@ export default function TutorialsList() {
                             <ul className="space-y-3 text-muted-foreground list-disc pl-5">
                                 <li><strong>Chatflows:</strong> This is where your projects live. You can rename, delete, or quickly jump back into editing them.</li>
                                 <li><strong>API Keys:</strong> Securely manage your Gemini, Groq, or Sarvam keys. These are stored locally in your browser for privacy.</li>
-                                <li><strong>Global Styles:</strong> Your platform aesthetics are persistent. Customizing once reflects everywhere.</li>
+                                {/* <li><strong>Global Styles:</strong> Your platform aesthetics are persistent. Customizing once reflects everywhere.</li> */}
                             </ul>
                         </div>
                     </div>
 
                     {/* The Canvas */}
                     <div className="flex flex-col md:flex-row-reverse gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted rounded-xl border border-border overflow-hidden relative flex items-center justify-center">
+                        <div className="md:w-1/3 aspect-video bg-muted border border-border overflow-hidden relative flex items-center justify-center">
                              <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
                              <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">The Canvas</span>
                         </div>
@@ -89,7 +89,7 @@ export default function TutorialsList() {
 
                     {/* Integration */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted rounded-xl border border-border overflow-hidden relative flex items-center justify-center">
+                        <div className="md:w-1/3 aspect-video bg-muted border border-border overflow-hidden relative flex items-center justify-center">
                              <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
                              <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">Integration</span>
                         </div>

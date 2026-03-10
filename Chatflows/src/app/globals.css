@@ -231,7 +231,6 @@
 
 /* ===== Custom animations ===== */
 @keyframes pulse-glow {
-
   0%,
   100% {
     box-shadow: 0 0 8px var(--primary);
@@ -268,18 +267,38 @@
   }
 }
 
+@keyframes loader-line {
+  0% {
+    left: -33%;
+    width: 33%;
+  }
+  50% {
+    left: 100%;
+    width: 33%;
+  }
+  100% {
+    left: -33%;
+    width: 33%;
+  }
+}
+
+.animate-loader-line {
+  animation: loader-line 1.5s ease-in-out infinite;
+}
+
 .animate-shimmer {
-  background: linear-gradient(90deg,
-      transparent 25%,
-      oklch(1 0 0 / 5%) 50%,
-      transparent 75%);
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    oklch(1 0 0 / 5%) 50%,
+    transparent 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
 /* Node pulse status indicator */
 @keyframes status-pulse {
-
   0%,
   100% {
     opacity: 1;
