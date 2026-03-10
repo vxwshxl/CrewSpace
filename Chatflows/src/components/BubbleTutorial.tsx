@@ -75,7 +75,7 @@ export default function BubbleTutorial() {
   const [lastPath, setLastPath] = useState(pathname);
 
   useEffect(() => {
-    if (lastPath === '/' && pathname.includes('/flow/') && currentStep === 1) {
+    if (lastPath === '/dashboard' && pathname.includes('/flow/') && currentStep === 1) {
         setCurrentStep(2); // Auto advance to Step 2
     }
     setLastPath(pathname);
@@ -119,7 +119,7 @@ export default function BubbleTutorial() {
   };
 
   const handleNext = () => {
-    if (currentStep === 1 && pathname === '/') {
+    if (currentStep === 1 && pathname === '/dashboard') {
        const tutorialFlowId = `flow-tutorial-${Date.now()}`;
        addChatflow({
            id: tutorialFlowId,
@@ -138,7 +138,7 @@ export default function BubbleTutorial() {
     }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || pathname === '/') return null;
 
   const step = steps[currentStep];
 
