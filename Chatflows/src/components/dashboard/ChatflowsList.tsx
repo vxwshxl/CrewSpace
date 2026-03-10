@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useStore } from '@/lib/store';
-import { Workflow, Plus, Trash2, Pencil, Download, X, ExternalLink, Chrome, FolderDown, Puzzle, CheckCircle2 } from 'lucide-react';
+import { Workflow, Plus, Trash2, Pencil, Download, X, Chrome, FolderDown, Puzzle, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -19,11 +19,11 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-border">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
-                            <Puzzle className="w-5 h-5 text-white" />
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                            <Puzzle className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-white">Download CrewAgent Extension</h2>
+                            <h2 className="text-lg font-bold text-white">Download CrewAgent</h2>
                             <p className="text-xs text-muted-foreground">Chrome Browser Extension</p>
                         </div>
                     </div>
@@ -39,18 +39,17 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                 <div className="p-5 space-y-5">
                     {/* Download Button */}
                     <a
-                        href="https://github.com/vxwshxl/CrewSpace/tree/main/CrewAgent"
+                        href="https://download-directory.github.io/?url=https://github.com/vxwshxl/CrewSpace/tree/main/CrewAgent"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
+                        className="flex items-center justify-center gap-3 w-full bg-primary text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all hover:bg-primary/90 active:scale-[0.98]"
                     >
-                        <FolderDown className="w-5 h-5" />
-                        Download CrewAgent from GitHub
-                        <ExternalLink className="w-4 h-4 opacity-70" />
+                        <Download className="w-5 h-5" />
+                        Download CrewAgent.zip
                     </a>
 
                     <p className="text-xs text-muted-foreground text-center">
-                        Download or clone the <code className="bg-white/10 px-1.5 py-0.5 rounded text-emerald-400">CrewAgent</code> folder from the repository
+                        Downloads the <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80">CrewAgent</code> extension folder as a ZIP file
                     </p>
 
                     {/* Divider */}
@@ -66,10 +65,10 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                             {
                                 step: 1,
                                 icon: <FolderDown className="w-4 h-4" />,
-                                title: 'Download the folder',
+                                title: 'Download & Extract',
                                 desc: (
                                     <>
-                                        Go to the GitHub link above, click <strong className="text-white">Code → Download ZIP</strong>, or clone the repo and locate the <code className="bg-white/10 px-1.5 py-0.5 rounded text-emerald-400 text-xs">CrewAgent</code> folder.
+                                        Click the download button above to get the ZIP file. <strong className="text-white">Extract/unzip</strong> it to a folder on your computer.
                                     </>
                                 ),
                             },
@@ -80,7 +79,7 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                                 desc: (
                                     <>
                                         Navigate to{' '}
-                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-emerald-400 text-xs">chrome://extensions</code>{' '}
+                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80 text-xs">chrome://extensions</code>{' '}
                                         in your browser and enable <strong className="text-white">Developer mode</strong> (toggle in the top-right).
                                     </>
                                 ),
@@ -91,7 +90,7 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                                 title: 'Load the extension',
                                 desc: (
                                     <>
-                                        Click <strong className="text-white">Load unpacked</strong> and select the <code className="bg-white/10 px-1.5 py-0.5 rounded text-emerald-400 text-xs">CrewAgent</code> folder you downloaded.
+                                        Click <strong className="text-white">Load unpacked</strong> and select the extracted <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80 text-xs">CrewAgent</code> folder.
                                     </>
                                 ),
                             },
@@ -107,12 +106,12 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                             },
                         ].map((item) => (
                             <div key={item.step} className="flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm font-bold">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/[0.08] text-white flex items-center justify-center text-sm font-bold">
                                     {item.step}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
-                                        <span className="text-emerald-400">{item.icon}</span>
+                                        <span className="text-muted-foreground">{item.icon}</span>
                                         <h4 className="text-sm font-semibold text-white">{item.title}</h4>
                                     </div>
                                     <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -122,9 +121,9 @@ function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () 
                     </div>
 
                     {/* Footer note */}
-                    <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
-                        <p className="text-xs text-emerald-300/80 leading-relaxed">
-                            <strong>💡 Tip:</strong> Make sure your CrewSpace dashboard is running (locally or deployed) so the extension can connect to your configured chatflows and API keys.
+                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            <strong className="text-white">💡 Tip:</strong> Make sure your CrewSpace dashboard is running (locally or deployed) so the extension can connect to your configured chatflows and API keys.
                         </p>
                     </div>
                 </div>
@@ -158,7 +157,7 @@ export default function ChatflowsList() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setShowExtensionModal(true)}
-                        className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
+                        className="flex items-center gap-2 border border-border bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
                     >
                         <Download className="w-4 h-4" /> Download Extension
                     </button>
