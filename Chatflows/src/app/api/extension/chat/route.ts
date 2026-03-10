@@ -43,35 +43,71 @@ Respond in valid JSON only:`;
 function getChatflowConfig(chatflowId: string) {
     try {
         const dataPath = path.join(process.cwd(), '.crewspace-data.json');
-        if (!fs.existsSync(dataPath)) return null;
+        if (fs.existsSync(dataPath)) {
+            const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+            const chatflow = data.chatflows?.find((f: any) => f.id === chatflowId);
+            if (chatflow) {
+                const agentNode = chatflow.nodes?.find((n: any) => n.type === 'agent');
+                const agentConfig = agentNode?.data?.agentConfig;
 
-        const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-        const chatflow = data.chatflows?.find((f: any) => f.id === chatflowId);
-        if (!chatflow) return null;
+                if (agentConfig) {
+                    let provider = 'gemini';
+                    if (agentConfig.model?.includes('gpt') || agentConfig.model?.includes('o1')) provider = 'openai';
+                    if (agentConfig.model?.includes('claude')) provider = 'anthropic';
+                    if (agentConfig.model?.includes('sarvam')) provider = 'sarvam';
+                    if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
 
-        const agentNode = chatflow.nodes?.find((n: any) => n.type === 'agent');
-        const agentConfig = agentNode?.data?.agentConfig;
+                    const apiKeyObj = data.apiKeys?.find((k: any) => k.provider === provider);
+                    const finalApiKey = apiKeyObj?.key || getEnvApiKey(provider);
 
-        if (!agentConfig) return null;
-
-        let provider = 'gemini';
-        if (agentConfig.model?.includes('gpt') || agentConfig.model?.includes('o1')) provider = 'openai';
-        if (agentConfig.model?.includes('claude')) provider = 'anthropic';
-        if (agentConfig.model?.includes('sarvam')) provider = 'sarvam';
-        if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
-
-        const apiKeyObj = data.apiKeys?.find((k: any) => k.provider === provider);
-
-        return {
-            model: agentConfig.model || 'gemini-flash-latest',
-            provider,
-            apiKey: apiKeyObj?.key,
-            role: agentConfig.role || 'General Assistant',
-            personality: agentConfig.personality || ''
-        };
+                    return {
+                        model: agentConfig.model || 'gemini-flash-latest',
+                        provider,
+                        apiKey: finalApiKey,
+                        role: agentConfig.role || 'General Assistant',
+                        personality: agentConfig.personality || '',
+                        prompt: agentConfig.prompt || '',
+                    };
+                }
+            }
+        }
     } catch {
-        return null;
+        // File not available (e.g. Vercel deployment) — fall through to env var fallback
     }
+
+    // Fallback: use environment variables (for deployed/serverless environments)
+    const fallbackApiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || '';
+    let fallbackProvider = 'gemini';
+    let fallbackModel = 'gemini-flash-latest';
+
+    if (!process.env.GEMINI_API_KEY && process.env.OPENAI_API_KEY) {
+        fallbackProvider = 'openai';
+        fallbackModel = 'gpt-4o-mini';
+    } else if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY && process.env.GROQ_API_KEY) {
+        fallbackProvider = 'groq';
+        fallbackModel = 'llama-3.3-70b-versatile';
+    }
+
+    if (!fallbackApiKey) return null;
+
+    return {
+        model: fallbackModel,
+        provider: fallbackProvider,
+        apiKey: fallbackApiKey,
+        role: 'General Assistant',
+        personality: 'Helpful and adaptable'
+    };
+}
+
+function getEnvApiKey(provider: string): string {
+    const envMap: Record<string, string> = {
+        gemini: process.env.GEMINI_API_KEY || '',
+        openai: process.env.OPENAI_API_KEY || '',
+        anthropic: process.env.ANTHROPIC_API_KEY || '',
+        groq: process.env.GROQ_API_KEY || '',
+        sarvam: process.env.SARVAM_API_KEY || '',
+    };
+    return envMap[provider] || '';
 }
 
 // Gemini Chat helper
@@ -401,7 +437,10 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const systemContext = `Role: ${config.role}\nPersonality: ${config.personality}`;
+        let systemContext = `Role: ${config.role}\nPersonality: ${config.personality}`;
+        if (config.prompt) {
+            systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
+        }
 
         let result;
         if (config.provider === 'sarvam') {

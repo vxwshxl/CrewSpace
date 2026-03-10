@@ -15,7 +15,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 <div className="w-6 h-6 rounded bg-black flex items-center justify-center">
                     <img src="/logoCS.png" alt="Logo" className="w-full h-full rounded" />
                 </div>
-                <span className="font-semibold text-white tracking-wide">CrewSpaceAI</span>
+                <span className="font-semibold text-white tracking-wide">CrewSpace</span>
             </div>
 
             <nav className="flex-1 py-4 px-2 space-y-1">

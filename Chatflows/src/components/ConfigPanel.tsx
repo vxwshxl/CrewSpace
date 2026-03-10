@@ -167,8 +167,8 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                 <Label className="text-sm font-medium text-white">System Prompt / Instructions</Label>
                 <Textarea
                     placeholder="Enter instructions..."
-                    value={agent.inputMessage}
-                    onChange={(e) => handleInputChange(e.target.value)}
+                    value={agent.prompt || ''}
+                    onChange={(e) => handlePromptChange(e.target.value)}
                     className="min-h-[120px] bg-card border-border text-xs resize-y"
                 />
             </div>
@@ -211,7 +211,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                     </TooltipProvider>
                 </Label>
                 <div className="relative">
-                    <Textarea 
+                    <Textarea
                         placeholder="Describe your condition in simple words..."
                         value={agent.prompt || ''}
                         onChange={(e) => handlePromptChange(e.target.value)}
@@ -223,9 +223,9 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             }
                         }}
                     />
-                    <Button 
-                        size="icon" 
-                        variant="ghost" 
+                    <Button
+                        size="icon"
+                        variant="ghost"
                         onClick={() => simulateGenerateCode('condition')}
                         disabled={isGenerating || !agent.prompt}
                         className="absolute right-1 bottom-1 h-6 w-6 text-primary hover:text-primary hover:bg-primary/20"
@@ -273,7 +273,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                     </TooltipProvider>
                 </Label>
                 <div className="relative">
-                    <Textarea 
+                    <Textarea
                         placeholder="Describe your function in simple words..."
                         value={agent.prompt || ''}
                         onChange={(e) => handlePromptChange(e.target.value)}
@@ -285,9 +285,9 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             }
                         }}
                     />
-                    <Button 
-                        size="icon" 
-                        variant="ghost" 
+                    <Button
+                        size="icon"
+                        variant="ghost"
                         onClick={() => simulateGenerateCode('function')}
                         disabled={isGenerating || !agent.prompt}
                         className="absolute right-1 bottom-1 h-6 w-6 text-primary hover:text-primary hover:bg-primary/20"

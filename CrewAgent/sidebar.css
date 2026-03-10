@@ -48,7 +48,9 @@ body {
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .header-left {
@@ -73,13 +75,40 @@ body {
 
 .header-actions {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.chatflow-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+select.action-btn {
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px 24px 6px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .action-btn {
-  background: transparent;
-  border: none;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
   color: var(--text-muted);
   cursor: pointer;
   padding: 6px;
@@ -88,21 +117,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-}
-
-.action-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-}
-
-select.action-btn {
-  appearance: none;
-  -webkit-appearance: none;
-  font-size: 13px;
-  outline: none;
-  padding: 4px 24px 4px 12px;
-  font-family: var(--font-family);
-  border: 1px solid transparent;
+  flex-shrink: 0;
 }
 
 select.action-btn:focus,
@@ -528,8 +543,29 @@ textarea::placeholder {
 
 .footer-meta {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 12px;
+  padding: 0 4px;
+}
+
+.footer-action-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.footer-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border-color: var(--border);
 }
 
 .badge {
@@ -544,6 +580,12 @@ textarea::placeholder {
   border: 1px solid var(--border);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.env-badge {
+  color: var(--accent) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 /* Error message styling */
@@ -663,9 +705,25 @@ textarea::placeholder {
 /* Tabs */
 .tabs-nav {
   display: flex;
-  background: var(--surface);
+  align-items: center;
+  background: var(--bg-color);
   border-bottom: 1px solid var(--border);
-  padding: 0 16px;
+  padding: 0 8px;
+}
+
+.translate-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.translate-wrapper select.action-btn {
+  font-size: 11px;
+  height: 28px;
+  padding: 0 20px 0 10px;
+  min-width: 100px;
+  background-color: var(--panel-bg);
+  border-radius: 14px;
 }
 
 .tab-btn {
