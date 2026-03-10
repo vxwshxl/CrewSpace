@@ -546,6 +546,12 @@ textarea::placeholder {
   text-transform: uppercase;
 }
 
+.env-badge {
+  color: var(--accent) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
 /* Error message styling */
 .error-msg {
   color: #ef4444;

@@ -20,13 +20,6 @@ export async function GET() {
         console.error(e);
     }
 
-    // Fallback: return a default agent when no chatflows file exists (e.g. Vercel deployment)
-    const hasApiKey = !!(process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY);
-    if (hasApiKey) {
-        return NextResponse.json({
-            models: [{ id: 'default-agent', name: 'CrewSpace Agent' }]
-        });
-    }
-
+    // Fallback: return empty when no chatflows file exists
     return NextResponse.json({ models: [] });
 }

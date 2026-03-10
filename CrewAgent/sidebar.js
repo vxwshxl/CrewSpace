@@ -13,51 +13,111 @@ let BACKEND_URL = 'https://crewspace-ai.vercel.app/api/extension';
 
 async function fetchModels() {
     try {
-        const res = await fetch(`${BACKEND_URL}/models`);
-        const data = await res.json();
         const select = document.getElementById('model-select');
-        if (select && data.models) {
+        const currentSelection = select?.value;
+
+        // Auto-detect environment based on current tab URL
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.url?.includes('localhost:3000')) {
+            BACKEND_URL = 'http://localhost:3000/api/extension';
+        } else {
+            BACKEND_URL = 'https://crewspace-ai.vercel.app/api/extension';
+        }
+
+        // 1. Get models from Server
+        let serverModels = [];
+        try {
+            const res = await fetch(`${BACKEND_URL}/models`);
+            const data = await res.json();
+            serverModels = data.models || [];
+        } catch (e) { /* silent */ }
+
+        // 2. Get models from Local Sync
+        let syncedModels = [];
+        try {
+            const result = await chrome.storage.local.get(['synced_models']);
+            syncedModels = result.synced_models || [];
+        } catch (e) { /* silent */ }
+
+        // 3. Merge models
+        const modelMap = new Map();
+        [...serverModels, ...syncedModels].forEach(m => {
+            // FILTER: Never show the 'default-agent' fallback
+            if (m.id && m.name && m.id !== 'default-agent') {
+                modelMap.set(m.id, m);
+            }
+        });
+
+        const allModels = Array.from(modelMap.values());
+
+        if (select) {
             select.innerHTML = '<option value="">Select Chatflow...</option>';
-            data.models.forEach(model => {
-                const opt = document.createElement('option');
-                opt.value = model.id;
-                opt.textContent = model.name;
-                select.appendChild(opt);
-            });
+            if (allModels.length > 0) {
+                allModels.forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model.id;
+                    opt.textContent = model.name;
+                    select.appendChild(opt);
+                });
+
+                // Auto-select logic
+                if (currentSelection && allModels.some(m => m.id === currentSelection)) {
+                    select.value = currentSelection;
+                } else {
+                    select.value = allModels[0].id;
+                }
+            }
         }
     } catch (e) {
-        console.warn("Failed to fetch models from backend", e);
-        const select = document.getElementById('model-select');
-        if (select) {
-            select.innerHTML = '<option value="">Server offline</option>';
+        console.error("fetchModels overall failure", e);
+    }
+}
+
+async function syncWithDashboard(isAuto = false) {
+    const syncBtn = document.getElementById('sync-btn');
+    if (syncBtn && !isAuto) syncBtn.style.opacity = '0.5';
+
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) return;
+
+        // Script to run in the dashboard tab
+        const results = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+                try {
+                    const storeData = localStorage.getItem('crewspace-storage-v2');
+                    if (!storeData) return null;
+                    const parsed = JSON.parse(storeData);
+                    return parsed.state?.chatflows?.map(f => ({ id: f.id, name: f.name })) || [];
+                } catch (e) { return null; }
+            }
+        });
+
+        let chatflows = results?.[0]?.result;
+        if (chatflows && chatflows.length > 0) {
+            // Filter again just in case
+            chatflows = chatflows.filter(f => f.id !== 'default-agent');
+            await chrome.storage.local.set({ synced_models: chatflows });
+            await fetchModels();
         }
+    } catch (e) {
+        if (!isAuto) console.error("Sync failed", e);
+    } finally {
+        if (syncBtn && !isAuto) syncBtn.style.opacity = '1';
     }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const envSelect = document.getElementById('env-select');
+    const syncBtn = document.getElementById('sync-btn');
 
-    // Load saved backend URL from storage (if user configured a custom one)
-    try {
-        chrome.storage?.sync?.get?.(['backendUrl'], (result) => {
-            if (result?.backendUrl) {
-                BACKEND_URL = result.backendUrl;
-                if (envSelect) envSelect.value = BACKEND_URL;
-            }
-            fetchModels();
-        });
-    } catch (e) {
-        fetchModels();
-    }
+    await fetchModels();
 
-    if (envSelect) {
-        envSelect.addEventListener('change', (e) => {
-            BACKEND_URL = e.target.value;
-            try {
-                chrome.storage?.sync?.set?.({ backendUrl: BACKEND_URL });
-            } catch (e) { /* ignore */ }
-            fetchModels();
-        });
+    // Auto-sync silently if we happen to be on the dashboard
+    syncWithDashboard(true);
+
+    if (syncBtn) {
+        syncBtn.addEventListener('click', () => syncWithDashboard(false));
     }
 });
 
