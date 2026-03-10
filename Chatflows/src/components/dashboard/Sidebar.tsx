@@ -21,7 +21,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <nav className="flex-1 py-4 px-2 space-y-1">
                 <button
                     onClick={() => onTabChange('chatflows')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'chatflows'
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm transition-colors ${activeTab === 'chatflows'
                         ? 'bg-[var(--primary)]/90 text-[var(--primary-foreground)]'
                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                         }`}
@@ -32,7 +32,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
                 <button
                     onClick={() => onTabChange('apikeys')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'apikeys'
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm transition-colors ${activeTab === 'apikeys'
                         ? 'bg-[var(--primary)]/90 text-[var(--primary-foreground)]'
                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                         }`}
