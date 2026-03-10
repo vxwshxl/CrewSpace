@@ -97,8 +97,8 @@
 }
 
 @media (max-width: 1000px) {
-  .landing-page h1 {
-    font-size: 12vw;
+  .landing-page h1.animated-text {
+    font-size: 10vw;
     text-align: center;
   }
 
@@ -157,7 +157,24 @@
 .nav-right {
   display: flex;
   align-items: center;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
   gap: 2rem;
+}
+
+.mobile-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: rgba(227, 227, 219, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(227, 227, 219, 0.2);
+  color: #e3e3db;
 }
 
 .signup {
@@ -201,8 +218,11 @@
   .navbar {
     padding: 1rem;
   }
-  .nav-right {
-    gap: 1rem;
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-nav {
+    display: flex;
   }
   .btn-primary {
     padding: 0.5rem 1rem;

@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Info, MonitorSmartphone } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -351,23 +352,29 @@ export default function Home() {
           <span className="brand-name font-bold">CrewSpace</span>
         </div>
         <div className="nav-right">
-          <div className="signup" onClick={goToDashboard}>
-            <svg
-              className="account-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span>Sign up</span>
+          <div className="desktop-nav">
+            <div className="signup" onClick={goToDashboard}>
+              <svg
+                className="account-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Sign up</span>
+            </div>
+            <button className="btn-primary" onClick={goToDashboard}>Get Started</button>
           </div>
-          <button className="btn-primary" onClick={goToDashboard}>Get Started</button>
+          <div className="mobile-nav">
+            <MonitorSmartphone />
+            <Info />
+          </div>
         </div>
       </header>
 
