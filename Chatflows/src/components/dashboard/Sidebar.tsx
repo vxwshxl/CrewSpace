@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Share2, Store, Key } from 'lucide-react';
+import { Workflow, Store, Key } from 'lucide-react';
 
 interface SidebarProps {
     activeTab: 'chatflows' | 'apikeys';
@@ -26,7 +26,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                         }`}
                 >
-                    <Share2 className="w-4 h-4" />
+                    <Workflow className="w-4 h-4" />
                     Chatflows
                 </button>
 
