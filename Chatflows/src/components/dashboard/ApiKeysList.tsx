@@ -28,7 +28,7 @@ export default function ApiKeysList() {
 
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
+        <div className="p-8 max-w-6xl mx-auto">
 
             {/* API Keys section */}
             <div className="flex justify-between items-center mb-6 border-b border-border pb-4">

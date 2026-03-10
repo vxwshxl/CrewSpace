@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import ChatflowsList from '@/components/dashboard/ChatflowsList';
 import ApiKeysList from '@/components/dashboard/ApiKeysList';
-import { Workflow, Key } from 'lucide-react';
+import { Workflow, Key, BookOpen } from 'lucide-react';
+import TutorialsList from '@/components/dashboard/TutorialsList';
 
 export default function DashboardPage() {
-    const [activeTab, setActiveTab] = useState<'chatflows' | 'apikeys'>('chatflows');
+    const [activeTab, setActiveTab] = useState<'chatflows' | 'apikeys' | 'tutorials'>('chatflows');
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -43,8 +44,10 @@ export default function DashboardPage() {
                     <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                         {activeTab === 'chatflows' ? (
                             <><Workflow className="w-4 h-4" /> Chatflows</>
-                        ) : (
+                        ) : activeTab === 'apikeys' ? (
                             <><Key className="w-4 h-4" /> API Keys</>
+                        ) : (
+                            <><BookOpen className="w-4 h-4" /> Tutorials</>
                         )}
                     </h2>
                 </header>
@@ -52,6 +55,7 @@ export default function DashboardPage() {
                 <div className="min-h-[calc(100vh-3.5rem)]">
                     {activeTab === 'chatflows' && <ChatflowsList />}
                     {activeTab === 'apikeys' && <ApiKeysList />}
+                    {activeTab === 'tutorials' && <TutorialsList />}
                 </div>
             </main>
         </div>
