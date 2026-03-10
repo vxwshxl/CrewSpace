@@ -78,7 +78,7 @@ export const useStore = create<AppState>()(
             })),
         }),
         {
-            name: 'crewspace-storage',
+            name: 'crewspace-storage-v2',
             version: 1,
         }
     )

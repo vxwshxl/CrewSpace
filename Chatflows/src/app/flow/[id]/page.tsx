@@ -30,6 +30,7 @@ function DashboardContent() {
   const [nodePanelOpen, setNodePanelOpen] = useState(true);
   const [chatPanelOpen, setChatPanelOpen] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
+  const [selectedNodeType, setSelectedNodeType] = useState<string>('agent');
   const [showConfig, setShowConfig] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -53,8 +54,11 @@ function DashboardContent() {
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       const nodeData = node.data as Record<string, unknown>;
+      if (node.type === 'sticky' || nodeData.originalType === 'sticky') return;
+      
       if (nodeData.agentConfig) {
         setSelectedAgent(nodeData.agentConfig as AgentConfig);
+        setSelectedNodeType((nodeData.originalType as string) || 'agent');
         setShowConfig(true);
         setChatPanelOpen(false);
       }
@@ -103,9 +107,10 @@ function DashboardContent() {
   );
 
   const onDragStart = useCallback(
-    (event: React.DragEvent, nodeType: string, label: string) => {
+    (event: React.DragEvent, nodeType: string, label: string, icon: string) => {
       event.dataTransfer.setData('application/reactflow-type', nodeType);
       event.dataTransfer.setData('application/reactflow-label', label);
+      event.dataTransfer.setData('application/reactflow-icon', icon || 'bot');
       event.dataTransfer.effectAllowed = 'move';
     },
     []
@@ -119,10 +124,11 @@ function DashboardContent() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      const type = event.dataTransfer.getData('application/reactflow-type');
+      const originalType = event.dataTransfer.getData('application/reactflow-type');
       const label = event.dataTransfer.getData('application/reactflow-label');
+      const icon = event.dataTransfer.getData('application/reactflow-icon');
 
-      if (!type) return;
+      if (!originalType) return;
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       if (!reactFlowBounds) return;
@@ -133,16 +139,27 @@ function DashboardContent() {
       };
 
       const newId = `node-${Date.now()}`;
-      const isCondition = type === 'condition';
+      
+      // Map originalType to internal ReactFlow nodeTypes
+      // AgentCanvas supports: start, agent, condition, sticky
+      let nodeType = 'agent';
+      if (['start', 'sticky', 'condition'].includes(originalType)) {
+        nodeType = originalType;
+      }
+
+      const isCondition = nodeType === 'condition';
       const nodeModelMap: Record<string, { model: string; icon: string }> = {
         agent: { model: 'gemini-flash-latest', icon: 'gemini' },
         condition: { model: 'gemini-flash-latest', icon: 'gemini' },
+        http: { model: 'GET', icon: 'globe' },
+        flow: { model: 'flow-1', icon: 'workflow' },
+        start: { model: 'Manual', icon: 'play' },
       };
-      const modelInfo = nodeModelMap[type] || nodeModelMap.agent;
+      const modelInfo = nodeModelMap[originalType] || nodeModelMap.agent;
 
       const newAgent: AgentConfig = {
         id: newId,
-        name: label || (isCondition ? 'New Condition' : 'New Agent'),
+        name: label || (isCondition ? 'New Condition' : 'New Node'),
         role: 'General Assistant',
         personality: 'Helpful and adaptable',
         model: modelInfo.model,
@@ -158,11 +175,13 @@ function DashboardContent() {
 
       const newNode: Node = {
         id: newId,
-        type: isCondition ? 'condition' : 'agent',
+        type: nodeType,
         position,
         data: {
           label: newAgent.name,
-          nodeType: isCondition ? 'condition' : 'agent',
+          nodeType: nodeType,
+          originalType: originalType,
+          icon: icon,
           status: 'idle',
           agentConfig: newAgent,
         },
@@ -191,13 +210,6 @@ function DashboardContent() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar - Add Nodes */}
-        <NodePanel
-          isOpen={nodePanelOpen}
-          onClose={() => setNodePanelOpen(false)}
-          onDragStart={onDragStart}
-        />
-
         {/* Center canvas */}
         <AgentCanvas
           nodes={nodes}
@@ -209,15 +221,15 @@ function DashboardContent() {
           onPaneClick={onPaneClick}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onDragStart={onDragStart}
           setEdges={setEdges}
-          onToggleNodePanel={() => setNodePanelOpen(!nodePanelOpen)}
-          nodePanelOpen={nodePanelOpen}
         />
 
         {/* Right panel - Config or Chat */}
         {showConfig && selectedAgent && (
           <ConfigPanel
             agent={selectedAgent}
+            nodeType={selectedNodeType}
             onUpdate={handleAgentUpdate}
             onClose={() => {
               setShowConfig(false);

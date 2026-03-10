@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
-import { GitBranch, Sparkles, Copy, Trash2, Info } from 'lucide-react';
+import { GitBranch, GitMerge, Sparkles, Copy, Trash2, Info } from 'lucide-react';
 
 const modelIcons: Record<string, { icon: React.ReactNode; color: string }> = {
     openai: {
@@ -75,6 +75,14 @@ function ConditionNode(props: NodeProps) {
     const iconKey = agentConfig?.modelIcon || 'openai';
     const modelInfo = modelIcons[iconKey] || modelIcons.openai;
 
+    const nodeIcon = (nodeData.icon as string) || 'git-branch';
+    const renderIcon = () => {
+        if (nodeIcon === 'git-merge') {
+            return <GitMerge className="w-5 h-5 text-white" />;
+        }
+        return <GitBranch className="w-5 h-5 text-white" />;
+    };
+
     return (
         <div className="group relative">
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
@@ -116,7 +124,7 @@ function ConditionNode(props: NodeProps) {
                         className="w-9 h-9 rounded-lg flex items-center justify-center"
                         style={{ background: 'var(--chart-4)' }}
                     >
-                        <GitBranch className="w-5 h-5 text-white" />
+                        {renderIcon()}
                     </div>
                     <span className="text-foreground font-bold text-sm">{name}</span>
                 </div>

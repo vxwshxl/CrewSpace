@@ -20,6 +20,7 @@ export interface AgentConfig {
     knowledgeSources: string[];
     inputMessage: string;
     responseFormat: string;
+    prompt?: string;
 }
 
 export interface ActivityEntry {
