@@ -705,9 +705,25 @@ textarea::placeholder {
 /* Tabs */
 .tabs-nav {
   display: flex;
-  background: var(--surface);
+  align-items: center;
+  background: var(--bg-color);
   border-bottom: 1px solid var(--border);
-  padding: 0 16px;
+  padding: 0 8px;
+}
+
+.translate-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.translate-wrapper select.action-btn {
+  font-size: 11px;
+  height: 28px;
+  padding: 0 20px 0 10px;
+  min-width: 100px;
+  background-color: var(--panel-bg);
+  border-radius: 14px;
 }
 
 .tab-btn {

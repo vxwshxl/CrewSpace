@@ -58,13 +58,15 @@ function getChatflowConfig(chatflowId: string) {
                     if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
 
                     const apiKeyObj = data.apiKeys?.find((k: any) => k.provider === provider);
+                    const finalApiKey = apiKeyObj?.key || getEnvApiKey(provider);
 
                     return {
                         model: agentConfig.model || 'gemini-flash-latest',
                         provider,
-                        apiKey: apiKeyObj?.key || getEnvApiKey(provider),
+                        apiKey: finalApiKey,
                         role: agentConfig.role || 'General Assistant',
-                        personality: agentConfig.personality || ''
+                        personality: agentConfig.personality || '',
+                        prompt: agentConfig.prompt || '',
                     };
                 }
             }
@@ -435,7 +437,10 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const systemContext = `Role: ${config.role}\nPersonality: ${config.personality}`;
+        let systemContext = `Role: ${config.role}\nPersonality: ${config.personality}`;
+        if (config.prompt) {
+            systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
+        }
 
         let result;
         if (config.provider === 'sarvam') {
