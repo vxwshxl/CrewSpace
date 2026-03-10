@@ -8,16 +8,16 @@ const speechLang = document.getElementById('speech-lang');
 const equalizer = document.getElementById('mic-equalizer');
 const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 
-// Replace this with your actual local backend URL during testing
-const BACKEND_URL = 'http://localhost:3000/api/extension';
+// Default backend URL — change this to your deployed URL
+let BACKEND_URL = 'https://crewspace-ai.vercel.app/api/extension';
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function fetchModels() {
     try {
         const res = await fetch(`${BACKEND_URL}/models`);
         const data = await res.json();
         const select = document.getElementById('model-select');
         if (select && data.models) {
-            select.innerHTML = '';
+            select.innerHTML = '<option value="">Select Chatflow...</option>';
             data.models.forEach(model => {
                 const opt = document.createElement('option');
                 opt.value = model.id;
@@ -27,6 +27,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {
         console.warn("Failed to fetch models from backend", e);
+        const select = document.getElementById('model-select');
+        if (select) {
+            select.innerHTML = '<option value="">Server offline</option>';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const envSelect = document.getElementById('env-select');
+
+    // Load saved backend URL from storage (if user configured a custom one)
+    try {
+        chrome.storage?.sync?.get?.(['backendUrl'], (result) => {
+            if (result?.backendUrl) {
+                BACKEND_URL = result.backendUrl;
+                if (envSelect) envSelect.value = BACKEND_URL;
+            }
+            fetchModels();
+        });
+    } catch (e) {
+        fetchModels();
+    }
+
+    if (envSelect) {
+        envSelect.addEventListener('change', (e) => {
+            BACKEND_URL = e.target.value;
+            try {
+                chrome.storage?.sync?.set?.({ backendUrl: BACKEND_URL });
+            } catch (e) { /* ignore */ }
+            fetchModels();
+        });
     }
 });
 
@@ -992,7 +1023,7 @@ tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabPanes.forEach(p => p.classList.remove('active'));
-        
+
         btn.classList.add('active');
         const targetId = btn.getAttribute('data-target');
         document.getElementById(targetId).classList.add('active');
@@ -1008,7 +1039,7 @@ function addActivityLog(type, content) {
 
     const item = document.createElement('div');
     item.className = `activity-item type-${type}`;
-    
+
     const header = document.createElement('div');
     header.className = `activity-header type-${type}`;
     header.textContent = `${type.toUpperCase()} • ${new Date().toLocaleTimeString()}`;
@@ -1019,7 +1050,7 @@ function addActivityLog(type, content) {
 
     item.appendChild(header);
     item.appendChild(body);
-    
+
     container.insertBefore(item, container.firstChild);
 }
 
@@ -1031,7 +1062,7 @@ function addMemoryLog(content) {
 
     const item = document.createElement('div');
     item.className = 'memory-item';
-    
+
     const body = document.createElement('div');
     body.className = 'memory-body';
     body.textContent = content;
@@ -1042,7 +1073,7 @@ function addMemoryLog(content) {
 
 // Intercept existing message handling to add logs
 const originalAppendMessage = appendMessage;
-appendMessage = function(role, content) {
+appendMessage = function (role, content) {
     originalAppendMessage(role, content);
     if (role === 'assistant') {
         addActivityLog('action', 'Agent responded to user');
