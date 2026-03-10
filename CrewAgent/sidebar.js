@@ -1083,7 +1083,6 @@ tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabPanes.forEach(p => p.classList.remove('active'));
-
         btn.classList.add('active');
         const targetId = btn.getAttribute('data-target');
         document.getElementById(targetId).classList.add('active');
@@ -1099,7 +1098,6 @@ function addActivityLog(type, content) {
 
     const item = document.createElement('div');
     item.className = `activity-item type-${type}`;
-
     const header = document.createElement('div');
     header.className = `activity-header type-${type}`;
     header.textContent = `${type.toUpperCase()} • ${new Date().toLocaleTimeString()}`;
@@ -1110,7 +1108,6 @@ function addActivityLog(type, content) {
 
     item.appendChild(header);
     item.appendChild(body);
-
     container.insertBefore(item, container.firstChild);
 }
 
@@ -1122,7 +1119,6 @@ function addMemoryLog(content) {
 
     const item = document.createElement('div');
     item.className = 'memory-item';
-
     const body = document.createElement('div');
     body.className = 'memory-body';
     body.textContent = content;

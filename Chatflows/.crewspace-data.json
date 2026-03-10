@@ -1,0 +1,21 @@
+{
+  "chatflows": [
+    {
+      "id": "flow-1773149586334",
+      "name": "New Chatflow",
+      "nodes": [],
+      "edges": [],
+      "createdAt": 1773149586336,
+      "updatedAt": 1773149646800
+    }
+  ],
+  "apiKeys": [
+    {
+      "provider": "gemini",
+      "name": "google-gemini-flash",
+      "key": "AIzaSyBmzHJrtBYpM5CITlptJtWpWy3O8saVQGw",
+      "id": "4a7c172f-adac-4ad9-b4b7-ce5d227cc16d",
+      "createdAt": 1773119096224
+    }
+  ]
+}

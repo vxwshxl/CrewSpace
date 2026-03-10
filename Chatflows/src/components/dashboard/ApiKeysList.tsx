@@ -37,21 +37,21 @@ export default function ApiKeysList() {
                 </h1>
                 <button
                     onClick={() => setIsAdding(!isAdding)}
-                    className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                    className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
                 >
                     <Plus className="w-4 h-4" /> Add Key
                 </button>
             </div>
 
             {isAdding && (
-                <form onSubmit={handleAdd} className="bg-card border border-border rounded-xl p-6 mb-8 flex flex-col gap-4">
+                <form onSubmit={handleAdd} className="bg-card border border-border rounded-none p-6 mb-8 flex flex-col gap-4">
                     <h3 className="text-lg font-medium text-white mb-2">Add New API Key</h3>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm text-muted-foreground">Provider</label>
                             <select
-                                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                                className="w-full bg-background border border-border rounded-none px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 value={newProvider}
                                 onChange={(e) => setNewProvider(e.target.value)}
                             >
@@ -66,7 +66,7 @@ export default function ApiKeysList() {
                                 required
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
-                                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
+                                className="w-full bg-background border border-border rounded-none px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
                                 placeholder="My Production Key"
                             />
                         </div>
@@ -79,23 +79,23 @@ export default function ApiKeysList() {
                             type="password"
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
-                            className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
+                            className="w-full bg-background border border-border rounded-none px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
                             placeholder="sk-..."
                         />
                     </div>
 
                     <div className="flex justify-end gap-2 mt-2">
-                        <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent transition-colors">
+                        <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2 rounded-full text-sm text-muted-foreground hover:bg-accent transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                        <button type="submit" className="px-4 py-2 rounded-full text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                             Save Key
                         </button>
                     </div>
                 </form>
             )}
 
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="bg-card border border-border rounded-none overflow-hidden">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-muted text-muted-foreground border-b border-border">
                         <tr>
@@ -126,7 +126,7 @@ export default function ApiKeysList() {
                                     <td className="px-6 py-4 text-right">
                                         <button
                                             onClick={() => deleteApiKey(k.id)}
-                                            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>

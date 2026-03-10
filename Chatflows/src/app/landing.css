@@ -52,6 +52,35 @@
   flex-direction: column;
   gap: 2rem;
   will-change: transform, opacity;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.mobile-extension-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #bbf754;
+  color: #141414;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 1rem auto 0;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.mobile-extension-btn:hover {
+  transform: scale(1.05);
+}
+
+.mobile-extension-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .animated-icons {
@@ -97,8 +126,8 @@
 }
 
 @media (max-width: 1000px) {
-  .landing-page h1 {
-    font-size: 12vw;
+  .landing-page h1.animated-text {
+    font-size: 10vw;
     text-align: center;
   }
 
@@ -107,14 +136,46 @@
   }
 
   .hero-header {
-    top: 45%;
+    top: 35%;
     width: 100%;
+    gap: 0.5rem;
+  }
+
+  .hero-header h1 {
+    font-size: 14vw;
   }
 
   .placeholder-icon {
     margin-top: -4px;
     width: 30px;
     height: 30px;
+  }
+
+  .placeholder-icon:nth-of-type(5) {
+    display: none;
+  }
+
+  .animated-icons {
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 0 5%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    bottom: 2%;
+    justify-items: center;
+  }
+
+  .animated-icon {
+    width: 44vw;
+    height: 44vw;
+    max-width: 250px;
+    max-height: 250px;
+  }
+
+  .animated-icon.icon-5 {
+    display: none;
   }
 }
 
@@ -157,7 +218,24 @@
 .nav-right {
   display: flex;
   align-items: center;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
   gap: 2rem;
+}
+
+.mobile-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: rgba(227, 227, 219, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(227, 227, 219, 0.2);
+  color: #e3e3db;
 }
 
 .signup {
@@ -201,8 +279,11 @@
   .navbar {
     padding: 1rem;
   }
-  .nav-right {
-    gap: 1rem;
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-nav {
+    display: flex;
   }
   .btn-primary {
     padding: 0.5rem 1rem;

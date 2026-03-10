@@ -6,136 +6,11 @@ import { Workflow, Plus, Trash2, Pencil, Download, X, Chrome, FolderDown, Puzzle
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-function DownloadExtensionModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-    if (!open) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-
-            {/* Modal */}
-            <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-border">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                            <Puzzle className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-white">Download CrewAgent</h2>
-                            <p className="text-xs text-muted-foreground">Chrome Browser Extension</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-
-                {/* Content */}
-                <div className="p-5 space-y-5">
-                    {/* Download Button */}
-                    <a
-                        href="https://download-directory.github.io/?url=https://github.com/vxwshxl/CrewSpace/tree/main/CrewAgent"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-3 w-full bg-primary text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all hover:bg-primary/90 active:scale-[0.98]"
-                    >
-                        <Download className="w-5 h-5" />
-                        Download CrewAgent.zip
-                    </a>
-
-                    <p className="text-xs text-muted-foreground text-center">
-                        Downloads the <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80">CrewAgent</code> extension folder as a ZIP file
-                    </p>
-
-                    {/* Divider */}
-                    <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Installation Steps</span>
-                        <div className="flex-1 h-px bg-border" />
-                    </div>
-
-                    {/* Steps */}
-                    <div className="space-y-3">
-                        {[
-                            {
-                                step: 1,
-                                icon: <FolderDown className="w-4 h-4" />,
-                                title: 'Download & Extract',
-                                desc: (
-                                    <>
-                                        Click the download button above to get the ZIP file. <strong className="text-white">Extract/unzip</strong> it to a folder on your computer.
-                                    </>
-                                ),
-                            },
-                            {
-                                step: 2,
-                                icon: <Chrome className="w-4 h-4" />,
-                                title: 'Open Chrome Extensions',
-                                desc: (
-                                    <>
-                                        Navigate to{' '}
-                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80 text-xs">chrome://extensions</code>{' '}
-                                        in your browser and enable <strong className="text-white">Developer mode</strong> (toggle in the top-right).
-                                    </>
-                                ),
-                            },
-                            {
-                                step: 3,
-                                icon: <Puzzle className="w-4 h-4" />,
-                                title: 'Load the extension',
-                                desc: (
-                                    <>
-                                        Click <strong className="text-white">Load unpacked</strong> and select the extracted <code className="bg-white/10 px-1.5 py-0.5 rounded text-white/80 text-xs">CrewAgent</code> folder.
-                                    </>
-                                ),
-                            },
-                            {
-                                step: 4,
-                                icon: <CheckCircle2 className="w-4 h-4" />,
-                                title: 'Pin & Use',
-                                desc: (
-                                    <>
-                                        Pin the CrewAgent extension from the puzzle icon in Chrome&apos;s toolbar. Click it on any page to open the sidebar and start using your agents!
-                                    </>
-                                ),
-                            },
-                        ].map((item) => (
-                            <div key={item.step} className="flex gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/[0.08] text-white flex items-center justify-center text-sm font-bold">
-                                    {item.step}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        <span className="text-muted-foreground">{item.icon}</span>
-                                        <h4 className="text-sm font-semibold text-white">{item.title}</h4>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Footer note */}
-                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            <strong className="text-white">💡 Tip:</strong> Make sure your CrewSpace dashboard is running (locally or deployed) so the extension can connect to your configured chatflows and API keys.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+import DownloadExtensionBtn from '@/components/DownloadExtensionBtn';
 
 export default function ChatflowsList() {
     const { chatflows, deleteChatflow, addChatflow, updateChatflow } = useStore();
     const router = useRouter();
-    const [showExtensionModal, setShowExtensionModal] = React.useState(false);
 
     const handleCreateNew = () => {
         const id = `flow-${Date.now()}`;
@@ -155,16 +30,11 @@ export default function ChatflowsList() {
                     <Workflow className="w-6 h-6" /> Chatflows
                 </h1>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setShowExtensionModal(true)}
-                        className="flex items-center gap-2 border border-border bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
-                    >
-                        <Download className="w-4 h-4" /> Download Extension
-                    </button>
+                    <DownloadExtensionBtn />
                     <button
                         id="tutorial-create-new-btn"
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-bold hover:bg-primary/90 transition-colors"
                     >
                         <Plus className="w-4 h-4" /> Add New
                     </button>
@@ -172,7 +42,7 @@ export default function ChatflowsList() {
             </div>
 
             {chatflows.length === 0 ? (
-                <div className="border border-dashed border-border rounded-xl p-12 text-center">
+                <div className="border border-dashed border-border rounded-none p-12 text-center">
                     <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4">
                         <Workflow className="w-6 h-6" />
                     </div>
@@ -183,7 +53,7 @@ export default function ChatflowsList() {
                     <button
                         id="tutorial-create-new-btn-empty"
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors mx-auto"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-bold hover:bg-primary/90 transition-colors mx-auto"
                     >
                         <Plus className="w-4 h-4" /> Create Chatflow
                     </button>
@@ -200,11 +70,6 @@ export default function ChatflowsList() {
                     ))}
                 </div>
             )}
-
-            <DownloadExtensionModal
-                open={showExtensionModal}
-                onClose={() => setShowExtensionModal(false)}
-            />
         </div>
     );
 }
@@ -225,7 +90,7 @@ function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: 
     return (
         <div className="group relative">
             <Link href={`/flow/${flow.id}`}>
-                <div className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
+                <div className="bg-card border border-border rounded-none p-5 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
                     <div className="flex-1">
                         {isEditing ? (
                             <input
@@ -264,7 +129,7 @@ function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: 
                         e.stopPropagation();
                         setIsEditing(true);
                     }}
-                    className="p-1.5 text-muted-foreground hover:text-primary bg-card/80 backdrop-blur rounded-lg"
+                    className="p-1.5 text-muted-foreground hover:text-primary bg-card/80 backdrop-blur rounded-full"
                     title="Rename"
                 >
                     <Pencil className="w-4 h-4" />
@@ -275,7 +140,7 @@ function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: 
                         e.stopPropagation();
                         onDelete(flow.id);
                     }}
-                    className="p-1.5 text-muted-foreground hover:text-destructive bg-card/80 backdrop-blur rounded-lg"
+                    className="p-1.5 text-muted-foreground hover:text-destructive bg-card/80 backdrop-blur rounded-full"
                     title="Delete"
                 >
                     <Trash2 className="w-4 h-4" />
