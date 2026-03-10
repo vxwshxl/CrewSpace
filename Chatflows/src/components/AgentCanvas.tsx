@@ -133,12 +133,11 @@ export default function AgentCanvas({
                         height: 15,
                     },
                 }}
-                fitView
-                fitViewOptions={{ padding: 0.3 }}
                 className="bg-transparent"
                 proOptions={{ hideAttribution: true }}
                 minZoom={0.3}
-                maxZoom={2}
+                maxZoom={1.5}
+                defaultViewport={{ x: 0, y: 0, zoom: 1 }}
             >
                 <Background
                     variant={BackgroundVariant.Dots}

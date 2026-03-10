@@ -7,6 +7,7 @@ import {
   useNodesState,
   useEdgesState,
   ReactFlowProvider,
+  useReactFlow,
 } from '@xyflow/react';
 
 import HeaderBar from '@/components/HeaderBar';
@@ -22,6 +23,7 @@ function DashboardContent() {
   const params = useParams();
   const id = params.id as string;
   const store = useStore();
+  const { screenToFlowPosition } = useReactFlow();
 
   const currentFlow = store.chatflows.find((f) => f.id === id);
 
@@ -133,10 +135,14 @@ function DashboardContent() {
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       if (!reactFlowBounds) return;
 
-      const position = {
-        x: event.clientX - reactFlowBounds.left - 100,
-        y: event.clientY - reactFlowBounds.top - 40,
-      };
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      // Offset by half of typical node size to center on cursor
+      position.x -= 100;
+      position.y -= 40;
 
       const newId = `node-${Date.now()}`;
       

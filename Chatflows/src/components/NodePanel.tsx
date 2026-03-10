@@ -22,15 +22,8 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export default function NodePanel({ onDragStart }: NodePanelProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const [search, setSearch] = useState('');
-    const [expandedCategories, setExpandedCategories] = useState<string[]>(['Agent Flows']);
-
-    const toggleCategory = (name: string) => {
-        setExpandedCategories((prev) =>
-            prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
-        );
-    };
 
     const filteredCategories = nodeCategories.map((cat) => ({
         ...cat,
@@ -94,21 +87,14 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                     <div className="flex-1 overflow-y-auto custom-scrollbar px-1 pb-2">
                         {filteredCategories.map((category) => (
                             <div key={category.name} className="mb-1">
-                                <button
-                                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold hover:bg-white/5 rounded transition-colors"
+                                <div
+                                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold"
                                     style={{ color: 'var(--muted-foreground)' }}
-                                    onClick={() => toggleCategory(category.name)}
                                 >
                                     <span>{category.name}</span>
-                                    {expandedCategories.includes(category.name) ? (
-                                        <ChevronUp className="w-3.5 h-3.5" />
-                                    ) : (
-                                        <ChevronDown className="w-3.5 h-3.5" />
-                                    )}
-                                </button>
+                                </div>
 
-                                {expandedCategories.includes(category.name) && (
-                                    <div className="space-y-0.5 pb-2">
+                                <div className="space-y-0.5 pb-2">
                                         {category.items.map((item) => (
                                             <div
                                                 key={item.id}
@@ -149,7 +135,6 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                             </div>
                                         ))}
                                     </div>
-                                )}
                             </div>
                         ))}
                     </div>
