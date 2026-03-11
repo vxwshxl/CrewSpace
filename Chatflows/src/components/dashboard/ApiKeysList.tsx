@@ -60,13 +60,13 @@ export default function ApiKeysList() {
                     <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
                         <Key className="w-8 h-8 text-primary" /> API Keys
                     </h1>
-                    <p className="text-muted-foreground mt-1">Configure access keys for different AI model providers used in agents.</p>
+                    <p className="text-muted-foreground mt-1 text-sm">Configure access keys for different AI model providers used in agents.</p>
                 </div>
                 
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap"
+                        className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" /> Add Key
                     </button>

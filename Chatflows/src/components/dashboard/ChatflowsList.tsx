@@ -195,7 +195,7 @@ function ChatflowCard({ flow, onDelete, onUpdate, onPublish }: {
     return (
         <div className="group relative">
             <Link href={`/flow/${flow.id}`} className="block h-full">
-                <div className="bg-[#161b22] border border-white/5 rounded-xl p-6 hover:border-white/20 transition-all duration-200 shadow-sm hover:shadow-lg h-full flex flex-col cursor-pointer">
+                <div className="border border-white/5 rounded-xl p-6 hover:border-white/20 transition-all duration-200 shadow-sm hover:shadow-lg h-full flex flex-col cursor-pointer">
                     <div className="flex-1">
                         {isEditing ? (
                             <input

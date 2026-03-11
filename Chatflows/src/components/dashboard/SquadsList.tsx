@@ -74,7 +74,7 @@ export default function SquadsList() {
                         <Users className="w-8 h-8 text-primary" />
                         Collaborative Squads
                     </h1>
-                    <p className="text-muted-foreground mt-1">Manage groups of Captains to build workflows simultaneously.</p>
+                    <p className="text-muted-foreground mt-1 text-sm">Manage groups of Captains to build workflows simultaneously.</p>
                 </div>
                 
                 <div className="flex items-center gap-3 w-full md:w-auto overflow-hidden">
@@ -87,12 +87,11 @@ export default function SquadsList() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
-                            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-primary text-white transition-shadow"
+                            className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
                         />
                     </div>
-                    <button className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">
+                    <button className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm whitespace-nowrap">
                         <Plus className="w-4 h-4" />
-
                         Create Squad
                     </button>
                 </div>

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, CheckCircle2, Package, Globe, Plus } from 'lucide-react';
+import gsap from 'gsap';
 import { WORKFLOWS, CATEGORIES, Workflow } from '@/lib/marketplaceData';
 import MarketplaceCard from './marketplace/MarketplaceCard';
 import MarketplaceDetail from './marketplace/MarketplaceDetail';
@@ -26,6 +27,25 @@ export default function MarketplaceList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('trending');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isSearchFocused || searchQuery) {
+      gsap.to(searchContainerRef.current, {
+        width: 240,
+        duration: 0.4,
+        ease: 'power3.out'
+      });
+    } else {
+      gsap.to(searchContainerRef.current, {
+        width: 200,
+        duration: 0.4,
+        ease: 'power3.out'
+      });
+    }
+  }, [isSearchFocused, searchQuery]);
+
   const [allWorkflows, setAllWorkflows] = useState<Workflow[]>(WORKFLOWS);
   
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
@@ -172,7 +192,7 @@ export default function MarketplaceList() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0b0f14] text-white">
+    <div className="flex flex-col h-full text-white">
       {/* Success Toast - Minimalist */}
       {successToast && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-100 bg-emerald-500 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3 font-semibold text-sm animate-in slide-in-from-top-5 duration-300">
@@ -182,46 +202,48 @@ export default function MarketplaceList() {
       )}
 
       {/* Header */}
-      <div className="px-8 pt-10 pb-6 shrink-0 border-b border-white/5 bg-white/2">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="p-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 text-white mb-1">
-              <Package className="w-6 h-6 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight">Marketplace</h1>
-            </div>
-            <p className="text-zinc-500 text-sm font-medium">
+            <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Package className="w-8 h-8 text-primary" />
+              Marketplace
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Discover and share workflows created by the community.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-hidden">
             <Button 
                 onClick={() => setShowSelector(true)}
-                variant="default"
-                className="hidden md:flex items-center gap-2 h-10 px-6 text-xs font-bold font-mono group"
+                className="hidden md:flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm rounded-full py-2.5 px-4 text-sm font-semibold group"
             >
-                <Globe className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
+                <Globe className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                 Publish Your Flow
             </Button>
             
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <Input 
-                placeholder="Search community..." 
-                className="pl-9 h-10 w-full md:w-56 bg-black/40 border-white/10 focus:border-blue-500/50 rounded-lg text-sm transition-all shadow-inner"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+            <div ref={searchContainerRef} className="relative flex-none" style={{ width: 200 }}>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                  type="text"
+                  placeholder="Search community..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
               />
             </div>
             
             <Select value={sortBy} onValueChange={(val) => val && setSortBy(val)}>
-              <SelectTrigger className="h-10 w-32 bg-black/40 border-white/10 rounded-lg text-zinc-400 text-xs font-bold">
+              <SelectTrigger className="px-4 py-2.5 h-auto w-32 bg-muted/50 border-border rounded-full text-white text-sm font-semibold hover:bg-muted/70 transition-colors shadow-sm outline-none">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-white/10 text-zinc-300">
-                <SelectItem value="trending">Trending</SelectItem>
-                <SelectItem value="most-installed">Installs</SelectItem>
-                <SelectItem value="new">Newest</SelectItem>
+              <SelectContent className="bg-[#1c2128] border-border text-zinc-300 rounded-xl shadow-xl">
+                <SelectItem value="trending" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Trending</SelectItem>
+                <SelectItem value="most-installed" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Most Installed</SelectItem>
+                <SelectItem value="new" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>
