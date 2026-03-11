@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { GitBranch, GitMerge, Sparkles, Copy, Trash2, Info } from 'lucide-react';
+import ConnectedHandle from './ConnectedHandle';
 
 const modelIcons: Record<string, { icon: React.ReactNode; color: string }> = {
     openai: {
@@ -60,8 +61,6 @@ function ConditionNode(props: NodeProps) {
 
     // Info handler logic just acts as click
     const handleInfo = (e: React.MouseEvent) => {
-        // Handled by the canvas onNodeClick but we can trigger a focus if needed
-        // For now, it will just select the node
     };
 
     const agentConfig = nodeData.agentConfig as {
@@ -86,31 +85,30 @@ function ConditionNode(props: NodeProps) {
     return (
         <div className="group relative">
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
-                <div className="flex gap-1 bg-card border border-border rounded-lg p-1 shadow-lg">
-                    <button onClick={handleDuplicate} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors rounded">
+                <div className="flex gap-1 bg-card border border-border p-1 shadow-lg">
+                    <button onClick={handleDuplicate} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors">
                         <Copy className="w-4 h-4" />
                     </button>
-                    <button onClick={handleDelete} className="p-1.5 hover:bg-destructive/20 text-destructive transition-colors rounded">
+                    <button onClick={handleDelete} className="p-1.5 hover:bg-destructive/20 text-destructive transition-colors">
                         <Trash2 className="w-4 h-4" />
                     </button>
-                    <button onClick={handleInfo} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors rounded">
+                    <button onClick={handleInfo} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors">
                         <Info className="w-4 h-4" />
                     </button>
                 </div>
             </NodeToolbar>
 
-            <Handle
+            <ConnectedHandle
                 type="target"
                 position={Position.Left}
                 id="condition-in"
-                className="!bg-[var(--chart-4)] !border-[var(--chart-4)]"
+                nodeId={id}
+                fillColor="var(--chart-4)"
+                style={{ left: -14 }}
             />
 
             <div
-                className={`
-          relative rounded-xl border-2 px-5 py-4 min-w-[220px] transition-all duration-300
-          ${selected ? 'scale-105' : 'hover:scale-[1.02]'}
-        `}
+                className={`relative border-2 px-5 py-4 min-w-[220px] transition-all duration-300`}
                 style={{
                     background: 'oklch(0.16 0 0)',
                     borderColor: selected ? 'var(--chart-4)' : 'var(--border)',
@@ -121,7 +119,7 @@ function ConditionNode(props: NodeProps) {
             >
                 <div className="flex items-center gap-3 mb-3">
                     <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center"
+                        className="w-9 h-9 flex items-center justify-center font-bold"
                         style={{ background: 'var(--chart-4)' }}
                     >
                         {renderIcon()}
@@ -131,7 +129,7 @@ function ConditionNode(props: NodeProps) {
 
                 <div className="flex items-center gap-2">
                     <div
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium"
                         style={{
                             background: 'var(--card)',
                             color: modelInfo.color,
@@ -145,32 +143,12 @@ function ConditionNode(props: NodeProps) {
             </div>
 
             {/* Multiple output handles with port numbers */}
-            <Handle
-                type="source"
-                position={Position.Right}
-                id="condition-out-0"
-                style={{ top: '25%' }}
-                className="!bg-[var(--chart-4)] !border-[var(--chart-4)]"
-            />
-            <div className="absolute right-[-18px] text-[10px] font-mono" style={{ top: '22%', color: 'var(--muted-foreground)' }}>0</div>
-
-            <Handle
-                type="source"
-                position={Position.Right}
-                id="condition-out-1"
-                style={{ top: '50%' }}
-                className="!bg-[var(--chart-4)] !border-[var(--chart-4)]"
-            />
-            <div className="absolute right-[-18px] text-[10px] font-mono" style={{ top: '47%', color: 'var(--muted-foreground)' }}>1</div>
-
-            <Handle
-                type="source"
-                position={Position.Right}
-                id="condition-out-2"
-                style={{ top: '75%' }}
-                className="!bg-[var(--chart-4)] !border-[var(--chart-4)]"
-            />
-            <div className="absolute right-[-18px] text-[10px] font-mono" style={{ top: '72%', color: 'var(--muted-foreground)' }}>2</div>
+            <ConnectedHandle type="source" position={Position.Right} id="condition-out-0" nodeId={id} fillColor="var(--chart-4)" style={{ top: '25%', right: -14, left: 'auto' }} />
+            <div className="absolute right-[-22px] text-[10px] font-mono" style={{ top: '22%', color: 'var(--muted-foreground)' }}>0</div>
+            <ConnectedHandle type="source" position={Position.Right} id="condition-out-1" nodeId={id} fillColor="var(--chart-4)" style={{ top: '50%', right: -14, left: 'auto' }} />
+            <div className="absolute right-[-22px] text-[10px] font-mono" style={{ top: '47%', color: 'var(--muted-foreground)' }}>1</div>
+            <ConnectedHandle type="source" position={Position.Right} id="condition-out-2" nodeId={id} fillColor="var(--chart-4)" style={{ top: '75%', right: -14, left: 'auto' }} />
+            <div className="absolute right-[-22px] text-[10px] font-mono" style={{ top: '72%', color: 'var(--muted-foreground)' }}>2</div>
         </div>
     );
 }

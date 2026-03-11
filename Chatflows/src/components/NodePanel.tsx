@@ -51,7 +51,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                     setIsOpen(!isOpen);
                     setIsToolsOpen(false);
                 }}
-                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 style={{ color: 'var(--foreground)' }}
             >
                 Add Nodes
@@ -64,7 +64,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                     setIsToolsOpen(!isToolsOpen);
                     setIsOpen(false);
                 }}
-                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 style={{ color: 'var(--foreground)' }}
             >
                 Tools
@@ -73,7 +73,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
 
             {(isOpen || isToolsOpen) && (
                 <div
-                    className="absolute top-full left-0 mt-2 w-full max-h-[60vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
+                    className="absolute top-full left-0 mt-2 w-full max-h-[60vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl border overflow-hidden"
                     style={{
                         borderColor: 'var(--border)',
                     }}
@@ -89,7 +89,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                 placeholder="Search..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-8 h-8 text-xs border rounded-lg focus-visible:ring-1 focus-visible:ring-primary/50"
+                                className="pl-8 h-8 text-xs border rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none caret-primary"
                                 style={{
                                     background: 'var(--card)',
                                     borderColor: 'var(--border)',
@@ -124,12 +124,12 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                             <div
                                                 key={item.id}
                                                 id={`tutorial-node-${item.type}`}
-                                                className="flex items-center gap-3 px-3 py-2.5 mx-1 rounded-lg cursor-grab hover:bg-white/5 transition-all duration-200 active:scale-95 shadow-sm"
+                                                className="flex items-center gap-3 px-3 py-2.5 mx-1 cursor-grab hover:bg-white/5 transition-all duration-200 active:scale-95 shadow-sm"
                                                 draggable
                                                 onDragStart={(e) => onDragStart(e, item.type, item.name, item.icon)}
                                             >
                                                 <div
-                                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                                                     style={{
                                                         background:
                                                             item.type === 'tool'

@@ -63,7 +63,7 @@ export default function HeaderBar({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="w-7 h-7 rounded-full hover:bg-white/10"
+                        className="w-7 h-7 hover:bg-white/10"
                         style={{ color: 'var(--muted-foreground)' }}
                     >
                         <ChevronLeft className="w-4 h-4" />
@@ -71,7 +71,7 @@ export default function HeaderBar({
                 </Link>
 
                 <div className="flex items-center gap-2">
-                    <Image src="/logoCS.png" alt="CrewSpace Logo" width={24} height={24} className="rounded" />
+                    <Image src="/logoCS.png" alt="CrewSpace Logo" width={24} height={24} />
                     {isEditing ? (
                         <input
                             autoFocus
@@ -87,7 +87,7 @@ export default function HeaderBar({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="w-5 h-5 rounded hover:bg-white/10"
+                                className="w-5 h-5 hover:bg-white/10"
                                 style={{ color: 'var(--muted-foreground)' }}
                                 onClick={() => setIsEditing(true)}
                             >
@@ -103,13 +103,13 @@ export default function HeaderBar({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="w-8 h-8 rounded-full hover:bg-white/10 p-0 overflow-hidden"
+                    className="w-8 h-8 hover:bg-white/10 p-0 overflow-hidden"
                     title="Open CrewAgent"
                     onClick={() => {
                         window.postMessage({ type: 'TOGGLE_CREWAGENT' }, '*');
                     }}
                 >
-                    <Image src="/logoCS.png" alt="CrewAgent" width={22} height={22} className="rounded" />
+                    <Image src="/logoCS.png" alt="CrewAgent" width={22} height={22} />
                 </Button>
 
                 {/* Chat toggle buttons omitted */}

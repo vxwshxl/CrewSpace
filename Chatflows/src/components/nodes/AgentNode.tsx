@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Bot, Sparkles, CheckCircle2, Copy, Trash2, Info, GitMerge, Code, MessageCircle, Workflow, Globe } from 'lucide-react';
+import ConnectedHandle from './ConnectedHandle';
 
 const modelIcons: Record<string, { icon: React.ReactNode; color: string }> = {
     openai: {
@@ -129,7 +130,7 @@ function AgentNode(props: NodeProps) {
     return (
         <div className="group relative">
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
-                <div className="flex gap-1 bg-card border border-border rounded-lg p-1 shadow-lg">
+                <div className="flex gap-1 bg-card border border-border p-1 shadow-lg text-[10px]">
                     <button onClick={handleDuplicate} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors rounded">
                         <Copy className="w-4 h-4" />
                     </button>
@@ -142,17 +143,19 @@ function AgentNode(props: NodeProps) {
                 </div>
             </NodeToolbar>
 
-            <Handle
+            <ConnectedHandle
                 type="target"
                 position={Position.Left}
                 id="agent-in"
-                className={handleColorClass}
+                nodeId={id}
+                fillColor={outlineColor}
+                style={{ left: -14 }}
             />
 
             <div
                 className={`
-          relative rounded-xl border-2 px-5 py-4 min-w-[200px] transition-all duration-300
-          ${selected ? 'scale-105' : 'hover:scale-[1.02]'}
+          relative border-2 px-5 py-4 min-w-[200px] transition-all duration-300
+          
           ${isRunning ? 'status-running' : ''}
         `}
                 style={{
@@ -188,7 +191,7 @@ function AgentNode(props: NodeProps) {
                 {/* Robot icon + name */}
                 <div className="flex items-center gap-3 mb-3">
                     <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center"
+                        className="w-9 h-9 flex items-center justify-center"
                         style={{
                             background: outlineColor,
                         }}
@@ -202,13 +205,13 @@ function AgentNode(props: NodeProps) {
                 {tools.length > 0 && (
                     <div className="flex items-center gap-1.5 mt-2.5">
                         {tools.includes('web-search') && (
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
+                            <div className="w-6 h-6 flex items-center justify-center text-[10px] font-bold"
                                 style={{ background: 'var(--card)', color: 'var(--muted-foreground)' }}>
                                 G
                             </div>
                         )}
                         {tools.filter(t => t !== 'web-search').slice(0, 3).map((tool, i) => (
-                            <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center"
+                            <div key={i} className="w-6 h-6 flex items-center justify-center"
                                 style={{ background: 'var(--card)', color: 'var(--muted-foreground)' }}>
                                 <span className="text-[10px]">🔧</span>
                             </div>
@@ -217,54 +220,67 @@ function AgentNode(props: NodeProps) {
                 )}
             </div>
 
-            <Handle
+            <ConnectedHandle
                 type="source"
                 position={Position.Right}
                 id="agent-out-0"
-                style={{ top: '35%' }}
-                className={handleColorClass}
+                nodeId={id}
+                fillColor={outlineColor}
+                style={{ top: '35%', right: -14, left: 'auto' }}
             />
-            <Handle
+            <ConnectedHandle
                 type="source"
                 position={Position.Right}
                 id="agent-out-1"
-                style={{ top: '65%' }}
-                className={handleColorClass}
+                nodeId={id}
+                fillColor={outlineColor}
+                style={{ top: '65%', right: -14, left: 'auto' }}
             />
 
-            {/* Bottom handles for settings like Chat Model, Memory, Tool */}
             {originalType === 'agent' && (
-                <div className="absolute -bottom-[20px] left-0 right-0 flex justify-between px-4">
-                    <div className="flex flex-col items-center">
-                        <Handle
-                            type="source"
-                            position={Position.Bottom}
-                            id="agent-model"
-                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
-                        />
-                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Chat Model*</span>
+                <>
+                    {/* Model handle + label */}
+                    <ConnectedHandle
+                        type="target"
+                        position={Position.Bottom}
+                        id="agent-model"
+                        nodeId={id}
+                        fillColor="var(--chart-4)"
+                        style={{ left: '22%', borderRadius: 0 }}
+                    />
+                    <div className="absolute text-[9px] font-medium whitespace-nowrap"
+                        style={{ top: '100%', left: '22%', transform: 'translateX(-50%)', marginTop: '12px', color: 'var(--chart-4)' }}>
+                        Model
                     </div>
 
-                    <div className="flex flex-col items-center">
-                        <Handle
-                            type="source"
-                            position={Position.Bottom}
-                            id="agent-memory"
-                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
-                        />
-                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Memory</span>
+                    {/* Memory handle + label */}
+                    <ConnectedHandle
+                        type="target"
+                        position={Position.Bottom}
+                        id="agent-memory"
+                        nodeId={id}
+                        fillColor="var(--chart-2)"
+                        style={{ left: '50%', borderRadius: 0 }}
+                    />
+                    <div className="absolute text-[9px] font-medium whitespace-nowrap"
+                        style={{ top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: '12px', color: 'var(--chart-2)' }}>
+                        Memory
                     </div>
 
-                    <div className="flex flex-col items-center">
-                        <Handle
-                            type="source"
-                            position={Position.Bottom}
-                            id="agent-tools"
-                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
-                        />
-                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Tool</span>
+                    {/* Tool handle + label */}
+                    <ConnectedHandle
+                        type="target"
+                        position={Position.Bottom}
+                        id="agent-tools"
+                        nodeId={id}
+                        fillColor="rgba(59,130,246,1)"
+                        style={{ left: '78%', borderRadius: 0 }}
+                    />
+                    <div className="absolute text-[9px] font-medium whitespace-nowrap"
+                        style={{ top: '100%', left: '78%', transform: 'translateX(-50%)', marginTop: '12px', color: 'rgba(59,130,246,1)' }}>
+                        Tool
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Play, Copy, Trash2, Info } from 'lucide-react';
+import ConnectedHandle from './ConnectedHandle';
 
 function StartNode(props: NodeProps) {
     const { data, selected } = props;
@@ -44,7 +45,7 @@ function StartNode(props: NodeProps) {
     return (
         <div className="group relative">
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
-                <div className="flex gap-1 bg-card border border-border rounded-lg p-1 shadow-lg">
+                <div className="flex gap-1 bg-card border border-border rounded-full p-1 shadow-lg">
                     <button onClick={handleDuplicate} className="p-1.5 hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors rounded">
                         <Copy className="w-4 h-4" />
                     </button>
@@ -58,7 +59,7 @@ function StartNode(props: NodeProps) {
             </NodeToolbar>
 
             <div
-                className={`flex items-center gap-3 rounded-xl px-5 py-3 border-2 transition-all duration-300 ${selected ? 'scale-105' : 'hover:scale-[1.02]'}`}
+                className={`flex items-center gap-3 px-5 py-3 border-2 transition-all duration-300`}
                 style={{
                     background: 'oklch(0.16 0 0)',
                     borderColor: selected ? 'var(--chart-2)' : 'var(--border)',
@@ -66,7 +67,7 @@ function StartNode(props: NodeProps) {
                 }}
             >
                 <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    className="w-8 h-8 flex items-center justify-center"
                     style={{ background: 'var(--chart-2)' }}
                 >
                     <Play className="w-4 h-4 text-white fill-white" />
@@ -83,11 +84,13 @@ function StartNode(props: NodeProps) {
                 )}
             </div>
 
-            <Handle
+            <ConnectedHandle
                 type="source"
                 position={Position.Right}
                 id="start-out"
-                className="!bg-[var(--chart-2)] !border-[var(--chart-2)]"
+                nodeId={id}
+                fillColor="var(--chart-2)"
+                style={{ right: -14, left: 'auto' }}
             />
         </div>
     );

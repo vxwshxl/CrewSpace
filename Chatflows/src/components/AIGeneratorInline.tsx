@@ -190,7 +190,7 @@ export default function AIGeneratorInline({ onGenerate, onError }: AIGeneratorIn
     };
 
     return (
-        <div className="w-[280px] bg-card border border-border shadow-xl rounded-2xl overflow-hidden animate-fade-in-up flex flex-col">
+        <div className="w-[280px] bg-card border border-border shadow-xl animate-fade-in-up flex flex-col">
             {/* Header - visually separated */}
             <div className="px-4 py-3 flex items-center gap-2 bg-primary/10 border-b border-primary/20">
                 <Sparkles className="w-4 h-4 text-primary" />
@@ -205,7 +205,7 @@ export default function AIGeneratorInline({ onGenerate, onError }: AIGeneratorIn
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder={typewriterText || ' '}
                         rows={3}
-                        className="w-full p-3 pr-10 rounded-xl text-sm text-white resize-none focus:outline-none caret-primary placeholder:text-primary/60 transition-all"
+                        className="w-full p-3 pr-10 text-sm text-white resize-none focus:outline-none caret-primary placeholder:text-primary/60 transition-all"
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -216,7 +216,7 @@ export default function AIGeneratorInline({ onGenerate, onError }: AIGeneratorIn
                     <button
                         onClick={handleGenerate}
                         disabled={isGenerating || !prompt.trim()}
-                        className="absolute bottom-3 right-3 p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        className="absolute bottom-3 right-3 p-1.5 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                         {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                     </button>

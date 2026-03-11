@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Database, Copy, Trash2 } from 'lucide-react';
+import ConnectedHandle from './ConnectedHandle';
 
 function MemoryNode(props: NodeProps) {
     const { data, selected } = props;
@@ -53,17 +54,18 @@ function MemoryNode(props: NodeProps) {
                 </div>
             </NodeToolbar>
 
-            <Handle
-                type="target"
+            <ConnectedHandle
+                type="source"
                 position={Position.Top}
-                id="memory-in"
-                className="!bg-[#9CA3AF] !border-[#9CA3AF] w-3 h-3"
+                id="memory-out"
+                nodeId={id}
+                fillColor="var(--chart-2)"
+                style={{ top: -14 }}
             />
 
             <div
                 className={`
           relative rounded-full border-2 flex items-center justify-center w-16 h-16 transition-all duration-300 bg-card
-          ${selected ? 'scale-105' : 'hover:scale-[1.02]'}
         `}
                 style={{
                     borderColor: selected ? outlineColor : 'var(--border)',
@@ -75,11 +77,11 @@ function MemoryNode(props: NodeProps) {
                 <Database className="w-6 h-6 text-white" />
             </div>
 
-            <div className="absolute top-[72px] text-xs font-semibold text-card-foreground text-center w-40 -ml-12 truncate">
+            <div className="absolute top-[72px] left-1/2 -translate-x-1/2 text-xs font-semibold text-card-foreground text-center w-48 truncate">
                 {label}
             </div>
             
-            <div className="absolute top-[88px] text-[10px] text-muted-foreground text-center w-40 -ml-12 truncate">
+            <div className="absolute top-[88px] left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground text-center w-48 truncate">
                 {nodeData.description as string || "Stores in DB context"}
             </div>
         </div>

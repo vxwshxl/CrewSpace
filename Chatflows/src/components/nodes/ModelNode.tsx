@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, NodeToolbar, useReactFlow } from '@xyflow/react';
 import { Bot, Copy, Trash2, Info } from 'lucide-react';
+import ConnectedHandle from './ConnectedHandle';
 
 function ModelNode(props: NodeProps) {
     const { data, selected } = props;
@@ -53,17 +54,18 @@ function ModelNode(props: NodeProps) {
                 </div>
             </NodeToolbar>
 
-            <Handle
-                type="target"
+            <ConnectedHandle
+                type="source"
                 position={Position.Top}
-                id="model-in"
-                className="!bg-[#9CA3AF] !border-[#9CA3AF] w-3 h-3"
+                id="model-out"
+                nodeId={id}
+                fillColor="rgba(168,85,247,0.9)"
+                style={{ top: -14 }}
             />
 
             <div
                 className={`
           relative rounded-full border-2 flex items-center justify-center w-16 h-16 transition-all duration-300 bg-card
-          ${selected ? 'scale-105' : 'hover:scale-[1.02]'}
         `}
                 style={{
                     borderColor: selected ? outlineColor : 'var(--border)',
@@ -75,11 +77,11 @@ function ModelNode(props: NodeProps) {
                 <Bot className="w-6 h-6 text-white" />
             </div>
 
-            <div className="absolute top-[72px] text-xs font-semibold text-card-foreground text-center w-36 -ml-10 truncate">
+            <div className="absolute top-[72px] left-1/2 -translate-x-1/2 text-xs font-semibold text-card-foreground text-center w-48 truncate">
                 {label}
             </div>
             
-            <div className="absolute top-[88px] text-[10px] text-muted-foreground text-center w-36 -ml-10 truncate">
+            <div className="absolute top-[88px] left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground text-center w-48 truncate">
                 {nodeData.description as string || "gemini-flash-latest"}
             </div>
         </div>

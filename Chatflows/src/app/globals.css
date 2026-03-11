@@ -178,16 +178,12 @@
 .react-flow__handle {
   width: 10px !important;
   height: 10px !important;
-  border-radius: 50% !important;
-  background: var(--background) !important;
-  border: 2px solid var(--primary) !important;
-  transition: all 0.2s ease;
+  /* Removed border-radius for sharp handles */
+  transition: background 0.25s ease, box-shadow 0.2s ease;
 }
 
 .react-flow__handle:hover {
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  transform: scale(1.3);
+  box-shadow: 0 0 4px 1px white;
 }
 
 .react-flow__minimap {

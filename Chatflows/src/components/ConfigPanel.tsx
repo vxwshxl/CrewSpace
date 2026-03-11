@@ -170,7 +170,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">Chat Model <span className="text-red-400">*</span></Label>
                 <Select value={agent.model} onValueChange={handleModelChange}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Select a model..." />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -183,7 +183,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                 <Label className="text-sm font-medium text-white pb-2 block border-b border-border">Messages</Label>
                 <div className="space-y-4 pt-2">
                     {agent.messages?.map((msg, i) => (
-                        <div key={i} className="flex flex-col gap-2 p-3 bg-white/5 border border-border rounded-lg relative">
+                        <div key={i} className="flex flex-col gap-2 p-3 bg-white/5 border border-border relative">
                              <Button 
                                 variant="ghost" 
                                 size="icon" 
@@ -216,7 +216,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             </div>
                         </div>
                     ))}
-                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={addMessageItem}>
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 h-8" onClick={addMessageItem}>
                         <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Message
                     </Button>
                 </div>
@@ -298,7 +298,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                                  <button
                                      key={tone}
                                      onClick={() => handleToolConfigChange('tone', tone)}
-                                     className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${tConfig.tone === tone ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                                     className={`px-3 py-1.5 border text-xs cursor-pointer transition-colors ${tConfig.tone === tone ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
                                  >
                                      {tone}
                                  </button>
@@ -543,7 +543,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">HTTP Credential</Label>
                 <Select value={httpConf.credentialId || 'none'} onValueChange={(v) => handleHttpChange('credentialId', v === 'none' ? undefined : v)}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Select Credential" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -561,7 +561,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                     <span className="text-red-400 text-sm">*</span>
                 </div>
                 <Select value={httpConf.method} onValueChange={(v) => handleHttpChange('method', v)}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Method" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -602,7 +602,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             </Button>
                         </div>
                     ))}
-                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={() => addHttpArrayItem('headers')}>
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 h-8" onClick={() => addHttpArrayItem('headers')}>
                         <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Headers
                     </Button>
                 </div>
@@ -620,7 +620,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             </Button>
                         </div>
                     ))}
-                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={() => addHttpArrayItem('queryParams')}>
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 h-8" onClick={() => addHttpArrayItem('queryParams')}>
                         <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Query Params
                     </Button>
                 </div>
@@ -629,7 +629,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">Body Type</Label>
                 <Select value={httpConf.bodyType} onValueChange={(v) => handleHttpChange('bodyType', v)}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Body Type" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -656,7 +656,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">Response Type</Label>
                 <Select value={httpConf.responseType} onValueChange={(v) => handleHttpChange('responseType', v)}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Response Type" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -676,7 +676,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">Select Sub-Flow</Label>
                 <Select value={agent.model} onValueChange={handleModelChange}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Choose a flow..." />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -694,7 +694,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">Trigger Protocol</Label>
                 <Select value={agent.model || 'Manual'} onValueChange={handleModelChange}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                    <SelectTrigger className="w-full h-10 border bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Method" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
@@ -756,7 +756,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                                 <h2 className="text-lg font-bold text-white">{agent.name}</h2>
                                 <button
                                     onClick={() => setEditingName(true)}
-                                    className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors bg-card text-muted-foreground"
+                                    className="w-6 h-6 flex items-center justify-center hover:bg-white/10 transition-colors bg-card text-muted-foreground"
                                 >
                                     <Pencil className="w-3 h-3" />
                                 </button>
@@ -764,7 +764,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                         )}
                     </div>
 
-                    <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-primary/20 text-primary border border-primary/30">
+                    <div className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-primary/20 text-primary border border-primary/30">
                         {nodeType} Node
                     </div>
 
