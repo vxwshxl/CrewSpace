@@ -79,7 +79,7 @@ export default function SquadsList() {
                 
                 <div className="flex items-center gap-3 w-full md:w-auto overflow-hidden">
                     <div ref={searchContainerRef} className="relative flex-none" style={{ width: 200 }}>
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Find a squad..."
@@ -87,10 +87,10 @@ export default function SquadsList() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
+                            className="w-full h-11 pl-10 pr-5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
                         />
                     </div>
-                    <button className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm whitespace-nowrap">
+                    <button className="flex items-center gap-2 bg-secondary text-secondary-foreground h-11 px-5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] transition-all shadow-sm whitespace-nowrap">
                         <Plus className="w-4 h-4" />
                         Create Squad
                     </button>

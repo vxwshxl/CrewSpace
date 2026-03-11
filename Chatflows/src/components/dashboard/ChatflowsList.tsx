@@ -124,7 +124,7 @@ export default function ChatflowsList() {
                     <DownloadExtensionBtn />
                     <button
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm whitespace-nowrap"
+                        className="flex items-center gap-2 bg-secondary text-secondary-foreground h-11 px-5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] transition-all shadow-sm whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" /> Add New
                     </button>
@@ -146,7 +146,7 @@ export default function ChatflowsList() {
                     </p>
                     <button
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-bold hover:bg-[#A6E63F] active:scale-95 transition-all shadow-sm mx-auto"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground h-11 px-6 rounded-full text-sm font-bold hover:bg-[#A6E63F] transition-all shadow-sm mx-auto"
                     >
                         <Plus className="w-4 h-4" /> Create Chatflow
                     </button>
@@ -195,7 +195,7 @@ function ChatflowCard({ flow, onDelete, onUpdate, onPublish }: {
     return (
         <div className="group relative">
             <Link href={`/flow/${flow.id}`} className="block h-full">
-                <div className="border border-white/5 rounded-xl p-6 hover:border-white/20 transition-all duration-200 shadow-sm hover:shadow-lg h-full flex flex-col cursor-pointer">
+                <div className="border border-white/5 p-6 hover:border-white/20 transition-all duration-200 shadow-sm hover:shadow-lg h-full flex flex-col cursor-pointer">
                     <div className="flex-1">
                         {isEditing ? (
                             <input

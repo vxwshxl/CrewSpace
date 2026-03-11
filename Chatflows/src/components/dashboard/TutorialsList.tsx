@@ -1,18 +1,33 @@
 'use client';
 
 import React from 'react';
-import { BookOpen, PlayCircle, MousePointer2, ExternalLink, Bot, Workflow, Layers } from 'lucide-react';
+import { BookOpen, PlayCircle, MousePointer2, ExternalLink, Bot, Workflow, Layers, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function TutorialsList() {
+    const router = useRouter();
+
+    const handleStartTutorial = () => {
+        localStorage.setItem('tutorial_force_start', 'true');
+        router.push('/dashboard');
+    };
     return (
         <div className="p-8 space-y-12 pb-24">
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <BookOpen className="w-8 h-8 text-primary" /> Learning Center
-                </h1>
-                <p className="text-muted-foreground text-lg">
-                    Master the art of building autonomous AI agent workforces.
-                </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <BookOpen className="w-8 h-8 text-primary" /> Tutorials
+                    </h1>
+                    <p className="text-muted-foreground text-sm">
+                        Master the art of building autonomous AI agent workforces.
+                    </p>
+                </div>
+                <button
+                    onClick={handleStartTutorial}
+                    className="flex items-center gap-2 bg-primary text-primary-foreground h-11 px-5 rounded-full text-sm font-semibold hover:bg-[#A6E63F] transition-all shadow-sm whitespace-nowrap"
+                >
+                    <Sparkles className="w-4 h-4" /> Start Interactive Tutorial
+                </button>
             </div>
 
             {/* Quick Start Section */}

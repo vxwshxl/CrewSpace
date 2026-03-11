@@ -66,7 +66,7 @@ export default function ApiKeysList() {
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm whitespace-nowrap"
+                        className="flex items-center gap-2 bg-secondary text-secondary-foreground h-11 px-5 rounded-full text-sm font-semibold hover:bg-[#D8D8D8] transition-all shadow-sm whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" /> Add Key
                     </button>

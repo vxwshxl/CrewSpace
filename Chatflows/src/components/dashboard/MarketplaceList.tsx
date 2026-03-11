@@ -217,14 +217,14 @@ export default function MarketplaceList() {
           <div className="flex items-center gap-3 w-full md:w-auto overflow-hidden">
             <Button 
                 onClick={() => setShowSelector(true)}
-                className="hidden md:flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-[#D8D8D8] active:scale-95 transition-all shadow-sm rounded-full py-2.5 px-4 text-sm font-semibold group"
+                className="hidden md:flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-[#D8D8D8] transition-all shadow-sm rounded-full h-11 px-5 text-sm font-semibold group"
             >
                 <Globe className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                 Publish Your Flow
             </Button>
             
             <div ref={searchContainerRef} className="relative flex-none" style={{ width: 200 }}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                   type="text"
                   placeholder="Search community..."
@@ -232,18 +232,24 @@ export default function MarketplaceList() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setIsSearchFocused(false)}
-                  className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
+                  className="w-full h-11 pl-10 pr-5 bg-muted/50 border border-border rounded-full text-sm focus:outline-none caret-primary text-white transition-shadow"
               />
             </div>
             
             <Select value={sortBy} onValueChange={(val) => val && setSortBy(val)}>
-              <SelectTrigger className="px-4 py-2.5 h-auto w-32 bg-muted/50 border-border rounded-full text-white text-sm font-semibold hover:bg-muted/70 transition-colors shadow-sm outline-none">
+              <SelectTrigger className="px-5 !h-12 w-40 bg-muted/50 border border-border rounded-full text-white text-sm font-medium hover:bg-muted/70 transition-colors shadow-sm outline-none focus:ring-0">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
-              <SelectContent className="bg-[#1c2128] border-border text-zinc-300 rounded-xl shadow-xl">
-                <SelectItem value="trending" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Trending</SelectItem>
-                <SelectItem value="most-installed" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Most Installed</SelectItem>
-                <SelectItem value="new" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-lg text-sm transition-colors">Newest</SelectItem>
+              <SelectContent 
+                align="end"
+                side="bottom"
+                sideOffset={8}
+                alignItemWithTrigger={false}
+                className="bg-card border-border text-zinc-300 rounded-[20px] shadow-2xl p-1.5 min-w-[160px] z-50 overflow-hidden"
+              >
+                <SelectItem value="Trending" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Trending</SelectItem>
+                <SelectItem value="Most-installed" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Most Installed</SelectItem>
+                <SelectItem value="Newest" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium">Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>
