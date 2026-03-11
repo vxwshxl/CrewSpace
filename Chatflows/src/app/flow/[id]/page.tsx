@@ -417,6 +417,10 @@ function DashboardContent() {
           onDragStart={onDragStart}
           setEdges={setEdges}
           onAIGenerate={handleAIGenerate}
+          onError={(msg) => {
+            setErrorToast(msg);
+            setTimeout(() => setErrorToast(null), 4000);
+          }}
         />
 
         {/* Right panel - Config or Chat */}

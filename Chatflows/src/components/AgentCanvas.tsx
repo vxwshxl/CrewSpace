@@ -84,6 +84,7 @@ interface AgentCanvasProps {
     onDragStart: (event: React.DragEvent, nodeType: string, label: string, icon: string) => void;
     setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
     onAIGenerate?: (nodes: Node[], edges: Edge[]) => void;
+    onError?: (message: string) => void;
 }
 
 export default function AgentCanvas({
@@ -100,6 +101,7 @@ export default function AgentCanvas({
     onDragStart,
     setEdges,
     onAIGenerate,
+    onError,
 }: AgentCanvasProps) {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -190,7 +192,7 @@ export default function AgentCanvas({
                     color="oklch(0.5 0 0 / 25%)"
                 />
                 <Panel position="top-left" className="!mt-4 !ml-4 !z-50 flex flex-col gap-2">
-                    {onAIGenerate && <AIGeneratorInline onGenerate={onAIGenerate} />}
+                    {onAIGenerate && <AIGeneratorInline onGenerate={onAIGenerate} onError={onError} />}
                     <NodePanel onDragStart={onDragStart} />
                 </Panel>
                 <Panel position="bottom-left" className="!mb-4 !ml-4 !z-50 flex items-center gap-2">

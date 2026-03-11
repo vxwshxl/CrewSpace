@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, Sparkles, Loader2 } from 'lucide-react';
 import { type Node, type Edge, MarkerType } from '@xyflow/react';
 import { createClient } from '@/utils/supabase/client';
 
 interface AIGeneratorInlineProps {
     onGenerate: (nodes: Node[], edges: Edge[]) => void;
+    onError?: (message: string) => void;
 }
 
 const SYSTEM_PROMPT = `You are an expert chatflow workflow generator. The user will describe a workflow, and you must generate the corresponding nodes and edges for a ReactFlow canvas.
@@ -63,11 +64,42 @@ Edge structure guidelines:
 
 Connect the nodes logically according to the user's workflow description. Always ensure a clean connection from start to the agents and conditions.`;
 
-export default function AIGeneratorInline({ onGenerate }: AIGeneratorInlineProps) {
+const EXAMPLES = [
+    'A research agent that summarizes news...',
+    'An Amazon order assistant agent...',
+    'A content writer with SEO skills...',
+    'Multi-agent customer support crew...',
+];
+
+export default function AIGeneratorInline({ onGenerate, onError }: AIGeneratorInlineProps) {
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    
+    const [typewriterText, setTypewriterText] = useState('');
+    const [typewriterIndex, setTypewriterIndex] = useState(0);
+    const [charIndex, setCharIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const supabase = createClient();
+
+    useEffect(() => {
+        if (prompt) return; // pause when user is typing
+        const current = EXAMPLES[typewriterIndex];
+        let timeout: ReturnType<typeof setTimeout>;
+
+        if (!isDeleting && charIndex < current.length) {
+            timeout = setTimeout(() => setCharIndex(c => c + 1), 45);
+        } else if (!isDeleting && charIndex === current.length) {
+            timeout = setTimeout(() => setIsDeleting(true), 1400);
+        } else if (isDeleting && charIndex > 0) {
+            timeout = setTimeout(() => setCharIndex(c => c - 1), 22);
+        } else if (isDeleting && charIndex === 0) {
+            setIsDeleting(false);
+            setTypewriterIndex(i => (i + 1) % EXAMPLES.length);
+        }
+
+        setTypewriterText(current.slice(0, charIndex));
+        return () => clearTimeout(timeout);
+    }, [charIndex, isDeleting, typewriterIndex, prompt]);
 
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
@@ -86,7 +118,8 @@ export default function AIGeneratorInline({ onGenerate }: AIGeneratorInlineProps
                 
             const geminiKey = keysDb?.[0]?.key;
             if (!geminiKey) {
-                alert("No Gemini API key found. Please add it first.");
+                const msg = 'No Gemini API key found. Please add one in your API Keys settings.';
+                onError ? onError(msg) : alert(msg);
                 setIsGenerating(false);
                 return;
             }
@@ -148,7 +181,8 @@ export default function AIGeneratorInline({ onGenerate }: AIGeneratorInlineProps
             setPrompt('');
             onGenerate(newNodes, newEdges);
         } catch (error: any) {
-            alert(error.message);
+            const msg = error.message || 'Something went wrong.';
+            onError ? onError(msg) : alert(msg);
             console.error("AI Generation error:", error);
         } finally {
             setIsGenerating(false);
@@ -156,33 +190,38 @@ export default function AIGeneratorInline({ onGenerate }: AIGeneratorInlineProps
     };
 
     return (
-        <div className="w-[260px] bg-card border border-border shadow-lg rounded-xl overflow-hidden animate-fade-in-up flex flex-col">
-             <div className="px-3 py-2 border-b border-border flex items-center gap-2 bg-primary/10">
+        <div className="w-[280px] bg-card border border-border shadow-xl rounded-2xl overflow-hidden animate-fade-in-up flex flex-col">
+            {/* Header - visually separated */}
+            <div className="px-4 py-3 flex items-center gap-2 bg-primary/10 border-b border-primary/20">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Generate with AI</span>
+                <span className="text-xs font-bold text-primary uppercase tracking-widest">Generate with AI</span>
             </div>
-            <div className="p-2 relative">
-                <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your workflow..."
-                    className="w-full min-h-[80px] p-3 pr-10 rounded-lg bg-black/40 text-sm text-white resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 text-foreground transition-all"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleGenerate();
-                        }
-                    }}
-                />
-                <button
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim()}
-                    className="absolute bottom-4 right-4 p-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                    {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                </button>
+
+            {/* Input area */}
+            <div className="p-3">
+                <div className="relative">
+                    <textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder={typewriterText || ' '}
+                        rows={3}
+                        className="w-full p-3 pr-10 rounded-xl text-sm text-white resize-none focus:outline-none caret-primary placeholder:text-primary/60 transition-all"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleGenerate();
+                            }
+                        }}
+                    />
+                    <button
+                        onClick={handleGenerate}
+                        disabled={isGenerating || !prompt.trim()}
+                        className="absolute bottom-3 right-3 p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                        {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
-

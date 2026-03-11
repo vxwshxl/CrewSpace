@@ -44,7 +44,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
     const toolCategories = filteredCategories.filter(cat => cat.name === 'Tools');
 
     return (
-        <div className="relative z-50 flex items-start gap-2 w-[260px]">
+        <div className="relative z-50 flex items-start gap-2 w-[280px]">
             <button
                 id="tutorial-add-nodes-btn"
                 onClick={() => {
@@ -55,7 +55,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                 style={{ color: 'var(--foreground)' }}
             >
                 Add Nodes
-                {isOpen ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
+                {isOpen ? <ChevronUp className="w- h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
             </button>
             
             <button

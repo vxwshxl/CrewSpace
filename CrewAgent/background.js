@@ -1,6 +1,6 @@
 // Basic background tasks can be added here
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("1e extension installed");
+    console.log("CrewSpace extension installed");
 });
 
 // Allows users to open the side panel by clicking on the action toolbar icon
@@ -8,29 +8,21 @@ chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
     .catch((error) => console.error(error));
 
-// State tracking to toggle the side panel
-let sidePanelState = {};
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "TOGGLE_CREWAGENT" && sender.tab) {
         const tabId = sender.tab.id;
         const windowId = sender.tab.windowId;
-
-        let isOpen = sidePanelState[tabId] || false;
-
-        if (isOpen) {
-            // Close it by disabling then re-enabling
-            chrome.sidePanel.setOptions({ tabId: tabId, enabled: false });
-            setTimeout(() => {
-                chrome.sidePanel.setOptions({ tabId: tabId, enabled: true });
-            }, 200);
-            sidePanelState[tabId] = false;
-        } else {
-            // Open it
-            chrome.sidePanel.open({ tabId: tabId, windowId: windowId });
-            sidePanelState[tabId] = true;
-        }
-        // Fire and forget
+        // Always open — Chrome's side panel has its own close button.
+        // Trying to track open/close state is unreliable because Chrome
+        // does not notify extensions when the user closes the panel via its X button.
+        chrome.sidePanel.open({ tabId, windowId })
+            .catch((err) => console.warn("sidePanel.open failed:", err));
         sendResponse({ status: "success" });
     }
+
+    if (request.type === "SYNC_CREWAGENT") {
+        sendResponse({ status: "ok" });
+    }
+
+    return true;
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     ChevronLeft,
     Pencil,
@@ -104,7 +104,7 @@ export default function HeaderBar({
                     variant="ghost"
                     size="icon"
                     className="w-8 h-8 rounded-full hover:bg-white/10 p-0 overflow-hidden"
-                    title="Toggle CrewAgent"
+                    title="Open CrewAgent"
                     onClick={() => {
                         window.postMessage({ type: 'TOGGLE_CREWAGENT' }, '*');
                     }}
