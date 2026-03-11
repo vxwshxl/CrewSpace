@@ -76,11 +76,13 @@ async function getChatflowConfig(chatflowId: string) {
                 
                 const finalApiKey = apiKeyObj?.key;
                 
-                const hasMemoryNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'memory-out');
+                const hasMemoryNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-memory');
+                const hasModelNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-model');
 
                 return {
                     userId: user.id,
                     hasMemoryNode,
+                    hasModelNode,
                     model: 'gemini-flash-latest',
                     provider: 'gemini',
                     apiKey: finalApiKey,
@@ -214,6 +216,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 action: "ANSWER",
                 text: "Chatflow not found or not properly configured with an Agent node. Please configure it in your dashboard."
+            });
+        }
+
+        if (!config.hasModelNode) {
+            return NextResponse.json({
+                action: "ANSWER",
+                text: "A Chat Model node is not connected to your Agent. Please connect a Chat Model in the Chatflows dashboard to enable responses."
             });
         }
 

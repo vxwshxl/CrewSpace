@@ -42,7 +42,7 @@ function DashboardContent() {
   const id = params.id as string;
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [edges, setEdges, onEdgesChangeBase] = useEdgesState<Edge>([]);
   const [flowName, setFlowName] = useState('New Chatflow');
   const [loading, setLoading] = useState(true);
   
@@ -273,8 +273,70 @@ function DashboardContent() {
   );
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+    (params: Connection) => {
+        setEdges((eds) => addEdge(params, eds));
+        
+        // Auto-enable memory on connect
+        setNodes((nds) => nds.map(node => {
+            if (node.id === params.source || node.id === params.target) {
+                const nodeData = node.data as Record<string, any>;
+                if (nodeData.nodeType === 'memory' && nodeData.agentConfig) {
+                    return {
+                        ...node,
+                        data: {
+                            ...nodeData,
+                            agentConfig: {
+                                ...nodeData.agentConfig as AgentConfig,
+                                memoryEnabled: true
+                            }
+                        }
+                    };
+                }
+            }
+            return node;
+        }));
+    },
+    [setEdges, setNodes]
+  );
+
+  const onEdgesChange = useCallback(
+      (changes: any) => {
+          onEdgesChangeBase(changes);
+
+          // Need to wait slightly for state to settle to check remaining edges,
+          // or we can calculate it manually based on the current edges minus the removed ones.
+          const removedEdges = changes.filter((c: any) => c.type === 'remove');
+          if (removedEdges.length > 0) {
+              setTimeout(() => {
+                  setNodes((nds) => {
+                      let updated = false;
+                      const newNodes = nds.map(node => {
+                          const nodeData = node.data as Record<string, any>;
+                          if (nodeData.nodeType === 'memory' && nodeData.agentConfig) {
+                              setEdges((currentEdges) => {
+                                  // Check if this memory node still has any connections
+                                  const hasConnections = currentEdges.some(e => e.source === node.id || e.target === node.id);
+                                  if (!hasConnections && (nodeData.agentConfig as AgentConfig).memoryEnabled) {
+                                      updated = true;
+                                      node.data = {
+                                          ...nodeData,
+                                          agentConfig: {
+                                              ...nodeData.agentConfig as AgentConfig,
+                                              memoryEnabled: false
+                                          }
+                                      };
+                                  }
+                                  return currentEdges;
+                              });
+                          }
+                          return node;
+                      });
+                      return updated ? [...newNodes] : nds;
+                  });
+              }, 0);
+          }
+      },
+      [onEdgesChangeBase, setNodes, setEdges]
   );
 
   const handleAIGenerate = useCallback((newNodes: Node[], newEdges: Edge[]) => {

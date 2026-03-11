@@ -54,10 +54,15 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
     };
 
     const handleToolToggle = (toolId: string) => {
-        const newTools = agent.tools.includes(toolId)
+        const newTools = agent.tools?.includes(toolId)
             ? agent.tools.filter((t) => t !== toolId)
-            : [...agent.tools, toolId];
+            : [...(agent.tools || []), toolId];
         onUpdate({ ...agent, tools: newTools });
+    };
+
+    const handleToolConfigChange = (key: string, value: any) => {
+        const currentConfig = agent.toolConfig || {};
+        onUpdate({ ...agent, toolConfig: { ...currentConfig, [key]: value } });
     };
 
     const handleInputChange = (value: string) => {
@@ -85,7 +90,6 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
 
     const renderAgentSpecific = () => (
         <>
-
             <div className="space-y-3">
                 <div className="flex items-center gap-1.5">
                     <Label className="text-sm font-medium text-white">Enable Memory</Label>
@@ -117,6 +121,234 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             </div>
         </>
     );
+
+    const renderMemoryConfig = () => (
+        <>
+            <div className="space-y-3">
+                <div className="flex items-center gap-1.5">
+                    <Label className="text-sm font-medium text-white">Enable Memory</Label>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="text-xs">Enable conversation memory</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+                <Switch
+                    checked={agent.memoryEnabled}
+                    onCheckedChange={handleMemoryToggle}
+                />
+            </div>
+        </>
+    );
+
+    const handleMessageArrayChange = (index: number, field: 'role' | 'content', value: string) => {
+        const currentMessages = agent.messages || [];
+        const newArr = [...currentMessages];
+        newArr[index] = { ...newArr[index], [field]: value };
+        onUpdate({ ...agent, messages: newArr });
+    };
+
+    const addMessageItem = () => {
+        const currentMessages = agent.messages || [];
+        onUpdate({ ...agent, messages: [...currentMessages, { role: 'system', content: '' }] });
+    };
+
+    const removeMessageItem = (index: number) => {
+        const currentMessages = agent.messages || [];
+        const newArr = [...currentMessages];
+        newArr.splice(index, 1);
+        onUpdate({ ...agent, messages: newArr });
+    };
+
+    const renderModelConfig = () => (
+        <>
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">Chat Model <span className="text-red-400">*</span></Label>
+                <Select value={agent.model} onValueChange={handleModelChange}>
+                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                        <SelectValue placeholder="Select a model..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                        <SelectItem value="gemini-flash-latest">gemini-flash-latest</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="space-y-2 mt-4">
+                <Label className="text-sm font-medium text-white pb-2 block border-b border-border">Messages</Label>
+                <div className="space-y-4 pt-2">
+                    {agent.messages?.map((msg, i) => (
+                        <div key={i} className="flex flex-col gap-2 p-3 bg-white/5 border border-border rounded-lg relative">
+                             <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="absolute top-1 right-1 h-6 w-6 text-muted-foreground hover:text-destructive" 
+                                onClick={() => removeMessageItem(i)}
+                             >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                            <div className="space-y-1 w-full">
+                                <Label className="text-xs text-muted-foreground">Role <span className="text-red-400">*</span></Label>
+                                <Select value={msg.role} onValueChange={(val) => handleMessageArrayChange(i, 'role', val || '')}>
+                                    <SelectTrigger className="h-8 text-xs bg-card border-border">
+                                        <SelectValue placeholder="Role" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-card border-border">
+                                        <SelectItem value="system">System</SelectItem>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="assistant">Assistant</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1 w-full">
+                                <Label className="text-xs text-muted-foreground">Content <span className="text-red-400">*</span></Label>
+                                <Textarea 
+                                   placeholder="Message content..." 
+                                   value={msg.content} 
+                                   onChange={(e) => handleMessageArrayChange(i, 'content', e.target.value)} 
+                                   className="min-h-[60px] text-xs bg-card border-border" 
+                                />
+                            </div>
+                        </div>
+                    ))}
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={addMessageItem}>
+                        <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Message
+                    </Button>
+                </div>
+            </div>
+        </>
+    );
+
+    const renderToolConfig = () => {
+        const tConfig = agent.toolConfig || {};
+        
+        if (agent.name.toLowerCase().includes('email drafter')) {
+            return (
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Name</Label>
+                        <Input 
+                            placeholder="e.g. John Doe" 
+                            value={tConfig.name || ''} 
+                            onChange={(e) => handleToolConfigChange('name', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Phone</Label>
+                        <Input 
+                            placeholder="e.g. +1 234 567 8900" 
+                            value={tConfig.phone || ''} 
+                            onChange={(e) => handleToolConfigChange('phone', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Email</Label>
+                        <Input 
+                            placeholder="sender@example.com" 
+                            value={tConfig.email || ''} 
+                            onChange={(e) => handleToolConfigChange('email', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Company</Label>
+                        <Input 
+                            placeholder="e.g. Acme Corp" 
+                            value={tConfig.company || ''} 
+                            onChange={(e) => handleToolConfigChange('company', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Position / Job Title</Label>
+                        <Input 
+                            placeholder="e.g. CEO, Sales Representative" 
+                            value={tConfig.position || ''} 
+                            onChange={(e) => handleToolConfigChange('position', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Templates</Label>
+                        <Textarea 
+                            placeholder="Hi [Name],\n\nThank you for..." 
+                            value={tConfig.templates || ''} 
+                            onChange={(e) => handleToolConfigChange('templates', e.target.value)}
+                            className="min-h-[100px] text-xs bg-card border-border resize-y"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        if (agent.name.toLowerCase().includes('summarizer')) {
+             return (
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white pb-1 block">Summary Tone</Label>
+                         <div className="flex flex-wrap gap-2">
+                             {['Professional', 'Casual', 'Enthusiastic', 'Informative', 'Witty'].map(tone => (
+                                 <button
+                                     key={tone}
+                                     onClick={() => handleToolConfigChange('tone', tone)}
+                                     className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${tConfig.tone === tone ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                                 >
+                                     {tone}
+                                 </button>
+                             ))}
+                         </div>
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <Label className="text-sm font-medium text-white">Summary Type</Label>
+                         <Textarea 
+                            placeholder="Describe the summary format needed (e.g. Bullet points, Paragraph, Executive Brief)..." 
+                            value={tConfig.type || ''} 
+                            onChange={(e) => handleToolConfigChange('type', e.target.value)}
+                            className="min-h-[80px] text-xs bg-card border-border resize-y"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        if (agent.name.toLowerCase().includes('to-do')) {
+             return (
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Default List Name</Label>
+                         <Input 
+                            placeholder="My Tasks" 
+                            value={tConfig.defaultList || ''} 
+                            onChange={(e) => handleToolConfigChange('defaultList', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Initial Tasks (Comma Separated)</Label>
+                        <Textarea 
+                            placeholder="Review PRs, Update Docs, Sync with Team" 
+                            value={tConfig.initialTasks || ''} 
+                            onChange={(e) => handleToolConfigChange('initialTasks', e.target.value)}
+                            className="min-h-[80px] text-xs bg-card border-border resize-y"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+             <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">This tool connects seamlessly to your agent flow.</p>
+            </div>
+        );
+    };
 
     const renderConditionConfig = () => (
         <>
@@ -496,6 +728,9 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             case 'http': return renderHttpConfig();
             case 'flow': return renderFlowConfig();
             case 'start': return renderStartConfig();
+            case 'tool': return renderToolConfig();
+            case 'model': return renderModelConfig();
+            case 'memory': return renderMemoryConfig();
             case 'agent':
             default: return renderAgentSpecific();
         }
