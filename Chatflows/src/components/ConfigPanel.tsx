@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Pencil, Info, ChevronDown, Check, Wand2 } from 'lucide-react';
+import { Pencil, Info, ChevronDown, Check, Wand2, Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -313,11 +313,79 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
         </>
     );
 
-    const renderHttpConfig = () => (
-        <>
+    const handleHttpChange = (field: keyof NonNullable<AgentConfig['httpConfig']>, value: any) => {
+        const currentHttp = agent.httpConfig || {
+            method: agent.model || 'GET',
+            url: agent.inputMessage || '',
+            headers: [],
+            queryParams: [],
+            bodyType: 'none',
+            responseType: 'json'
+        };
+        onUpdate({ ...agent, httpConfig: { ...currentHttp, [field]: value } });
+    };
+
+    const handleHttpArrayChange = (field: 'headers' | 'queryParams', index: number, keyStr: string, valStr: string) => {
+        const currentHttp = agent.httpConfig || {
+            method: agent.model || 'GET', url: agent.inputMessage || '',
+            headers: [], queryParams: [], bodyType: 'none', responseType: 'json'
+        };
+        const newArr = [...currentHttp[field]];
+        newArr[index] = { key: keyStr, value: valStr };
+        handleHttpChange(field, newArr);
+    };
+
+    const addHttpArrayItem = (field: 'headers' | 'queryParams') => {
+        const currentHttp = agent.httpConfig || {
+            method: agent.model || 'GET', url: agent.inputMessage || '',
+            headers: [], queryParams: [], bodyType: 'none', responseType: 'json'
+        };
+        handleHttpChange(field, [...currentHttp[field], { key: '', value: '' }]);
+    };
+
+    const removeHttpArrayItem = (field: 'headers' | 'queryParams', index: number) => {
+        const currentHttp = agent.httpConfig || {
+            method: agent.model || 'GET', url: agent.inputMessage || '',
+            headers: [], queryParams: [], bodyType: 'none', responseType: 'json'
+        };
+        const newArr = [...currentHttp[field]];
+        newArr.splice(index, 1);
+        handleHttpChange(field, newArr);
+    };
+
+    const renderHttpConfig = () => {
+        const httpConf = agent.httpConfig || {
+            method: agent.model || 'GET',
+            url: agent.inputMessage || '',
+            headers: [],
+            queryParams: [],
+            bodyType: 'none',
+            responseType: 'json'
+        };
+
+        return (
+        <div className="space-y-6">
             <div className="space-y-2">
-                <Label className="text-sm font-medium text-white">HTTP Method</Label>
-                <Select value={agent.model || 'GET'} onValueChange={handleModelChange}>
+                <Label className="text-sm font-medium text-white">HTTP Credential</Label>
+                <Select value={httpConf.credentialId || 'none'} onValueChange={(v) => handleHttpChange('credentialId', v === 'none' ? undefined : v)}>
+                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                        <SelectValue placeholder="Select Credential" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="api-key">API Key</SelectItem>
+                        <SelectItem value="bearer">Bearer Token</SelectItem>
+                        <SelectItem value="basic">Basic Auth</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="space-y-2">
+                <div className="flex items-center gap-1">
+                    <Label className="text-sm font-medium text-white">Method</Label>
+                    <span className="text-red-400 text-sm">*</span>
+                </div>
+                <Select value={httpConf.method} onValueChange={(v) => handleHttpChange('method', v)}>
                     <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
                         <SelectValue placeholder="Method" />
                     </SelectTrigger>
@@ -325,21 +393,108 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                         <SelectItem value="GET">GET</SelectItem>
                         <SelectItem value="POST">POST</SelectItem>
                         <SelectItem value="PUT">PUT</SelectItem>
+                        <SelectItem value="PATCH">PATCH</SelectItem>
                         <SelectItem value="DELETE">DELETE</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
-            <div className="space-y-2 mt-4">
-                <Label className="text-sm font-medium text-white">URL</Label>
+
+            <div className="space-y-2">
+                <div className="flex items-center gap-1 justify-between">
+                    <div className="flex items-center gap-1">
+                        <Label className="text-sm font-medium text-white">URL</Label>
+                        <span className="text-red-400 text-sm">*</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground mr-1 cursor-pointer hover:text-primary transition-colors">(x)</span>
+                </div>
                 <Input
                     placeholder="https://api.example.com/v1/data"
-                    value={agent.inputMessage}
-                    onChange={(e) => handleInputChange(e.target.value)}
+                    value={httpConf.url}
+                    onChange={(e) => handleHttpChange('url', e.target.value)}
                     className="font-mono text-xs bg-card border-border text-card-foreground"
                 />
             </div>
-        </>
-    );
+
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">Headers</Label>
+                <div className="space-y-2">
+                    {httpConf.headers.map((h, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                            <Input placeholder="Key" value={h.key} onChange={(e) => handleHttpArrayChange('headers', i, e.target.value, h.value)} className="bg-card border-border text-xs w-1/3" />
+                            <Input placeholder="Value" value={h.value} onChange={(e) => handleHttpArrayChange('headers', i, h.key, e.target.value)} className="bg-card border-border text-xs flex-1" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeHttpArrayItem('headers', i)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                        </div>
+                    ))}
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={() => addHttpArrayItem('headers')}>
+                        <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Headers
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">Query Params</Label>
+                <div className="space-y-2">
+                    {httpConf.queryParams.map((q, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                            <Input placeholder="Key" value={q.key} onChange={(e) => handleHttpArrayChange('queryParams', i, e.target.value, q.value)} className="bg-card border-border text-xs w-1/3" />
+                            <Input placeholder="Value" value={q.value} onChange={(e) => handleHttpArrayChange('queryParams', i, q.key, e.target.value)} className="bg-card border-border text-xs flex-1" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeHttpArrayItem('queryParams', i)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                        </div>
+                    ))}
+                    <Button variant="outline" size="sm" className="w-full text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full h-8" onClick={() => addHttpArrayItem('queryParams')}>
+                        <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Query Params
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">Body Type</Label>
+                <Select value={httpConf.bodyType} onValueChange={(v) => handleHttpChange('bodyType', v)}>
+                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                        <SelectValue placeholder="Body Type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="json">JSON</SelectItem>
+                        <SelectItem value="form-data">Form Data</SelectItem>
+                        <SelectItem value="raw">Raw</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {httpConf.bodyType !== 'none' && (
+                <div className="space-y-2">
+                    <Label className="text-sm font-medium text-white">Body</Label>
+                    <Textarea
+                        placeholder="Request body content..."
+                        value={httpConf.body || ''}
+                        onChange={(e) => handleHttpChange('body', e.target.value)}
+                        className="font-mono text-xs min-h-[100px] bg-card border-border resize-y"
+                    />
+                </div>
+            )}
+
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-white">Response Type</Label>
+                <Select value={httpConf.responseType} onValueChange={(v) => handleHttpChange('responseType', v)}>
+                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
+                        <SelectValue placeholder="Response Type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                        <SelectItem value="json">JSON</SelectItem>
+                        <SelectItem value="text">Text / String</SelectItem>
+                        <SelectItem value="blob">Blob / File</SelectItem>
+                        <SelectItem value="arraybuffer">ArrayBuffer</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
+        );
+    };
 
     const renderFlowConfig = () => (
         <>

@@ -6,6 +6,22 @@ export interface Tool {
     category: string;
 }
 
+export interface HttpKeyValue {
+    key: string;
+    value: string;
+}
+
+export interface HttpNodeConfig {
+    credentialId?: string;
+    method: string;
+    url: string;
+    headers: HttpKeyValue[];
+    queryParams: HttpKeyValue[];
+    bodyType: string;
+    body?: string;
+    responseType: string;
+}
+
 export interface AgentConfig {
     id: string;
     name: string;
@@ -21,6 +37,7 @@ export interface AgentConfig {
     inputMessage: string;
     responseFormat: string;
     prompt?: string;
+    httpConfig?: HttpNodeConfig;
 }
 
 export interface ActivityEntry {
@@ -74,5 +91,5 @@ export interface NodeCategoryItem {
     name: string;
     description: string;
     icon: string;
-    type: 'agent' | 'condition' | 'function' | 'reply' | 'flow' | 'http' | 'start' | 'sticky';
+    type: 'agent' | 'condition' | 'function' | 'reply' | 'flow' | 'http' | 'start' | 'sticky' | 'tool';
 }

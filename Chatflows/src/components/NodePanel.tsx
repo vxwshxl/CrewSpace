@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ChevronDown, ChevronUp, Search, Bot, GitBranch, GitMerge, Code, MessageCircle, Workflow, Globe, StickyNote, Play } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Search, Bot, GitBranch, GitMerge, Code, MessageCircle, Workflow, Globe, StickyNote, Play, FileText, Mail, CheckSquare, Calculator } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { nodeCategories } from '@/lib/mock-data';
 
@@ -19,10 +19,16 @@ const iconMap: Record<string, React.ReactNode> = {
     globe: <Globe className="w-4 h-4" />,
     play: <Play className="w-4 h-4" />,
     'sticky-note': <StickyNote className="w-4 h-4" />,
+    search: <Search className="w-4 h-4" />,
+    'file-text': <FileText className="w-4 h-4" />,
+    mail: <Mail className="w-4 h-4" />,
+    'check-square': <CheckSquare className="w-4 h-4" />,
+    calculator: <Calculator className="w-4 h-4" />,
 };
 
 export default function NodePanel({ onDragStart }: NodePanelProps) {
     const [isOpen, setIsOpen] = useState(true);
+    const [isToolsOpen, setIsToolsOpen] = useState(false);
     const [search, setSearch] = useState('');
 
     const filteredCategories = nodeCategories.map((cat) => ({
@@ -34,21 +40,40 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
         ),
     })).filter((cat) => cat.items.length > 0);
 
+    const agentCategories = filteredCategories.filter(cat => cat.name !== 'Tools');
+    const toolCategories = filteredCategories.filter(cat => cat.name === 'Tools');
+
     return (
-        <div className="relative z-50 flex flex-col items-start">
+        <div className="relative z-50 flex items-start gap-2">
             <button
                 id="tutorial-add-nodes-btn"
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                onClick={() => {
+                    setIsOpen(!isOpen);
+                    setIsToolsOpen(false);
+                }}
+                className="flex items-center justify-between w-[140px] px-4 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 style={{ color: 'var(--foreground)' }}
             >
                 Add Nodes
                 {isOpen ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
             </button>
+            
+            <button
+                id="tutorial-add-tools-btn"
+                onClick={() => {
+                    setIsToolsOpen(!isToolsOpen);
+                    setIsOpen(false);
+                }}
+                className="flex items-center justify-between w-[140px] px-4 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                style={{ color: 'var(--foreground)' }}
+            >
+                Tools
+                {isToolsOpen ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
+            </button>
 
-            {isOpen && (
+            {(isOpen || isToolsOpen) && (
                 <div
-                    className="absolute top-full left-0 mt-2 w-[260px] max-h-[45vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
+                    className="absolute top-0 left-[150px] w-[260px] max-h-[80vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
                     style={{
                         borderColor: 'var(--border)',
                     }}
@@ -61,7 +86,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                 style={{ color: 'var(--muted-foreground)' }}
                             />
                             <Input
-                                placeholder="Search nodes"
+                                placeholder="Search..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="pl-8 h-8 text-xs border rounded-lg focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -85,7 +110,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
 
                     {/* Categories */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar px-1 pb-2">
-                        {filteredCategories.map((category) => (
+                        {(isOpen ? agentCategories : toolCategories).map((category) => (
                             <div key={category.name} className="mb-1">
                                 <div
                                     className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold"
@@ -99,15 +124,17 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                             <div
                                                 key={item.id}
                                                 id={`tutorial-node-${item.type}`}
-                                                className="flex items-start gap-3 px-3 py-2.5 mx-1 rounded-lg cursor-grab hover:bg-white/5 transition-all duration-200 active:scale-95 shadow-sm"
+                                                className="flex items-center gap-3 px-3 py-2.5 mx-1 rounded-lg cursor-grab hover:bg-white/5 transition-all duration-200 active:scale-95 shadow-sm"
                                                 draggable
                                                 onDragStart={(e) => onDragStart(e, item.type, item.name, item.icon)}
                                             >
                                                 <div
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
+                                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                                                     style={{
                                                         background:
-                                                            item.type === 'agent'
+                                                            item.type === 'tool'
+                                                                ? 'rgba(59, 130, 246, 0.25)' /* blue */
+                                                            : item.type === 'agent'
                                                                 ? 'rgba(140, 82, 255, 0.25)'
                                                                 : item.type === 'condition'
                                                                     ? 'rgba(255, 102, 196, 0.25)'
@@ -115,7 +142,9 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                                                         ? 'rgba(234, 179, 8, 0.25)'
                                                                         : 'rgba(193, 255, 114, 0.25)',
                                                         color:
-                                                            item.type === 'agent'
+                                                            item.type === 'tool'
+                                                                ? '#3b82f6'
+                                                            : item.type === 'agent'
                                                                 ? 'var(--primary)'
                                                                 : item.type === 'condition'
                                                                     ? 'var(--muted-foreground)'
@@ -127,8 +156,8 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                                     {iconMap[item.icon] || <Bot className="w-4 h-4" />}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-white truncate">{item.name}</p>
-                                                    <p className="text-xs leading-tight mt-0.5 line-clamp-2" style={{ color: 'var(--muted-foreground)' }}>
+                                                    <p className="text-[13px] font-medium text-white truncate">{item.name}</p>
+                                                    <p className="text-[11px] leading-tight mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
                                                         {item.description}
                                                     </p>
                                                 </div>

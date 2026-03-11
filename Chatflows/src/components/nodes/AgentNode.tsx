@@ -246,6 +246,41 @@ function AgentNode(props: NodeProps) {
                 style={{ top: '65%' }}
                 className={handleColorClass}
             />
+
+            {/* Bottom handles for settings like Chat Model, Memory, Tool */}
+            {originalType === 'agent' && (
+                <div className="absolute -bottom-[20px] left-0 right-0 flex justify-between px-4">
+                    <div className="flex flex-col items-center">
+                        <Handle
+                            type="source"
+                            position={Position.Bottom}
+                            id="agent-model"
+                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm !pointer-events-none"
+                        />
+                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Chat Model*</span>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                        <Handle
+                            type="source"
+                            position={Position.Bottom}
+                            id="agent-memory"
+                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
+                        />
+                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Memory</span>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                        <Handle
+                            type="source"
+                            position={Position.Bottom}
+                            id="agent-tools"
+                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
+                        />
+                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Tool</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

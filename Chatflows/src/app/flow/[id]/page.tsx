@@ -50,6 +50,7 @@ function DashboardContent() {
   const [selectedNodeType, setSelectedNodeType] = useState<string>('agent');
   const [showConfig, setShowConfig] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   const supabase = createClient();
@@ -195,28 +196,29 @@ function DashboardContent() {
 
       const newId = `node-${Date.now()}`;
       
-      // Map originalType to internal ReactFlow nodeTypes
-      // AgentCanvas supports: start, agent, condition, sticky
+      // AgentCanvas supports: start, agent, condition, sticky, tool
       let nodeType = 'agent';
-      if (['start', 'sticky', 'condition'].includes(originalType)) {
+      if (['start', 'sticky', 'condition', 'tool'].includes(originalType)) {
         nodeType = originalType;
       }
 
       const isCondition = nodeType === 'condition';
+      const isTool = nodeType === 'tool';
       const nodeModelMap: Record<string, { model: string; icon: string }> = {
         agent: { model: 'gemini-flash-latest', icon: 'gemini' },
         condition: { model: 'gemini-flash-latest', icon: 'gemini' },
         http: { model: 'GET', icon: 'globe' },
         flow: { model: 'flow-1', icon: 'workflow' },
         start: { model: 'Manual', icon: 'play' },
+        tool: { model: 'Function', icon: icon || 'bot' }
       };
       const modelInfo = nodeModelMap[originalType] || nodeModelMap.agent;
 
       const newAgent: AgentConfig = {
         id: newId,
-        name: label || (isCondition ? 'New Condition' : 'New Node'),
-        role: 'General Assistant',
-        personality: 'Helpful and adaptable',
+        name: label || (isCondition ? 'New Condition' : isTool ? 'Tool' : 'New Node'),
+        role: isTool ? 'Tool integration' : 'General Assistant',
+        personality: isTool ? 'Execute functions seamlessly' : 'Helpful and adaptable',
         model: modelInfo.model,
         modelIcon: modelInfo.icon,
         tools: [],
@@ -242,7 +244,19 @@ function DashboardContent() {
         },
       };
 
-      setNodes((nds) => [...nds, newNode]);
+      if (originalType === 'start') {
+          setNodes((nds) => {
+              const hasStart = nds.some(n => n.type === 'start' || (n.data && n.data.nodeType === 'start'));
+              if (hasStart) {
+                  setErrorToast('Only one Start node is allowed.');
+                  setTimeout(() => setErrorToast(null), 3000);
+                  return nds;
+              }
+              return [...nds, newNode];
+          });
+      } else {
+          setNodes((nds) => [...nds, newNode]);
+      }
     },
     [setNodes]
   );
@@ -253,8 +267,27 @@ function DashboardContent() {
   );
 
   const handleAIGenerate = useCallback((newNodes: Node[], newEdges: Edge[]) => {
-      setNodes((nds) => [...nds, ...newNodes]);
-      setEdges((eds) => [...eds, ...newEdges]);
+      setNodes((nds) => {
+          const hasStart = nds.some(n => n.type === 'start' || n.data?.nodeType === 'start');
+          let nodesToAdd = newNodes;
+          let generatedEdges = newEdges;
+
+          if (hasStart) {
+              const incomingStart = newNodes.find(n => n.type === 'start' || n.data?.nodeType === 'start');
+              if (incomingStart) {
+                  nodesToAdd = newNodes.filter(n => n.id !== incomingStart.id);
+                  const existingStart = nds.find(n => n.type === 'start' || n.data?.nodeType === 'start')!;
+                  generatedEdges = newEdges.map(e => ({
+                      ...e,
+                      source: e.source === incomingStart.id ? existingStart.id : e.source,
+                      target: e.target === incomingStart.id ? existingStart.id : e.target
+                  }));
+              }
+          }
+          
+          setEdges((eds) => [...eds, ...generatedEdges]);
+          return [...nds, ...nodesToAdd];
+      });
       setToastMessage('Workflow is done and we can start using in the extension.');
       setTimeout(() => setToastMessage(null), 5000);
   }, [setNodes, setEdges]);
@@ -333,6 +366,13 @@ function DashboardContent() {
         <div className="absolute top-16 right-5 z-[60] bg-green-500/20 border border-green-500/50 backdrop-blur-md text-white px-4 py-3 rounded-lg shadow-xl animate-fade-in-up flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-400"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             <span className="text-sm font-medium">{toastMessage}</span>
+        </div>
+      )}
+
+      {errorToast && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[60] bg-red-500/90 border border-red-500 text-white px-4 py-3 rounded-lg shadow-xl animate-fade-in-up flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span className="text-sm font-medium pt-0.5">{errorToast}</span>
         </div>
       )}
     </div>

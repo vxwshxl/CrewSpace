@@ -17,15 +17,28 @@ import {
     type Connection,
     Panel,
 } from '@xyflow/react';
-import { Zap } from 'lucide-react';
+import {
+    Zap,
+    Sparkles,
+    Search,
+    Calculator,
+    CheckSquare,
+    Globe,
+    FileText,
+    Mail,
+    Bot,
+    GitBranch,
+    Workflow,
+    Play,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 
 import StartNode from './nodes/StartNode';
 import AgentNode from './nodes/AgentNode';
 import ConditionNode from './nodes/ConditionNode';
 import StickyNode from './nodes/StickyNode';
+import ToolNode from './nodes/ToolNode'; // Added ToolNode import
 import NodePanel from './NodePanel';
 import AIGeneratorInline from './AIGeneratorInline';
 import { useStore } from '@xyflow/react';
@@ -45,6 +58,7 @@ const nodeTypes = {
     agent: AgentNode,
     condition: ConditionNode,
     sticky: StickyNode,
+    tool: ToolNode, // Added ToolNode
 };
 
 const edgeTypes = {
@@ -117,6 +131,22 @@ export default function AgentCanvas({
         [onNodeDelete]
     );
 
+    const getIconComponent = (iconName: string) => {
+        switch (iconName) {
+            case 'gemini': return <Bot className="w-4 h-4" />;
+            case 'git-branch': return <GitBranch className="w-4 h-4" />;
+            case 'workflow': return <Workflow className="w-4 h-4" />;
+            case 'globe': return <Globe className="w-4 h-4" />;
+            case 'play': return <Play className="w-4 h-4" />;
+            case 'search': return <Search className="w-4 h-4" />;
+            case 'file-text': return <FileText className="w-4 h-4" />;
+            case 'mail': return <Mail className="w-4 h-4" />;
+            case 'check-square': return <CheckSquare className="w-4 h-4" />;
+            case 'calculator': return <Calculator className="w-4 h-4" />;
+            default: return <Bot className="w-4 h-4" />;
+        }
+    };
+
     return (
         <div ref={reactFlowWrapper} className="flex-1 h-full">
             <ReactFlow
@@ -159,7 +189,7 @@ export default function AgentCanvas({
                     {onAIGenerate && <AIGeneratorInline onGenerate={onAIGenerate} />}
                     <NodePanel onDragStart={onDragStart} />
                 </Panel>
-                <Panel position="bottom-right" className="!mb-[7.5rem] !mr-4 !z-50 flex items-center gap-2">
+                <Panel position="bottom-left" className="!mb-4 !ml-4 !z-50 flex items-center gap-2">
                     <ZoomIndicator />
                 </Panel>
                 <Controls

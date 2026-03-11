@@ -302,4 +302,14 @@ export const nodeCategories: NodeCategory[] = [
             },
         ],
     },
+    {
+        name: 'Tools',
+        items: tools.map(t => ({
+            id: `nc-tool-${t.id}`,
+            name: t.name,
+            description: t.description,
+            icon: t.icon,
+            type: 'tool'
+        })),
+    },
 ];
