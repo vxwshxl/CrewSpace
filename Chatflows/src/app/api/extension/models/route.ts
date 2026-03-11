@@ -19,10 +19,27 @@ export async function GET(req: NextRequest) {
         
         if (error) throw error;
 
-        return NextResponse.json({ models: userChatflows || [] });
+        const response = NextResponse.json({ models: userChatflows || [] });
+        
+        // Add CORS headers for the extension
+        response.headers.set('Access-Control-Allow-Origin', req.headers.get('origin') || '*');
+        response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+
+        return response;
 
     } catch (e) {
         console.error(e);
+        return NextResponse.json({ models: [] }, { status: 500 });
     }
-    return NextResponse.json({ models: [] });
+}
+
+export async function OPTIONS() {
+    const response = new NextResponse(null, { status: 204 });
+    response.headers.set('Access-Control-Allow-Origin', '*'); // Or specific origin
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    return response;
 }

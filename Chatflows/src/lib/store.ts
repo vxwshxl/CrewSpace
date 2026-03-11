@@ -30,6 +30,7 @@ interface AppState {
 
     addApiKey: (apiKey: Omit<ApiKey, 'id' | 'createdAt'>) => void;
     deleteApiKey: (id: string) => void;
+    setChatflows: (chatflows: Chatflow[]) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -37,6 +38,8 @@ export const useStore = create<AppState>()(
         (set) => ({
             chatflows: [],
             apiKeys: [],
+
+            setChatflows: (chatflows) => set({ chatflows }),
 
             addChatflow: (chatflow) => set((state) => {
                 if (state.chatflows.some((f) => f.id === chatflow.id)) {

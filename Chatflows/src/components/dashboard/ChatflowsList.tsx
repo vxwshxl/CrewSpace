@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useStore } from '@/lib/store';
 import { Workflow, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,7 @@ export default function ChatflowsList() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const supabase = createClient();
+    const { setChatflows: storeSetChatflows, deleteChatflow: storeDeleteChatflow } = useStore();
 
     useEffect(() => {
         fetchChatflows();
@@ -21,7 +23,18 @@ export default function ChatflowsList() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const { data } = await supabase.from('chatflows').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
-        if (data) setChatflows(data);
+        if (data) {
+            setChatflows(data);
+            // Sync with Zustand store for extension
+            storeSetChatflows(data.map(f => ({
+                id: f.id,
+                name: f.name,
+                nodes: f.data?.nodes || [],
+                edges: f.data?.edges || [],
+                createdAt: new Date(f.created_at).getTime(),
+                updatedAt: new Date(f.updated_at).getTime()
+            })));
+        }
         setLoading(false);
     };
 
@@ -42,6 +55,7 @@ export default function ChatflowsList() {
 
     const handleDelete = async (id: string) => {
         await supabase.from('chatflows').delete().eq('id', id);
+        storeDeleteChatflow(id);
         fetchChatflows();
     };
 

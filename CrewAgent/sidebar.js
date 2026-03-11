@@ -24,12 +24,16 @@ async function fetchModels() {
             BACKEND_URL = 'https://crewspace-ai.vercel.app/api/extension';
         }
 
-        // 1. Get models from Server
+        // 1. Get models from Server (filtered by logged in user via session)
         let serverModels = [];
         try {
-            const res = await fetch(`${BACKEND_URL}/models`);
-            const data = await res.json();
-            serverModels = data.models || [];
+            const res = await fetch(`${BACKEND_URL}/models`, { credentials: 'include' });
+            if (res.ok) {
+                const data = await res.json();
+                serverModels = data.models || [];
+                // Update local storage to stay in sync
+                await chrome.storage.local.set({ synced_models: serverModels });
+            }
         } catch (e) { /* silent */ }
 
         // 2. Get models from Local Sync
@@ -95,7 +99,7 @@ async function syncWithDashboard(isAuto = false) {
         });
 
         let chatflows = results?.[0]?.result;
-        if (chatflows && chatflows.length > 0) {
+        if (chatflows) {
             // Filter again just in case
             chatflows = chatflows.filter(f => f.id !== 'default-agent');
             await chrome.storage.local.set({ synced_models: chatflows });
