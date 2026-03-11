@@ -231,20 +231,56 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             return (
                 <div className="space-y-4 pt-2">
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-white">Pre-filled Email</Label>
+                        <Label className="text-sm font-medium text-white">Name</Label>
                         <Input 
-                            placeholder="recipient@example.com" 
-                            value={tConfig.prefilledEmail || ''} 
-                            onChange={(e) => handleToolConfigChange('prefilledEmail', e.target.value)}
+                            placeholder="e.g. John Doe" 
+                            value={tConfig.name || ''} 
+                            onChange={(e) => handleToolConfigChange('name', e.target.value)}
                             className="text-xs bg-card border-border"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-white">Template Content</Label>
+                        <Label className="text-sm font-medium text-white">Phone</Label>
+                        <Input 
+                            placeholder="e.g. +1 234 567 8900" 
+                            value={tConfig.phone || ''} 
+                            onChange={(e) => handleToolConfigChange('phone', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Email</Label>
+                        <Input 
+                            placeholder="sender@example.com" 
+                            value={tConfig.email || ''} 
+                            onChange={(e) => handleToolConfigChange('email', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Company</Label>
+                        <Input 
+                            placeholder="e.g. Acme Corp" 
+                            value={tConfig.company || ''} 
+                            onChange={(e) => handleToolConfigChange('company', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Position / Job Title</Label>
+                        <Input 
+                            placeholder="e.g. CEO, Sales Representative" 
+                            value={tConfig.position || ''} 
+                            onChange={(e) => handleToolConfigChange('position', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Templates</Label>
                         <Textarea 
                             placeholder="Hi [Name],\n\nThank you for..." 
-                            value={tConfig.templateContent || ''} 
-                            onChange={(e) => handleToolConfigChange('templateContent', e.target.value)}
+                            value={tConfig.templates || ''} 
+                            onChange={(e) => handleToolConfigChange('templates', e.target.value)}
                             className="min-h-[100px] text-xs bg-card border-border resize-y"
                         />
                     </div>
@@ -256,21 +292,26 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
              return (
                 <div className="space-y-4 pt-2">
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-white">Summary Tone</Label>
-                         <Input 
-                            placeholder="Professional, Casual, or Enthusiastic" 
-                            value={tConfig.tone || ''} 
-                            onChange={(e) => handleToolConfigChange('tone', e.target.value)}
-                            className="text-xs bg-card border-border"
-                        />
+                        <Label className="text-sm font-medium text-white pb-1 block">Summary Tone</Label>
+                         <div className="flex flex-wrap gap-2">
+                             {['Professional', 'Casual', 'Enthusiastic', 'Informative', 'Witty'].map(tone => (
+                                 <button
+                                     key={tone}
+                                     onClick={() => handleToolConfigChange('tone', tone)}
+                                     className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${tConfig.tone === tone ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                                 >
+                                     {tone}
+                                 </button>
+                             ))}
+                         </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 pt-2">
                         <Label className="text-sm font-medium text-white">Summary Type</Label>
-                         <Input 
-                            placeholder="Bullet points, Paragraph, Executive Brief" 
+                         <Textarea 
+                            placeholder="Describe the summary format needed (e.g. Bullet points, Paragraph, Executive Brief)..." 
                             value={tConfig.type || ''} 
                             onChange={(e) => handleToolConfigChange('type', e.target.value)}
-                            className="text-xs bg-card border-border"
+                            className="min-h-[80px] text-xs bg-card border-border resize-y"
                         />
                     </div>
                 </div>
