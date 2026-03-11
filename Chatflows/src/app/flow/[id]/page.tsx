@@ -15,20 +15,35 @@ import NodePanel from '@/components/NodePanel';
 import AgentCanvas from '@/components/AgentCanvas';
 import ConfigPanel from '@/components/ConfigPanel';
 
-import { useStore } from '@/lib/store';
 import { AgentConfig, ChatMessage } from '@/lib/types';
 import { useParams } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 function DashboardContent() {
   const params = useParams();
   const id = params.id as string;
-  const store = useStore();
   const { screenToFlowPosition } = useReactFlow();
-
-  const currentFlow = store.chatflows.find((f) => f.id === id);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(currentFlow?.nodes || []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(currentFlow?.edges || []);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [flowName, setFlowName] = useState('New Chatflow');
+  const [loading, setLoading] = useState(true);
+  
   const [nodePanelOpen, setNodePanelOpen] = useState(true);
   const [chatPanelOpen, setChatPanelOpen] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
@@ -37,22 +52,52 @@ function DashboardContent() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
+  const supabase = createClient();
 
+  // Load flow data from Supabase
+  React.useEffect(() => {
+    const loadFlow = async () => {
+      const { data, error } = await supabase
+        .from('chatflows')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (data && !error) {
+        setFlowName(data.name);
+        if (data.data) {
+          setNodes(data.data.nodes || []);
+          setEdges(data.data.edges || []);
+        }
+      }
+      setLoading(false);
+    };
+
+    loadFlow();
+  }, [id]);
+
+  const debouncedNodes = useDebounce(nodes, 1000);
+  const debouncedEdges = useDebounce(edges, 1000);
 
   // Auto-save effect
   React.useEffect(() => {
-    if (currentFlow) {
-      store.updateChatflow(id, { nodes, edges });
-    } else {
-      store.addChatflow({
-        id,
-        name: 'New Chatflow',
-        nodes,
-        edges,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, edges, id]);
+    if (loading) return;
+
+    const saveFlow = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase.from('chatflows').upsert({
+            id,
+            user_id: user.id,
+            name: flowName,
+            data: { nodes: debouncedNodes, edges: debouncedEdges },
+            updated_at: new Date().toISOString(),
+        });
+    };
+
+    saveFlow();
+  }, [debouncedNodes, debouncedEdges, flowName, id, loading]);
 
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
@@ -76,9 +121,9 @@ function DashboardContent() {
 
   const handleTitleChange = useCallback(
     (newTitle: string) => {
-      store.updateChatflow(id, { name: newTitle });
+      setFlowName(newTitle);
     },
-    [id, store]
+    []
   );
 
 
@@ -239,7 +284,7 @@ function DashboardContent() {
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden" ref={reactFlowWrapper}>
       <HeaderBar
-        title={currentFlow?.name || "Agentic Workflow"}
+        title={flowName}
         onTitleChange={handleTitleChange}
         onToggleChatPanel={() => {
           setChatPanelOpen(!chatPanelOpen);

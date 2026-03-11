@@ -12,12 +12,18 @@ import SettingsList from '@/components/dashboard/SettingsList';
 import SquadsList from '@/components/dashboard/SquadsList';
 import BubbleTutorial from '@/components/BubbleTutorial';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState<TabType>('chatflows');
     const [mounted, setMounted] = useState(false);
     const [showLoader, setShowLoader] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [userProfile, setUserProfile] = useState<{ name: string; avatarUrl: string | null }>({ name: 'Guest Captain', avatarUrl: null });
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const router = useRouter();
+    const supabase = createClient();
 
     React.useEffect(() => {
         setMounted(true);
@@ -25,6 +31,19 @@ export default function DashboardPage() {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 1024);
         };
+        
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // Read from user_metadata for name and picture (from Google OAuth or traditional signup)
+                const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Crew Member';
+                const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+                setUserProfile({ name, avatarUrl });
+            }
+        };
+
+        checkMobile();
+        fetchUser();
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => {
@@ -58,14 +77,42 @@ export default function DashboardPage() {
                                 <div></div>
 
                                 {/* Right side - User Profile */}
-                                <div className="flex items-center gap-3">
-                                    <span className="text-sm font-semibold text-white">Guest Captain</span>
-                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-muted-foreground">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                            <circle cx="12" cy="7" r="4"/>
-                                        </svg>
+                                <div className="relative">
+                                    <div 
+                                        className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
+                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    >
+                                        <span className="text-sm font-semibold text-white">{userProfile.name}</span>
+                                        <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-muted-foreground border border-border">
+                                            {userProfile.avatarUrl ? (
+                                                <Image src={userProfile.avatarUrl} alt={userProfile.name} width={32} height={32} className="object-cover" />
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                                    <circle cx="12" cy="7" r="4"/>
+                                                </svg>
+                                            )}
+                                        </div>
                                     </div>
+
+                                    {/* Dropdown Menu */}
+                                    {isDropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-xl py-1 z-50 overflow-hidden transform origin-top-right transition-all">
+                                            <div className="px-4 py-3 border-b border-border">
+                                                <p className="text-sm text-white font-medium truncate">{userProfile.name}</p>
+                                            </div>
+                                            <button 
+                                                onClick={async () => {
+                                                    await supabase.auth.signOut();
+                                                    router.push('/login');
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 hover:text-red-400 transition-colors flex items-center gap-2"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                                                Log out
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </header>
 

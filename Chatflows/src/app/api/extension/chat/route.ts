@@ -42,13 +42,23 @@ Respond in valid JSON only:`;
 async function getChatflowConfig(chatflowId: string) {
     try {
         const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            console.error("No authenticated user found in extension request");
+            return null;
+        }
+
         const { data: chatflow, error: chatflowError } = await supabase
             .from('chatflows')
             .select('*')
             .eq('id', chatflowId)
+            .eq('user_id', user.id)
             .single();
 
-        if (chatflowError) throw chatflowError;
+        if (chatflowError) {
+            console.error("Chatflow not found or access denied:", chatflowError);
+            throw chatflowError;
+        }
 
         if (chatflow && chatflow.data) {
             const data: any = chatflow.data;
@@ -59,7 +69,7 @@ async function getChatflowConfig(chatflowId: string) {
                 const { data: apiKeyObj } = await supabase
                     .from('apiKeys')
                     .select('key')
-                    .eq('user_id', chatflow.user_id)
+                    .eq('user_id', user.id)
                     .eq('provider', 'gemini')
                     .single();
                 
