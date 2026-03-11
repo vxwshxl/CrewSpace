@@ -28,7 +28,8 @@ CRITICAL RULES:
 11. Do not provide legal or medical advice through the assistant—always redirect to official sources.
 12. AVOID INFINITE LOOPS: If you have SCROLLed multiple times and cannot find the exact target, STOP scrolling. Choose the best available option visible or return an ANSWER explaining the issue. Do NOT hallucinate elements that are not in the DOM.
 13. E-COMMERCE / SHOPPING: When buying or searching on sites like Amazon, prioritize items with "Amazon's Choice" or high ratings. Click "Add to cart" or the product directly to complete the task.
-14. MEMORY STORAGE: If you learn an important fact about the user or complete a major subtask, include a 'memory' property in your JSON containing this context. E.g. {"action":"ANSWER", "text":"Got it.", "memory":"User prefers dark mode"}
+14. MEMORY STORAGE: Proactively store context, past tasks completed, and learned user preferences. If you learn something new or complete a task, include a 'memory' property in your JSON. Example: {"action":"ANSWER", "text":"...", "memory":"User prefers dark mode. Completed task: Drafted email."}
+15. EXPLICIT TOOL TRACKING: If you use a tool (e.g. "Web Search", "Summarizer", "Email Drafter") or use your built-in general knowledge to answer, you MUST include a 'usedTool' property in your JSON response. Example: {"action":"ANSWER", "text":"...", "usedTool":"Email Drafter"}
 
 EXAMPLES:
 {"action":"CLICK","elementId":15}
@@ -79,10 +80,23 @@ async function getChatflowConfig(chatflowId: string) {
                 const hasMemoryNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-memory');
                 const hasModelNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-model');
 
+                const modelNodeId = data.edges?.find((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-model')?.target;
+                const modelNode = modelNodeId ? data.nodes?.find((n: any) => n.id === modelNodeId) : null;
+                const chatModelMessages = modelNode?.data?.agentConfig?.messages || [];
+
+                const toolNodes = data.edges
+                    ?.filter((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-tools')
+                    .map((e: any) => data.nodes?.find((n: any) => n.id === e.target))
+                    .filter(Boolean) || [];
+
+                const toolsConfig = toolNodes.map((n: any) => n.data?.agentConfig).filter(Boolean);
+
                 return {
                     userId: user.id,
                     hasMemoryNode,
                     hasModelNode,
+                    chatModelMessages,
+                    toolsConfig,
                     model: 'gemini-flash-latest',
                     provider: 'gemini',
                     apiKey: finalApiKey,
@@ -237,6 +251,26 @@ export async function POST(req: NextRequest) {
         if (config.prompt) {
             systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
         }
+        if (config.chatModelMessages && config.chatModelMessages.length > 0) {
+            systemContext += `\n\nADDITIONAL CONTEXT FROM CHAT MODEL SETTINGS:`;
+            config.chatModelMessages.forEach((msg: any) => {
+                systemContext += `\n[${msg.role.toUpperCase()}]: ${msg.content}`;
+            });
+        }
+        
+        if (config.toolsConfig && config.toolsConfig.length > 0) {
+            systemContext += `\n\nAVAILABLE TOOLS CONFIGURED BY USER:`;
+            config.toolsConfig.forEach((tool: any) => {
+                systemContext += `\n--- Tool: ${tool.name} ---`;
+                if (tool.toolConfig) {
+                    Object.entries(tool.toolConfig).forEach(([key, value]) => {
+                        if (value) systemContext += `\n- ${key}: ${value}`;
+                    });
+                }
+            });
+            systemContext += `\n\nCRITICAL INSTRUCTION: If the user requests an action matching these tools (e.g., drafting an email, summarizing, managing to-dos), use the provided tool configurations (templates, preferences, details) to automatically complete the request accurately.`;
+            systemContext += `\n\nIf you use any of these tools to generate your response, you MUST include a 'usedTool' property in your JSON output with the exact tool name. E.g. {"action": "ANSWER", "text": "...", "usedTool": "${config.toolsConfig[0]?.name || 'Tool Name'}"}`;
+        }
         
         const supabase = await createClient();
 
@@ -253,6 +287,32 @@ export async function POST(req: NextRequest) {
 
         // Force Gemini usage per user settings
         const result = await chatWithGemini(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
+
+        if (config.userId) {
+            try {
+                const newMessages = [];
+                const lastUserMsg = messages[messages.length - 1];
+                if (lastUserMsg && lastUserMsg.role === 'user') {
+                    newMessages.push({
+                        chatflow_id: chatflowId,
+                        user_id: config.userId,
+                        role: 'user',
+                        content: lastUserMsg.content
+                    });
+                }
+                
+                newMessages.push({
+                    chatflow_id: chatflowId,
+                    user_id: config.userId,
+                    role: 'assistant',
+                    content: result.text || ""
+                });
+
+                await supabase.from('chat_history').insert(newMessages);
+            } catch (e) {
+                console.error("Failed to save chat history:", e);
+            }
+        }
 
         if (result.memory && config.hasMemoryNode && config.userId) {
             try {

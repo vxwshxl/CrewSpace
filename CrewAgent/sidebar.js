@@ -394,6 +394,16 @@ const welcomeScreenHTML = `
 `;
 
 clearBtn.addEventListener('click', async () => {
+    const modelSelect = document.getElementById('model-select');
+    const selectedModel = modelSelect ? modelSelect.value : '';
+    if (selectedModel) {
+        try {
+            await fetch(`${BACKEND_URL}/history?chatflowId=${selectedModel}`, { method: 'DELETE', credentials: 'include' });
+        } catch (e) {
+            console.error("Failed to clear history", e);
+        }
+    }
+
     chatContainer.innerHTML = welcomeScreenHTML;
     // RESET AGENT STATE
     chatHistory = [];
@@ -402,6 +412,7 @@ clearBtn.addEventListener('click', async () => {
         translationAbortController = null;
     }
     stopAgentLoop();
+
 
     // Reset translation back to default
     if (translateLang.value !== "") {
@@ -605,6 +616,10 @@ async function runAgentLoop() {
                 role: "assistant",
                 content: assistantMessageStr
             });
+
+            if (data.usedTool) {
+                addActivityLog('action', `Agent used tool: ${data.usedTool}`);
+            }
 
             // Note: Update UI right away if the agent generated new memory.
             if (data.memory) {
@@ -1057,8 +1072,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (modelSelect) {
+        // Initial load
+        setTimeout(() => {
+            fetchHistory();
+            fetchMemory();
+        }, 300);
+
         modelSelect.addEventListener('change', async (e) => {
             await chrome.storage.local.set({ selectedModel: e.target.value });
+            fetchHistory();
+            fetchMemory();
             addMessage(`Switched AI model to ${e.target.options[e.target.selectedIndex].text}`, "ai", "success");
         });
     }
@@ -1186,11 +1209,48 @@ if (modelSelect) {
     modelSelect.addEventListener('change', fetchMemory);
 }
 
+async function fetchHistory() {
+    const modelSelect = document.getElementById('model-select');
+    const selectedModel = modelSelect ? modelSelect.value : '';
+    if (!selectedModel) return;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/history?chatflowId=${selectedModel}`, { credentials: 'include' });
+        const data = await response.json();
+        
+        chatHistory = [];
+        
+        if (data.history && data.history.length > 0) {
+            chatContainer.innerHTML = '';
+            data.history.forEach(item => {
+                chatHistory.push({
+                    role: item.role,
+                    content: item.content
+                });
+                const sender = item.role === 'user' ? 'user' : 'ai';
+                addMessage(item.content, sender, 'history-load');
+            });
+        } else {
+            chatContainer.innerHTML = welcomeScreenHTML;
+        }
+    } catch(e) {
+        console.error("Failed to fetch history", e);
+    }
+}
+
 // Intercept existing message handling to add logs
-const originalAppendMessage = appendMessage;
-appendMessage = function (role, content) {
-    originalAppendMessage(role, content);
-    if (role === 'assistant') {
-        addActivityLog('action', 'Agent responded to user');
+const originalAddMessage = addMessage;
+addMessage = function (text, sender, type = 'normal') {
+    originalAddMessage(text, sender, type);
+    if (type !== 'history-load') {
+        if (sender === 'ai' && type !== 'error') {
+            if (text.startsWith('Executing') || text.startsWith('Navigating') || text.startsWith('Typing') || text.startsWith('Reading')) {
+                addActivityLog('action', text);
+            } else {
+                addActivityLog('system', 'Agent generated a response');
+            }
+        } else if (sender === 'user') {
+            addActivityLog('user', 'User sent a message');
+        }
     }
 }

@@ -180,6 +180,27 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
             </div>
 
             <div className="space-y-2 mt-4">
+                <Label className="text-sm font-medium text-white pb-1 block">Personality / Tone</Label>
+                 <div className="flex flex-wrap gap-2">
+                     {['Helpful Assistant', 'Strict Professional', 'Creative Writer', 'Code Expert', 'Snarky Bot'].map(tone => (
+                         <button
+                             key={tone}
+                             onClick={() => onUpdate({ ...agent, personality: tone })}
+                             className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${agent.personality === tone ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                         >
+                             {tone}
+                         </button>
+                     ))}
+                 </div>
+                 <Textarea 
+                    placeholder="Or describe a custom personality..." 
+                    value={agent.personality || ''} 
+                    onChange={(e) => onUpdate({ ...agent, personality: e.target.value })}
+                    className="min-h-[60px] text-xs bg-card border-border mt-2 resize-y"
+                />
+            </div>
+
+            <div className="space-y-2 mt-4">
                 <Label className="text-sm font-medium text-white pb-2 block border-b border-border">Messages</Label>
                 <div className="space-y-4 pt-2">
                     {agent.messages?.map((msg, i) => (
