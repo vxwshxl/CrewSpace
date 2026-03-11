@@ -132,25 +132,17 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                                                     className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                                                     style={{
                                                         background:
-                                                            item.type === 'tool'
-                                                                ? 'rgba(59, 130, 246, 0.25)' /* blue */
-                                                            : item.type === 'agent'
-                                                                ? 'rgba(140, 82, 255, 0.25)'
-                                                                : item.type === 'condition'
-                                                                    ? 'rgba(255, 102, 196, 0.25)'
-                                                                    : item.type === 'sticky'
-                                                                        ? 'rgba(234, 179, 8, 0.25)'
-                                                                        : 'rgba(193, 255, 114, 0.25)',
+                                                            item.type === 'tool' ? 'rgba(59, 130, 246, 0.15)'
+                                                            : item.type === 'agent' ? 'rgba(140, 82, 255, 0.15)'
+                                                            : item.type === 'condition' ? 'rgba(255, 102, 196, 0.15)'
+                                                            : item.type === 'sticky' ? 'rgba(234, 179, 8, 0.15)'
+                                                            : 'rgba(193, 255, 114, 0.15)',
                                                         color:
-                                                            item.type === 'tool'
-                                                                ? '#3b82f6'
-                                                            : item.type === 'agent'
-                                                                ? 'var(--primary)'
-                                                                : item.type === 'condition'
-                                                                    ? 'var(--muted-foreground)'
-                                                                    : item.type === 'sticky'
-                                                                        ? '#eab308'
-                                                                        : 'var(--secondary)',
+                                                            item.type === 'tool' ? '#3b82f6'
+                                                            : item.type === 'agent' ? 'var(--chart-1)'
+                                                            : item.type === 'condition' ? 'var(--chart-4)'
+                                                            : item.type === 'sticky' ? '#eab308'
+                                                            : 'var(--chart-2)',
                                                     }}
                                                 >
                                                     {iconMap[item.icon] || <Bot className="w-4 h-4" />}
