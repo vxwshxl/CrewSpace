@@ -44,14 +44,14 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
     const toolCategories = filteredCategories.filter(cat => cat.name === 'Tools');
 
     return (
-        <div className="relative z-50 flex items-start gap-2">
+        <div className="relative z-50 flex items-start gap-2 w-[260px]">
             <button
                 id="tutorial-add-nodes-btn"
                 onClick={() => {
                     setIsOpen(!isOpen);
                     setIsToolsOpen(false);
                 }}
-                className="flex items-center justify-between w-[140px] px-4 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 style={{ color: 'var(--foreground)' }}
             >
                 Add Nodes
@@ -64,7 +64,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
                     setIsToolsOpen(!isToolsOpen);
                     setIsOpen(false);
                 }}
-                className="flex items-center justify-between w-[140px] px-4 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
+                className="flex-1 flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg shadow-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors"
                 style={{ color: 'var(--foreground)' }}
             >
                 Tools
@@ -73,7 +73,7 @@ export default function NodePanel({ onDragStart }: NodePanelProps) {
 
             {(isOpen || isToolsOpen) && (
                 <div
-                    className="absolute top-0 left-[150px] w-[260px] max-h-[80vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
+                    className="absolute top-full left-0 mt-2 w-full max-h-[60vh] flex flex-col animate-fade-in-up bg-black/60 backdrop-blur-xl shadow-2xl rounded-xl border overflow-hidden"
                     style={{
                         borderColor: 'var(--border)',
                     }}
