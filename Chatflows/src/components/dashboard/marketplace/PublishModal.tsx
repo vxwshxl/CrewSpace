@@ -65,29 +65,29 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
     <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200" 
+        className="absolute inset-0 bg-black/95 backdrop-blur-sm duration-200" 
         onClick={!isPublishing ? onClose : undefined} 
       />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#0b0f14] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-[#050505] border border-white/10 rounded-none shadow-2xl duration-200">
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
               <Globe className="w-5 h-5 text-primary" />
             </div>
             {!isPublishing && (
               <button 
                 onClick={onClose}
-                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-lg"
+                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-none"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <h3 className="text-xl font-bold text-white mb-2">Publish to Marketplace</h3>
+          <h3 className="text-xl font-bold tracking-tight text-white mb-2">Publish to Marketplace</h3>
           <p className="text-zinc-500 text-xs mb-8 leading-relaxed">
             Share your masterpiece with the CrewSpace community. Your workflow will be visible in the public library for others to discover and install.
           </p>
@@ -98,7 +98,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
                 <Label className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Marketplace Name</Label>
                 <Input 
                   placeholder="Viral Script Generator" 
-                  className="h-10 bg-black/40 border-white/10 rounded-lg focus:border-blue-500/50 text-white text-sm"
+                  className="!h-12 bg-black/40 border-white/10 focus:border-primary/50 text-white text-sm"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={isPublishing}
@@ -107,12 +107,14 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Category</Label>
                 <Select value={category} onValueChange={(val) => val && setCategory(val)} disabled={isPublishing}>
-                  <SelectTrigger className="h-10 bg-black/40 border-white/10 rounded-lg text-white text-sm">
+                  <SelectTrigger className="!h-12 w-full bg-black/40 border-white/10 rounded-full text-white text-sm focus:ring-primary/50">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#161b22] border-white/10 text-zinc-300">
+                  <SelectContent side="bottom" sideOffset={12} align="start" className="bg-[#050505] border border-white/10 rounded-[28px] text-white z-[100] p-3 shadow-3xl min-w-[240px] max-h-[220px] overflow-y-auto custom-scrollbar">
                     {CATEGORIES.filter(c => c !== 'All').map(c => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c} className="rounded-xl py-3 px-5 focus:bg-white/10 focus:text-primary transition-all cursor-pointer mb-1 last:mb-0 text-sm font-bold">
+                        {c}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -123,14 +125,14 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
               <Label className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Short Description</Label>
               <Textarea 
                 placeholder="Briefly explain what this workflow achieves..." 
-                className="bg-black/40 border-white/10 rounded-lg focus:border-blue-500/50 text-white text-sm min-h-[80px]"
+                className="bg-black/40 border-white/10 rounded-none focus:border-primary/50 text-white text-sm min-h-[80px]"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isPublishing}
               />
             </div>
 
-            <div className="flex items-center gap-6 p-4 bg-white/2 rounded-lg border border-white/5">
+            <div className="flex items-center gap-6 p-4 bg-white/2 rounded-none border border-white/5">
               <div className="flex-1">
                 <h4 className="text-xs font-bold text-white mb-1">Pricing Model</h4>
                 <p className="text-[10px] text-zinc-500">Choose if this is a free or premium workflow</p>
@@ -138,13 +140,13 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => setIsPremium(false)}
-                  className={`px-3 py-1 rounded-md text-[10px] font-bold border transition-all ${!isPremium ? 'bg-white/10 text-white border-white/20' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${!isPremium ? 'bg-white/10 text-white border-white/20' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
                 >
                   Free
                 </button>
                 <button 
                   onClick={() => setIsPremium(true)}
-                  className={`px-3 py-1 rounded-md text-[10px] font-bold border transition-all ${isPremium ? 'bg-orange-500/10 text-orange-400 border-orange-500/30' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${isPremium ? 'bg-orange-500/10 text-orange-400 border-orange-500/30' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
                 >
                   Premium
                 </button>
@@ -152,12 +154,12 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
             </div>
 
             {isPremium && (
-              <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="space-y-2 duration-200">
                 <Label className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Price (₹)</Label>
                 <div className="relative">
                   <Input 
                     type="number"
-                    className="h-10 bg-black/40 border-white/10 rounded-lg pl-8 focus:border-orange-500/50 text-white text-sm"
+                    className="h-10 bg-black/40 border-white/10 rounded-none pl-8 focus:border-orange-500/50 text-white text-sm"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     disabled={isPublishing}
@@ -192,6 +194,17 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
           </div>
         </div>
       </div>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 }

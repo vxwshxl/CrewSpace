@@ -39,29 +39,29 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
     <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200" 
+        className="absolute inset-0 bg-black/90 backdrop-blur-sm duration-200" 
         onClick={!isInstalling ? onClose : undefined} 
       />
       
       {/* Modal Container - Minimal & Consistent */}
-      <div className="relative w-full max-w-md bg-[#0b0f14] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-[#0b0f14] border border-white/10 rounded-none overflow-hidden shadow-2xl duration-200">
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center border border-blue-500/20">
+            <div className="w-10 h-10 bg-blue-500/10 rounded-none flex items-center justify-center border border-blue-500/20">
               <Workflow className="w-5 h-5 text-blue-500" />
             </div>
             {!isInstalling && (
               <button 
                 onClick={onClose}
-                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-lg"
+                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-none"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <h3 className="text-xl font-bold text-white mb-2">Install Workflow</h3>
+          <h3 className="text-xl font-bold tracking-tight text-white mb-2">Install Workflow</h3>
           <p className="text-zinc-500 text-xs mb-8 leading-relaxed">
             You are creating a new instance of <span className="text-zinc-300 font-bold">{workflow.name}</span>. Give it a personal name in your workspace.
           </p>
@@ -72,7 +72,7 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
               <Input 
                 id="workflow-name" 
                 placeholder="e.g. My Marketing Flow" 
-                className="h-11 bg-black/40 border-white/10 rounded-lg focus:border-blue-500/50 text-white text-sm"
+                className="h-11 bg-black/40 border-white/10 rounded-none focus:border-blue-500/50 text-white text-sm"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
@@ -83,7 +83,7 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
           </div>
 
           <Button 
-            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-sm shadow-lg shadow-blue-900/10 group overflow-hidden"
+            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm shadow-lg shadow-blue-900/10 group overflow-hidden"
             onClick={handleInstall}
             disabled={!name.trim() || isInstalling}
           >
