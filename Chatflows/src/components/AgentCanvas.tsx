@@ -29,6 +29,7 @@ import StickyNode from './nodes/StickyNode';
 import NodePanel from './NodePanel';
 import AIGeneratorInline from './AIGeneratorInline';
 import { useStore } from '@xyflow/react';
+import DeletableEdge from './edges/DeletableEdge';
 
 function ZoomIndicator() {
     const zoom = useStore((s) => s.transform[2]);
@@ -44,6 +45,10 @@ const nodeTypes = {
     agent: AgentNode,
     condition: ConditionNode,
     sticky: StickyNode,
+};
+
+const edgeTypes = {
+    deletable: DeletableEdge,
 };
 
 interface AgentCanvasProps {
@@ -86,7 +91,7 @@ export default function AgentCanvas({
                 addEdge(
                     {
                         ...params,
-                        type: 'default',
+                        type: 'deletable',
                         animated: true,
                         style: { stroke: 'var(--muted-foreground)', strokeWidth: 2, opacity: 0.6 },
                         markerEnd: {
@@ -126,8 +131,9 @@ export default function AgentCanvas({
                 onDrop={onDrop}
                 onDragOver={onDragOver}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 defaultEdgeOptions={{
-                    type: 'default',
+                    type: 'deletable',
                     animated: true,
                     style: { stroke: 'var(--muted-foreground)', strokeWidth: 2, opacity: 0.6 },
                     markerEnd: {

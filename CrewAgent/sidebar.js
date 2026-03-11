@@ -99,7 +99,7 @@ async function syncWithDashboard(isAuto = false) {
         });
 
         let chatflows = results?.[0]?.result;
-        if (chatflows) {
+        if (chatflows && chatflows.length > 0) {
             // Filter again just in case
             chatflows = chatflows.filter(f => f.id !== 'default-agent');
             await chrome.storage.local.set({ synced_models: chatflows });
@@ -144,6 +144,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             })
             .catch(err => console.error("Dynamic translation failed:", err));
         sendResponse({ status: "processing" });
+        return true;
+    } else if (request.type === "SYNC_CREWAGENT") {
+        fetchModels();
+        sendResponse({ status: "success" });
         return true;
     }
 });

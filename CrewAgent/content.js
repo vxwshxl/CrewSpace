@@ -375,4 +375,7 @@ window.addEventListener("message", (event) => {
     if (event.data && event.data.type === 'TOGGLE_CREWAGENT') {
         chrome.runtime.sendMessage({ type: "TOGGLE_CREWAGENT" });
     }
+    if (event.data && event.data.type === 'SYNC_CREWAGENT') {
+        chrome.runtime.sendMessage({ type: "SYNC_CREWAGENT" });
+    }
 }, false);
