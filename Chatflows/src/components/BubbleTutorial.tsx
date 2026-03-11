@@ -196,10 +196,15 @@ export default function BubbleTutorial() {
           transition: isReady ? 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
       };
   } else if (step.placement === 'bottom-left') {
+      let safeLeft = targetRect.left;
+      if (safeLeft + 320 > window.innerWidth - 16) {
+          safeLeft = window.innerWidth - 320 - 16;
+      }
+
       bubbleStyle = {
           ...bubbleStyle,
           top: targetRect.bottom + 16,
-          left: Math.max(16, targetRect.left), 
+          left: Math.max(16, safeLeft), 
       };
       
       // Ensure we don't go off screen at bottom
