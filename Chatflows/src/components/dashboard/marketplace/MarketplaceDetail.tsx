@@ -89,7 +89,7 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
             </div>
             <div className="flex items-center justify-between text-[10px] text-zinc-600 border-t border-white/5 pt-4">
               <span className="uppercase tracking-widest font-bold">Release</span>
-              <span className="text-zinc-400 font-medium">v1.2.4</span>
+              <span className="text-zinc-400 font-medium">{workflow.createdAt || 'v1.0.0'}</span>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ export interface Workflow {
   exampleOutput?: string;
   trending?: boolean;
   new?: boolean;
+  createdAt?: string;
   templateData?: {
     nodes: any[];
     edges: any[];
@@ -32,5 +33,12 @@ export const CATEGORIES = [
   'Social Media',
   'Business Automation',
   'AI Research',
-  'Data Analysis'
+  'Data Analysis',
+  'Shopping',
+  'Lifestyle',
+  'Finance',
+  'Education',
+  'Personal Assistant',
+  'Customer Support',
+  'General Tool'
 ];

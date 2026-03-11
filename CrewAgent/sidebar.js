@@ -405,6 +405,11 @@ clearBtn.addEventListener('click', async () => {
     }
 
     chatContainer.innerHTML = welcomeScreenHTML;
+    const activityContainer = document.getElementById('activity-log');
+    if (activityContainer) {
+        activityContainer.innerHTML = '';
+    }
+    
     // RESET AGENT STATE
     chatHistory = [];
     if (translationAbortController) {

@@ -82,9 +82,10 @@ export default function MarketplaceList() {
           category: item.category,
           icon: item.icon || '🤖',
           rating: 4.8, 
-          reviews: 0, // Fixed: Added missing property
-          installs: 0,
+          reviews: 0,
+          installs: item.installs || 0,
           creator: item.creator_name,
+          createdAt: new Date(item.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }),
           isPremium: item.is_premium,
           price: item.price,
           features: ["Community Submitted", "Verified Logic"],
@@ -113,7 +114,12 @@ export default function MarketplaceList() {
       .sort((a, b) => {
         if (sortBy === 'trending') return (b.trending ? 1 : 0) - (a.trending ? 1 : 0) || b.rating - a.rating;
         if (sortBy === 'most-installed') return b.installs - a.installs;
-        if (sortBy === 'new') return (b.new ? 1 : 0) - (a.new ? 1 : 0);
+        if (sortBy === 'newest') {
+          // Sort dynamically added workflows by their authentic creation date, fallback to static "new" tag if none
+          const aTime = a.createdAt ? new Date(a.createdAt).getTime() : (a.new ? Date.now() : 0);
+          const bTime = b.createdAt ? new Date(b.createdAt).getTime() : (b.new ? Date.now() : 0);
+          return bTime - aTime;
+        }
         return 0;
       });
   }, [searchQuery, selectedCategory, sortBy, allWorkflows]);
@@ -143,6 +149,19 @@ export default function MarketplaceList() {
       });
 
       if (error) throw error;
+
+      // Increment installs if it's a dynamic workflow (identified by having a normal Supabase UUID format)
+      if (workflowToInstall.id && workflowToInstall.id.length > 20) {
+          const newInstalls = (workflowToInstall.installs || 0) + 1;
+          await supabase.from('marketplace_workflows')
+            .update({ installs: newInstalls })
+            .eq('id', workflowToInstall.id);
+          
+          // Optionally update local state too
+          setAllWorkflows(prev => 
+            prev.map(w => w.id === workflowToInstall.id ? { ...w, installs: newInstalls } : w)
+          );
+      }
 
       setSuccessToast("Done, added to your chatflow");
       setWorkflowToInstall(null);
@@ -246,9 +265,9 @@ export default function MarketplaceList() {
                 alignItemWithTrigger={false}
                 className="bg-card border-border text-zinc-300 rounded-[20px] shadow-2xl p-1.5 min-w-[160px] z-50 overflow-hidden"
               >
-                <SelectItem value="Trending" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Trending</SelectItem>
-                <SelectItem value="Most-installed" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Most Installed</SelectItem>
-                <SelectItem value="Newest" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium">Newest</SelectItem>
+                <SelectItem value="trending" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Trending</SelectItem>
+                <SelectItem value="most-installed" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium mb-1 last:mb-0">Most Installed</SelectItem>
+                <SelectItem value="newest" className="focus:bg-white/10 focus:text-white cursor-pointer rounded-xl text-sm transition-colors py-2.5 px-4 font-medium">Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>
