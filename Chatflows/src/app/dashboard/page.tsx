@@ -122,7 +122,18 @@ export default function DashboardPage() {
                                 {activeTab === 'squads' && <SquadsList />}
                                 {activeTab === 'marketplace' && <MarketplaceList />}
                                 {activeTab === 'tutorials' && <TutorialsList />}
-                                {activeTab === 'settings' && <SettingsList />}
+                                {activeTab === 'settings' && <SettingsList onProfileUpdate={() => {
+                                    // Re-fetch user to sync navbar
+                                    const fetchUser = async () => {
+                                        const { data: { user } } = await supabase.auth.getUser();
+                                        if (user) {
+                                            const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Crew Member';
+                                            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+                                            setUserProfile({ name, avatarUrl });
+                                        }
+                                    };
+                                    fetchUser();
+                                }} />}
                             </div>
                         </main>
                     </div>
