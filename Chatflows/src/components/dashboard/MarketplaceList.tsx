@@ -60,47 +60,46 @@ export default function MarketplaceList() {
   const supabase = createClient();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   fetchMarketplaceWorkflows();
-  // }, []);
+  useEffect(() => {
+    fetchMarketplaceWorkflows();
+  }, []);
 
   const fetchMarketplaceWorkflows = async () => {
-    // try {
-    //   const { data, error } = await supabase
-    //     .from('marketplace_workflows')
-    //     .select('*')
-    //     .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('marketplace_workflows')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    //   if (error) throw error;
+      if (error) throw error;
 
-    //   if (data) {
-    //     // Map database records to Workflow interface
-    //     const dynamicWorkflows: Workflow[] = data.map((item: any) => ({
-    //       id: item.id,
-    //       name: item.name,
-    //       description: item.description,
-    //       category: item.category,
-    //       icon: item.icon || '🤖',
-    //       rating: 4.8, 
-    //       reviews: 0, // Fixed: Added missing property
-    //       installs: 0,
-    //       creator: item.creator_name,
-    //       isPremium: item.is_premium,
-    //       price: item.price,
-    //       features: ["Community Submitted", "Verified Logic"],
-    //       templateData: item.template_data,
-    //       trending: false,
-    //       new: true
-    //     }));
+      if (data) {
+        // Map database records to Workflow interface
+        const dynamicWorkflows: Workflow[] = data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          category: item.category,
+          icon: item.icon || '🤖',
+          rating: 4.8, 
+          reviews: 0, // Fixed: Added missing property
+          installs: 0,
+          creator: item.creator_name,
+          isPremium: item.is_premium,
+          price: item.price,
+          features: ["Community Submitted", "Verified Logic"],
+          templateData: item.template_data,
+          trending: false,
+          new: true
+        }));
 
-    //     setAllWorkflows([...WORKFLOWS, ...dynamicWorkflows]);
-    //   }
-    // } catch (err) {
-    //   console.error("Error fetching dynamic workflows:", err);
-    //   // Fallback to static data if table doesn't exist yet
-    //   setAllWorkflows(WORKFLOWS);
-    // }
-    setAllWorkflows(WORKFLOWS);
+        setAllWorkflows([...WORKFLOWS, ...dynamicWorkflows]);
+      }
+    } catch (err) {
+      console.error("Error fetching dynamic workflows:", err);
+      // Fallback to static data if table doesn't exist yet
+      setAllWorkflows(WORKFLOWS);
+    }
   };
 
   const filteredWorkflows = useMemo(() => {
