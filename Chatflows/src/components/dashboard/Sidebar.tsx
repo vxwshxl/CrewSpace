@@ -13,82 +13,47 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     return (
-        <div className="w-64 h-full border-r bg-black/40 border-[var(--border)] flex flex-col">
-            <Link href="/" className="h-14 flex items-center px-4 border-b border-[var(--border)] gap-2 hover:bg-white/5 transition-colors cursor-pointer">
+        <div className="w-64 h-full border-r bg-black/40 border-border flex flex-col">
+            <Link href="/" className="h-14 flex items-center px-4 border-b border-border gap-2 hover:bg-white/5 transition-colors cursor-pointer">
                 <div className="w-6 h-6 rounded bg-black flex items-center justify-center">
                     <img src="/logoCS.png" alt="Logo" className="w-full h-full rounded" />
                 </div>
                 <span className="font-semibold text-white tracking-wide text-sm">CrewSpace</span>
             </Link>
 
-            <nav className="flex-1 py-4 px-2 space-y-1">
-                <button
-                    onClick={() => onTabChange('chatflows')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'chatflows'
-                        ? 'bg-primary/90 text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                        }`}
-                >
-                    <Workflow className="w-4 h-4" />
-                    Chatflows
-                </button>
-
-                <button
-                    onClick={() => onTabChange('apikeys')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'apikeys'
-                        ? 'bg-primary/90 text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                        }`}
-                >
-                    <Key className="w-4 h-4" />
-                    API Keys
-                </button>
-
-                <button
-                    onClick={() => onTabChange('squads')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'squads'
-                        ? 'bg-primary/90 text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                        }`}
-                >
-                    <Users className="w-4 h-4" />
-                    Squads
-                </button>
-
-                <div className="pt-4 mt-4 border-t border-border/50 space-y-1">
-                    <button
-                        onClick={() => onTabChange('marketplace')}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'marketplace'
-                            ? 'bg-primary/90 text-primary-foreground'
-                            : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                            }`}
-                    >
-                        <ShoppingCart className="w-4 h-4" />
-                        Marketplace
-                    </button>
+            <nav className="flex-1 py-6 px-3 space-y-[6px] overflow-y-auto custom-scrollbar">
+                {/* Unified Sidebar Items */}
+                {[
+                    { id: 'chatflows', label: 'Chatflows', icon: Workflow },
+                    { id: 'apikeys', label: 'API Keys', icon: Key },
+                    { id: 'squads', label: 'Squads', icon: Users },
+                    { type: 'divider' },
+                    { id: 'marketplace', label: 'Marketplace', icon: ShoppingCart },
+                    { id: 'tutorials', label: 'Tutorials', icon: BookOpen },
+                    { id: 'settings', label: 'Profile Settings', icon: Settings },
+                ].map((item, idx) => {
+                    if ('type' in item && item.type === 'divider') {
+                        return <div key={`div-${idx}`} className="my-3 mx-4 border-t border-white/5 pt-3" />;
+                    }
                     
-                    <button
-                        onClick={() => onTabChange('tutorials')}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'tutorials'
-                            ? 'bg-primary/90 text-primary-foreground'
-                            : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                            }`}
-                    >
-                        <BookOpen className="w-4 h-4" />
-                        Tutorials
-                    </button>
-
-                    <button
-                        onClick={() => onTabChange('settings')}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'settings'
-                            ? 'bg-primary/90 text-primary-foreground'
-                            : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-                            }`}
-                    >
-                        <Settings className="w-4 h-4" />
-                        Profile Settings
-                    </button>
-                </div>
+                    const menuBtn = item as { id: TabType; label: string; icon: any };
+                    const Icon = menuBtn.icon;
+                    const isActive = activeTab === menuBtn.id;
+                    
+                    return (
+                        <button
+                            key={menuBtn.id}
+                            onClick={() => onTabChange(menuBtn.id)}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-[12px] text-sm font-semibold transition-all duration-150 group ${isActive
+                                ? 'bg-secondary text-secondary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:bg-white/6 hover:text-zinc-200'
+                                }`}
+                        >
+                            <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-secondary-foreground' : 'text-muted-foreground group-hover:text-zinc-200'}`} />
+                            {menuBtn.label}
+                        </button>
+                    );
+                })}
             </nav>
         </div>
     );

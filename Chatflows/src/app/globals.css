@@ -43,10 +43,10 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-
-  /* Removed custom brand colors */
+  --z-60: 60;
+  --z-70: 70;
+  --z-100: 100;
 }
 
 :root {
@@ -102,7 +102,7 @@
   --destructive: oklch(0.396 0.141 25.723);
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --ring: oklch(0.623 0.214 259.81); /* #3B82F6 - Blue Focus */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -116,6 +116,19 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+
+  /* Marketplace Premium Palette */
+  --primary: oklch(0.887 0.231 143.5); /* #B7F34C - Soft Neon Green */
+  --primary-foreground: oklch(0.08 0 0); /* #0A0A0A */
+  --primary-rgb: 183, 243, 76;
+  
+  --secondary: oklch(0.92 0 0); /* #E6E6E6 - Light Grey */
+  --secondary-foreground: oklch(0.12 0 0); /* #111111 */
+  
+  --muted-foreground: oklch(0.68 0 0); /* #9CA3AF */
+
+  --premium-amber: oklch(0.75 0.15 45);
+  --premium-orange: oklch(0.65 0.2 35);
 }
 
 @layer base {

@@ -12,7 +12,7 @@ export default function DownloadExtensionBtn() {
     <>
       <button 
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 bg-[#bbf754] text-[#141414] px-4 py-2.5 rounded-full text-sm font-medium mx-auto cursor-pointer border-none transition-opacity hover:opacity-80 whitespace-nowrap"
+        className="flex items-center justify-center gap-2 bg-[#B7F34C] text-[#0A0A0A] px-4 py-2.5 rounded-full text-sm font-semibold mx-auto cursor-pointer border-none transition-all hover:bg-[#A6E63F] active:scale-95 shadow-sm whitespace-nowrap"
       >
         <Image src="/192px.svg" width={20} height={20} alt="Chrome Extension" className="shrink-0 object-contain w-5 h-5" style={{ width: '20px', height: '20px' }} />
         Download Extension
@@ -114,8 +114,8 @@ export default function DownloadExtensionBtn() {
                     ),
                   },
                 ].map((item) => (
-                  <div key={item.step} className="flex gap-3 p-3 rounded-none bg-white/[0.03] border border-white/[0.06]">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-none bg-white/[0.08] text-white flex items-center justify-center text-sm font-bold">
+                  <div key={item.step} className="flex gap-3 p-3 rounded-none bg-white/3 border border-white/6">
+                    <div className="shrink-0 w-8 h-8 rounded-none bg-white/8 text-white flex items-center justify-center text-sm font-bold">
                       {item.step}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -130,7 +130,7 @@ export default function DownloadExtensionBtn() {
               </div>
 
               {/* Footer note */}
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-none p-3">
+              <div className="bg-white/3 border border-white/6 rounded-none p-3">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   <strong className="text-white">💡 Tip:</strong> Make sure your CrewSpace dashboard is running (locally or deployed) so the extension can connect to your configured chatflows and API keys.
                 </p>
