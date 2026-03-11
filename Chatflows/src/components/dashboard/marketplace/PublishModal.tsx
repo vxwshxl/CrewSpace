@@ -40,6 +40,12 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
   const [icon, setIcon] = useState('🤖');
   const [isPublishing, setIsPublishing] = useState(false);
 
+  React.useEffect(() => {
+    if (workflow) {
+      setName(workflow.name || '');
+    }
+  }, [workflow]);
+
   if (!workflow) return null;
 
   const handlePublish = () => {
