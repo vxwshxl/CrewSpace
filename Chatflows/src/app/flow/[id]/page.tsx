@@ -94,6 +94,9 @@ function DashboardContent() {
             data: { nodes: debouncedNodes, edges: debouncedEdges },
             updated_at: new Date().toISOString(),
         });
+        
+        // Notify extension to refresh
+        window.postMessage({ type: 'SYNC_CREWAGENT' }, '*');
     };
 
     saveFlow();

@@ -82,29 +82,7 @@ async function syncWithDashboard(isAuto = false) {
     if (syncBtn && !isAuto) syncBtn.style.opacity = '0.5';
 
     try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (!tab) return;
-
-        // Script to run in the dashboard tab
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-                try {
-                    const storeData = localStorage.getItem('crewspace-storage-v2');
-                    if (!storeData) return null;
-                    const parsed = JSON.parse(storeData);
-                    return parsed.state?.chatflows?.map(f => ({ id: f.id, name: f.name })) || [];
-                } catch (e) { return null; }
-            }
-        });
-
-        let chatflows = results?.[0]?.result;
-        if (chatflows) {
-            // Filter again just in case
-            chatflows = chatflows.filter(f => f.id !== 'default-agent');
-            await chrome.storage.local.set({ synced_models: chatflows });
-            await fetchModels();
-        }
+        await fetchModels();
     } catch (e) {
         if (!isAuto) console.error("Sync failed", e);
     } finally {
@@ -144,6 +122,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             })
             .catch(err => console.error("Dynamic translation failed:", err));
         sendResponse({ status: "processing" });
+        return true;
+    } else if (request.type === "SYNC_CREWAGENT") {
+        fetchModels();
+        sendResponse({ status: "success" });
         return true;
     }
 });
