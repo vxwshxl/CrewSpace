@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import BubbleTutorial from '@/components/BubbleTutorial';
 
 const inter = Inter({
   variable: "--font-sans",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`} suppressHydrationWarning>
         {children}
+        <BubbleTutorial />
       </body>
     </html>
   );

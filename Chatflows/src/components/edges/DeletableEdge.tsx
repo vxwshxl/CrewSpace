@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -20,8 +20,10 @@ export default function DeletableEdge({
   style = {},
   markerEnd,
 }: EdgeProps) {
-  const { setEdges } = useReactFlow();
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const { setEdges, screenToFlowPosition } = useReactFlow();
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
+
+  const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -30,52 +32,63 @@ export default function DeletableEdge({
     targetPosition,
   });
 
-  const onEdgeClick = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onEdgeClick = (evt: React.MouseEvent<SVGPathElement, MouseEvent>) => {
     evt.stopPropagation();
     setEdges((edges) => edges.filter((e) => e.id !== id));
   };
 
+  const onMouseMove = (evt: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+    const pos = screenToFlowPosition({ x: evt.clientX, y: evt.clientY });
+    setHoverPos(pos);
+  };
+
+  const onMouseLeave = () => {
+    setHoverPos(null);
+  };
+
   return (
     <>
+      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={{ ...style, pointerEvents: 'none' }} />
       <path
         id={`interaction-${id}`}
-        className="react-flow__edge-interaction peer"
+        className="react-flow__edge-interaction"
         d={edgePath}
         fill="none"
         stroke="transparent"
-        strokeWidth={20}
+        strokeWidth={30}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        onClick={onEdgeClick}
+        style={{ cursor: 'pointer', pointerEvents: 'stroke' }}
       />
-      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} className="peer" />
       <EdgeLabelRenderer>
-        <div
-          style={{
-            position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            pointerEvents: 'all',
-            zIndex: 1000,
-          }}
-          className="nodrag nopan opacity-0 hover:opacity-100 peer-hover:opacity-100 transition-opacity"
-        >
-          <button
-            className="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white flex items-center justify-center cursor-pointer shadow-xl border-2 border-background transform transition-transform hover:scale-110"
-            onClick={onEdgeClick}
-            aria-label="Delete Edge"
+        {hoverPos && (
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${hoverPos.x}px,${hoverPos.y}px)`,
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+            className="nodrag nopan"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
+            <div className="w-6 h-6 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg border-2 border-background scale-110">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+        )}
       </EdgeLabelRenderer>
     </>
   );

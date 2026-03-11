@@ -10,7 +10,6 @@ import TutorialsList from '@/components/dashboard/TutorialsList';
 import MarketplaceList from '@/components/dashboard/MarketplaceList';
 import SettingsList from '@/components/dashboard/SettingsList';
 import SquadsList from '@/components/dashboard/SquadsList';
-import BubbleTutorial from '@/components/BubbleTutorial';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -139,7 +138,6 @@ export default function DashboardPage() {
                     </div>
                 )
             )}
-            <BubbleTutorial />
         </>
     );
 }
