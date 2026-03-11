@@ -12,7 +12,7 @@ export default function DownloadExtensionBtn() {
     <>
       <button 
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 bg-[#bbf754] text-[#141414] px-6 py-3 rounded-full text-sm font-bold mx-auto cursor-pointer border-none transition-opacity hover:opacity-80"
+        className="flex items-center justify-center gap-2 bg-[#bbf754] text-[#141414] px-4 py-2.5 rounded-full text-sm font-medium mx-auto cursor-pointer border-none transition-opacity hover:opacity-80 whitespace-nowrap"
       >
         <Image src="/192px.svg" width={20} height={20} alt="Chrome Extension" className="shrink-0 object-contain w-5 h-5" style={{ width: '20px', height: '20px' }} />
         Download Extension

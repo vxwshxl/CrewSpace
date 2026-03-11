@@ -2,11 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Workflow, Key, BookOpen } from 'lucide-react';
+import { Workflow, Key, BookOpen, ShoppingCart, Settings, Users } from 'lucide-react';
+
+export type TabType = 'chatflows' | 'apikeys' | 'squads' | 'marketplace' | 'tutorials' | 'settings';
 
 interface SidebarProps {
-    activeTab: 'chatflows' | 'apikeys' | 'tutorials';
-    onTabChange: (tab: 'chatflows' | 'apikeys' | 'tutorials') => void;
+    activeTab: TabType;
+    onTabChange: (tab: TabType) => void;
 }
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
@@ -42,7 +44,29 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                     API Keys
                 </button>
 
-                <div className="pt-4 mt-4 border-t border-border/50">
+                <button
+                    onClick={() => onTabChange('squads')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'squads'
+                        ? 'bg-primary/90 text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-white/5 hover:text-white'
+                        }`}
+                >
+                    <Users className="w-4 h-4" />
+                    Squads
+                </button>
+
+                <div className="pt-4 mt-4 border-t border-border/50 space-y-1">
+                    <button
+                        onClick={() => onTabChange('marketplace')}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'marketplace'
+                            ? 'bg-primary/90 text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-white/5 hover:text-white'
+                            }`}
+                    >
+                        <ShoppingCart className="w-4 h-4" />
+                        Marketplace
+                    </button>
+                    
                     <button
                         onClick={() => onTabChange('tutorials')}
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'tutorials'
@@ -52,6 +76,17 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                     >
                         <BookOpen className="w-4 h-4" />
                         Tutorials
+                    </button>
+
+                    <button
+                        onClick={() => onTabChange('settings')}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'settings'
+                            ? 'bg-primary/90 text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-white/5 hover:text-white'
+                            }`}
+                    >
+                        <Settings className="w-4 h-4" />
+                        Profile Settings
                     </button>
                 </div>
             </nav>
