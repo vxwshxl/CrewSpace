@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Users, Plus, Search, MoreVertical, Calendar } from 'lucide-react';
+import gsap from 'gsap';
 
 
 interface Squad {
@@ -42,6 +43,24 @@ const DUMMY_SQUADS: Squad[] = [
 
 export default function SquadsList() {
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const searchContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isSearchFocused || searchQuery) {
+            gsap.to(searchContainerRef.current, {
+                width: 230, // expanded width
+                duration: 0.4,
+                ease: 'power3.out'
+            });
+        } else {
+            gsap.to(searchContainerRef.current, {
+                width: 160, // structurally 25-30% smaller
+                duration: 0.4,
+                ease: 'power3.out'
+            });
+        }
+    }, [isSearchFocused, searchQuery]);
 
     const filteredSquads = DUMMY_SQUADS.filter(squad =>
         squad.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,15 +77,17 @@ export default function SquadsList() {
                     <p className="text-muted-foreground mt-1">Manage groups of Captains to build workflows simultaneously.</p>
                 </div>
                 
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64">
+                <div className="flex items-center gap-3 w-full md:w-auto overflow-hidden">
+                    <div ref={searchContainerRef} className="relative flex-none" style={{ width: 200 }}>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Find a squad..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-primary text-white"
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setIsSearchFocused(false)}
+                            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-primary text-white transition-shadow"
                         />
                     </div>
                     <button className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">
