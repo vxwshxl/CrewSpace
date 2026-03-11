@@ -4,16 +4,39 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login and redirect
-    router.push('/dashboard');
+    setError('');
+    setLoading(true);
+    
+    const supabase = createClient();
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,6 +80,7 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 pt-4">
+            {error && <div className="text-red-500 text-sm font-bold text-center bg-red-100 rounded-lg py-2">{error}</div>}
             <div className="space-y-4">
               <div>
                 <input
@@ -91,9 +115,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full py-5 bg-[#FF6B35] text-[#141414] border border-[#141414] font-black text-xl rounded-full hover:opacity-90 transition-opacity"
+              disabled={loading}
+              className="w-full py-5 bg-[#FF6B35] text-[#141414] border border-[#141414] font-black text-xl rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 

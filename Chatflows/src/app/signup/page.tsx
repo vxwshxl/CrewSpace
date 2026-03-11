@@ -4,17 +4,46 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate signup and redirect
-    router.push('/dashboard');
+    setError('');
+    setLoading(true);
+
+    const supabase = createClient();
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          }
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Supabase auto-logs in after signup if email conf isn't required. We can redirect.
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,6 +87,7 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4 pt-4">
+            {error && <div className="text-red-500 text-sm font-bold text-center bg-red-100 rounded-lg py-2">{error}</div>}
             <div className="space-y-4">
               <div>
                 <input
@@ -99,9 +129,10 @@ export default function SignupPage() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-5 bg-[#FF6B35] text-[#141414] border border-[#141414] font-black text-xl rounded-full hover:opacity-90 transition-opacity"
+                disabled={loading}
+                className="w-full py-5 bg-[#FF6B35] text-[#141414] border border-[#141414] font-black text-xl rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                Get Started
+                {loading ? 'Creating crew...' : 'Get Started'}
               </button>
             </div>
           </form>

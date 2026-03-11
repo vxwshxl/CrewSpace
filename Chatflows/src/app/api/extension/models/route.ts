@@ -1,25 +1,33 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse, NextRequest } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
-        const dataPath = path.join(process.cwd(), '.crewspace-data.json');
-        if (fs.existsSync(dataPath)) {
-            const data = fs.readFileSync(dataPath, 'utf-8');
-            const state = JSON.parse(data);
-            const models = (state.chatflows || []).map((flow: any) => ({
-                id: flow.id,
-                name: flow.name
-            }));
-            if (models.length > 0) {
-                return NextResponse.json({ models });
+        const supabase = await createClient();
+        
+        let { data: authData } = await supabase.auth.getUser();
+        let userId = authData?.user?.id;
+
+        if (!userId) {
+             // Fallback for extension without session: get first user via custom query or just return empty for safety
+             const { data: firstUser } = await supabase.from('users').select('id').limit(1).single();
+             if (firstUser) userId = firstUser.id;
+        }
+
+        if (userId) {
+            const { data: userChatflows, error } = await supabase
+                .from('chatflows')
+                .select('id, name')
+                .eq('user_id', userId);
+            
+            if (error) throw error;
+
+            if (userChatflows && userChatflows.length > 0) {
+                 return NextResponse.json({ models: userChatflows });
             }
         }
     } catch (e) {
         console.error(e);
     }
-
-    // Fallback: return empty when no chatflows file exists
     return NextResponse.json({ models: [] });
 }

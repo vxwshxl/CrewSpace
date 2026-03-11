@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@/utils/supabase/server';
 import fs from 'fs';
 import path from 'path';
 
@@ -40,39 +41,50 @@ EXAMPLES:
 
 Respond in valid JSON only:`;
 
-function getChatflowConfig(chatflowId: string) {
+async function getChatflowConfig(chatflowId: string) {
     try {
-        const dataPath = path.join(process.cwd(), '.crewspace-data.json');
-        if (fs.existsSync(dataPath)) {
-            const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-            const chatflow = data.chatflows?.find((f: any) => f.id === chatflowId);
-            if (chatflow) {
-                const agentNode = chatflow.nodes?.find((n: any) => n.type === 'agent');
-                const agentConfig = agentNode?.data?.agentConfig;
+        const supabase = await createClient();
+        const { data: chatflow, error: chatflowError } = await supabase
+            .from('chatflows')
+            .select('*')
+            .eq('id', chatflowId)
+            .single();
 
-                if (agentConfig) {
-                    let provider = 'gemini';
-                    if (agentConfig.model?.includes('gpt') || agentConfig.model?.includes('o1')) provider = 'openai';
-                    if (agentConfig.model?.includes('claude')) provider = 'anthropic';
-                    if (agentConfig.model?.includes('sarvam')) provider = 'sarvam';
-                    if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
+        if (chatflowError) throw chatflowError;
 
-                    const apiKeyObj = data.apiKeys?.find((k: any) => k.provider === provider);
-                    const finalApiKey = apiKeyObj?.key || getEnvApiKey(provider);
+        if (chatflow && chatflow.data) {
+            const data: any = chatflow.data;
+            const agentNode = data.nodes?.find((n: any) => n.type === 'agent');
+            const agentConfig = agentNode?.data?.agentConfig;
 
-                    return {
-                        model: agentConfig.model || 'gemini-flash-latest',
-                        provider,
-                        apiKey: finalApiKey,
-                        role: agentConfig.role || 'General Assistant',
-                        personality: agentConfig.personality || '',
-                        prompt: agentConfig.prompt || '',
-                    };
-                }
+            if (agentConfig) {
+                let provider = 'gemini';
+                if (agentConfig.model?.includes('gpt') || agentConfig.model?.includes('o1')) provider = 'openai';
+                if (agentConfig.model?.includes('claude')) provider = 'anthropic';
+                if (agentConfig.model?.includes('sarvam')) provider = 'sarvam';
+                if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
+
+                const { data: apiKeyObj } = await supabase
+                    .from('apiKeys')
+                    .select('key')
+                    .eq('user_id', chatflow.user_id)
+                    .eq('provider', provider)
+                    .single();
+                
+                const finalApiKey = apiKeyObj?.key || getEnvApiKey(provider);
+
+                return {
+                    model: agentConfig.model || 'gemini-flash-latest',
+                    provider,
+                    apiKey: finalApiKey,
+                    role: agentConfig.role || 'General Assistant',
+                    personality: agentConfig.personality || '',
+                    prompt: agentConfig.prompt || '',
+                };
             }
         }
-    } catch {
-        // File not available (e.g. Vercel deployment) — fall through to env var fallback
+    } catch (e) {
+        console.error("DB config fetch failed, falling back to env:", e);
     }
 
     // Fallback: use environment variables (for deployed/serverless environments)
@@ -421,7 +433,7 @@ export async function POST(req: NextRequest) {
 
         // 'model' here refers to the chatflow ID selected from the extension dropdown.
         const chatflowId = model;
-        const config = getChatflowConfig(chatflowId);
+        const config = await getChatflowConfig(chatflowId);
 
         if (!config) {
             return NextResponse.json({
