@@ -44,7 +44,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                         <button
                             key={menuBtn.id}
                             onClick={() => onTabChange(menuBtn.id)}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-[12px] text-sm font-semibold transition-all duration-150 group ${isActive
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-full text-sm font-semibold transition-all duration-150 group ${isActive
                                 ? 'bg-secondary text-secondary-foreground shadow-sm'
                                 : 'text-muted-foreground hover:bg-white/6 hover:text-zinc-200'
                                 }`}

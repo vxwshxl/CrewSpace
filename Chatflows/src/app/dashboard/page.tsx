@@ -78,7 +78,7 @@ export default function DashboardPage() {
                                 {/* Right side - User Profile */}
                                 <div className="relative">
                                     <div 
-                                        className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors"
+                                        className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-2 rounded-full transition-colors"
                                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     >
                                         <span className="text-sm font-semibold text-white">{userProfile.name}</span>

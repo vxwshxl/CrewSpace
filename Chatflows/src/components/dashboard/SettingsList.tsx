@@ -59,17 +59,17 @@ export default function SettingsList({ onProfileUpdate }: { onProfileUpdate?: ()
     }, [activeTab]);
 
     return (
-        <div className="flex h-full bg-[#0b0f14] text-white overflow-hidden relative">
+        <div className="flex h-full text-white overflow-hidden relative">
             {/* Success Toast */}
             {successToast && (
-                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-100 bg-emerald-500 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3 font-semibold text-sm animate-in slide-in-from-top-5 duration-300">
+                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-100 bg-emerald-500 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3 font-semibold text-sm duration-300">
                     <CheckCircle2 className="w-4 h-4" />
                     {successToast}
                 </div>
             )}
 
             {/* Left Content Area (Moved from Right) */}
-            <main className="flex-1 overflow-y-auto custom-scrollbar p-10 bg-white/1">
+            <main className="flex-1 overflow-y-auto custom-scrollbar p-10">
                 <div className="max-w-3xl mx-auto">
                     {activeTab === 'profile' && <ProfileSection onSave={() => {
                         showToast("Profile updated successfully");
@@ -85,13 +85,7 @@ export default function SettingsList({ onProfileUpdate }: { onProfileUpdate?: ()
             </main>
 
             {/* Right Sidebar Navigation (Moved from Left) */}
-            <div className="w-72 border-l border-white/5 bg-black/20 flex flex-col p-6 shrink-0">
-                <div className="flex items-center gap-3 mb-10 px-2 mt-2">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/30">
-                        <Settings className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <h2 className="text-xl font-bold tracking-tight text-white">Settings</h2>
-                </div>
+            <div className="w-72 border-l border-white/5 bg-black/20 flex flex-col p-9 pt-10 shrink-0">
 
                 <nav className="space-y-1.5 px-1">
                     <SettingsNavItem 
@@ -167,7 +161,7 @@ function SettingsNavItem({ icon, label, active, onClick, variant = 'default' }: 
         <button
             onClick={onClick}
             className={cn(
-                "w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200 group",
+                "w-full flex items-center gap-4 px-4 py-3 rounded-full text-sm transition-all duration-200 group",
                 active 
                     ? variant === 'danger' 
                         ? "bg-red-500/15 text-red-500" 
@@ -238,13 +232,13 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Profile</h2>
-                <p className="text-zinc-500 text-sm">Manage your public presence and personal information.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Profile</h2>
+                <p className="text-muted-foreground text-sm">Manage your public presence and personal information.</p>
             </header>
 
-            <div className="bg-white/2 border border-white/5 rounded-xl p-8 space-y-8">
+            <div className="bg-white/2 border border-white/5 rounded-none p-8 space-y-8">
                 {/* Avatar Section */}
                 <div className="flex items-center gap-8 pb-8 border-b border-white/5">
                     <div className="relative group">
@@ -261,7 +255,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                     </div>
                     <div>
                         <div className="flex gap-2 mb-2">
-                            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 h-8 text-xs font-bold uppercase tracking-tight">Upload New</Button>
+                            <Button variant="outline" size="sm" className="bg-white/5 border-white/10 h-8 text-xs font-bold uppercase tracking-tight rounded-full">Upload New</Button>
                             <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -284,7 +278,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                         <Input 
                             value={profile.full_name}
                             onChange={(e) => setProfile({...profile, full_name: e.target.value})}
-                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10" 
+                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10 rounded-none" 
                             placeholder="John Doe" 
                         />
                     </div>
@@ -293,7 +287,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                         <Input 
                             value={profile.username}
                             onChange={(e) => setProfile({...profile, username: e.target.value})}
-                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10" 
+                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10 rounded-none" 
                             placeholder="johndoe" 
                         />
                     </div>
@@ -304,7 +298,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                     <Textarea 
                         value={profile.bio}
                         onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                        className="bg-black/40 border-white/10 focus:border-blue-500/50 min-h-[100px]" 
+                        className="bg-black/40 border-white/10 focus:border-blue-500/50 min-h-[100px] rounded-none" 
                         placeholder="Tell the community about yourself..." 
                     />
                 </div>
@@ -315,7 +309,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                         <Input 
                             value={profile.location}
                             onChange={(e) => setProfile({...profile, location: e.target.value})}
-                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10" 
+                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10 rounded-none" 
                             placeholder="San Francisco, CA" 
                         />
                     </div>
@@ -324,7 +318,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                         <Input 
                             value={profile.website}
                             onChange={(e) => setProfile({...profile, website: e.target.value})}
-                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10" 
+                            className="bg-black/40 border-white/10 focus:border-blue-500/50 h-10 rounded-none" 
                             placeholder="https://example.com" 
                         />
                     </div>
@@ -334,7 +328,7 @@ function ProfileSection({ onSave }: { onSave: () => void }) {
                     <Button 
                         id="save-settings-btn"
                         onClick={handleSave}
-                        className="bg-blue-600 hover:bg-blue-500 font-bold text-xs h-10 px-6 rounded-lg uppercase tracking-widest"
+                        className="bg-blue-600 hover:bg-blue-500 font-bold text-xs h-10 px-6 rounded-full uppercase tracking-widest"
                         disabled={loading}
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
@@ -357,25 +351,25 @@ function AccountSection() {
     if (!user) return null;
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Account</h2>
-                <p className="text-zinc-500 text-sm">Update your email and manage account identification.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Account</h2>
+                <p className="text-muted-foreground text-sm">Update your email and manage account identification.</p>
             </header>
 
             <div className="space-y-6">
-                <div className="bg-white/2 border border-white/5 rounded-xl p-8 space-y-6">
+                <div className="bg-white/2 border border-white/5 rounded-none p-8 space-y-6">
                     <div className="space-y-4">
                         <Label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold ml-1">Email Address</Label>
                         <div className="flex gap-3">
-                            <Input value={user.email} readOnly className="flex-1 bg-black/40 border-white/10 text-zinc-500 cursor-not-allowed" />
-                            <Button variant="outline" className="bg-white/5 border-white/10 text-xs font-bold uppercase tracking-tight">Change Email</Button>
+                            <Input value={user.email} readOnly className="flex-1 bg-black/40 border-white/10 text-zinc-500 cursor-not-allowed rounded-none" />
+                            <Button variant="outline" className="bg-white/5 border-white/10 text-xs font-bold uppercase tracking-tight rounded-full">Change Email</Button>
                         </div>
                         <p className="text-[10px] text-zinc-600">You must verify your new email address before the change takes effect.</p>
                     </div>
                 </div>
 
-                <div className="bg-white/2 border border-white/5 rounded-xl p-8 grid grid-cols-2 gap-8 font-mono">
+                <div className="bg-white/2 border border-white/5 rounded-none p-8 grid grid-cols-2 gap-8 font-mono">
                     <div>
                         <Label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-2 block">Account ID</Label>
                         <div className="text-xs text-zinc-300 bg-black/40 p-2 rounded border border-white/5 select-all">{user.id}</div>
@@ -388,7 +382,7 @@ function AccountSection() {
                     </div>
                 </div>
 
-                <div className="bg-white/2 border border-white/5 rounded-xl p-8 flex items-center justify-between">
+                <div className="bg-white/2 border border-white/5 rounded-none p-8 flex items-center justify-between">
                     <div>
                         <h4 className="text-sm font-bold text-white mb-1">Current Plan</h4>
                         <p className="text-xs text-zinc-500">You are currently on the Free tier.</p>
@@ -414,14 +408,14 @@ function SecuritySection({ onSave }: { onSave: () => void }) {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Security</h2>
-                <p className="text-zinc-500 text-sm">Secure your account with multi-factor authentication and strong credentials.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Security</h2>
+                <p className="text-muted-foreground text-sm">Secure your account with multi-factor authentication and strong credentials.</p>
             </header>
 
             <div className="space-y-6">
-                <div className="bg-white/2 border border-white/5 rounded-xl p-8">
+                <div className="bg-white/2 border border-white/5 rounded-none p-8">
                     <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                         <Lock className="w-4 h-4 text-blue-500" />
                         Update Password
@@ -429,23 +423,23 @@ function SecuritySection({ onSave }: { onSave: () => void }) {
                     <form onSubmit={handlePasswordUpdate} className="space-y-5 max-w-sm">
                         <div className="space-y-2">
                             <Label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold ml-1">Current Password</Label>
-                            <Input type="password" required className="bg-black/40 border-white/10 h-10" />
+                            <Input type="password" required className="bg-black/40 border-white/10 h-10 rounded-none" />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold ml-1">New Password</Label>
-                            <Input type="password" required className="bg-black/40 border-white/10 h-10" />
+                            <Input type="password" required className="bg-black/40 border-white/10 h-10 rounded-none" />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold ml-1">Confirm New Password</Label>
-                            <Input type="password" required className="bg-black/40 border-white/10 h-10" />
+                            <Input type="password" required className="bg-black/40 border-white/10 h-10 rounded-none" />
                         </div>
-                        <Button className="w-full bg-white/5 border border-white/10 hover:bg-white/10 font-bold text-xs h-10 uppercase tracking-widest" disabled={loading}>
+                        <Button className="w-full bg-white/5 border border-white/10 hover:bg-white/10 font-bold text-xs h-10 uppercase tracking-widest rounded-full" disabled={loading}>
                             Update Password
                         </Button>
                     </form>
                 </div>
 
-                <div className="bg-white/2 border border-white/5 rounded-xl p-8 flex items-center justify-between">
+                <div className="bg-white/2 border border-white/5 rounded-none p-8 flex items-center justify-between">
                     <div className="max-w-md">
                         <h4 className="text-sm font-bold text-white mb-1">Two-Factor Authentication (2FA)</h4>
                         <p className="text-xs text-zinc-500 leading-relaxed">
@@ -459,8 +453,8 @@ function SecuritySection({ onSave }: { onSave: () => void }) {
                 </div>
 
                 {tfa && (
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-8 animate-in slide-in-from-top-2 flex gap-8 items-start">
-                         <div className="w-32 h-32 bg-white p-2 rounded-lg flex items-center justify-center border border-white/10">
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-none p-8 flex gap-8 items-start">
+                         <div className="w-32 h-32 bg-white p-2 rounded-none flex items-center justify-center border border-white/10">
                             {/* QR Placeholder */}
                             <div className="w-full h-full bg-slate-100 flex items-center justify-center text-black font-black text-2xl">QR</div>
                          </div>
@@ -504,11 +498,11 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-white mb-1">API Access</h2>
-                    <p className="text-zinc-500 text-sm">Control how other apps interact with your workflows.</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white mb-1">API Access</h2>
+                    <p className="text-muted-foreground text-sm">Control how other apps interact with your workflows.</p>
                 </div>
                 {!isGenerating && !generatedKey && (
                     <Button 
@@ -516,7 +510,7 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
                             setIsGenerating(true);
                             setGeneratedKey(null);
                         }} 
-                        className="bg-blue-600 hover:bg-blue-500 font-bold text-[10px] h-9 px-4 rounded-lg uppercase tracking-widest shadow-lg shadow-blue-900/10"
+                        className="bg-blue-600 hover:bg-blue-500 font-bold text-[10px] h-9 px-4 rounded-full uppercase tracking-widest shadow-lg shadow-blue-900/10"
                     >
                         <Plus className="w-3.5 h-3.5 mr-1.5" /> Generate Key
                     </Button>
@@ -524,7 +518,7 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
             </header>
 
             {isGenerating && (
-                <div className="bg-white/2 border border-blue-500/30 rounded-xl p-8 animate-in zoom-in-95 duration-200">
+                <div className="bg-white/2 border border-blue-500/30 rounded-none p-8 duration-200">
                     <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                         <Key className="w-4 h-4 text-blue-500" />
                         New Personal Access Token
@@ -536,27 +530,27 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
                                 autoFocus
                                 value={keyName}
                                 onChange={(e) => setKeyName(e.target.value)}
-                                className="bg-black/40 border-white/10 h-10" 
+                                className="bg-black/40 border-white/10 h-10 rounded-none" 
                                 placeholder="Production App" 
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Button className="flex-1 bg-blue-600 hover:bg-blue-500 font-bold text-xs h-10" onClick={handleCreateKey}>Generate</Button>
-                            <Button variant="outline" className="flex-1 bg-transparent border-white/5 text-zinc-500 font-bold text-xs h-10" onClick={() => setIsGenerating(false)}>Cancel</Button>
+                            <Button className="flex-1 bg-blue-600 hover:bg-blue-500 font-bold text-xs h-10 rounded-full" onClick={handleCreateKey}>Generate</Button>
+                            <Button variant="outline" className="flex-1 bg-transparent border-white/5 text-zinc-500 font-bold text-xs h-10 rounded-full" onClick={() => setIsGenerating(false)}>Cancel</Button>
                         </div>
                     </div>
                 </div>
             )}
 
             {generatedKey && (
-                <div className="bg-emerald-500/5 border border-emerald-500/30 rounded-xl p-8 animate-in slide-in-from-top-2">
+                <div className="bg-emerald-500/5 border border-emerald-500/30 rounded-none p-8">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-3">
                         <CheckCircle2 className="w-4 h-4" /> Secret Key Generated
                     </div>
                     <p className="text-xs text-zinc-500 mb-6 leading-relaxed">
                         Copy this key now. For security purposes, it will not be shown again once you close this section.
                     </p>
-                    <div className="bg-black/60 border border-white/10 p-4 rounded-lg flex items-center justify-between group">
+                    <div className="bg-black/60 border border-white/10 p-4 rounded-none flex items-center justify-between group">
                         <span className="font-mono text-sm text-zinc-200">{generatedKey}</span>
                         <Button 
                             variant="ghost" 
@@ -573,7 +567,7 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
                 </div>
             )}
 
-            <div className="bg-[#161b22] border border-white/5 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-[#161b22] border border-white/5 rounded-none overflow-hidden shadow-sm">
                 <table className="w-full text-left">
                     <thead className="bg-black/20 border-b border-white/5">
                         <tr>
@@ -597,10 +591,10 @@ function ApiAccessSection({ onSave }: { onSave: () => void }) {
                                     <td className="px-6 py-5 font-mono text-xs text-zinc-500 uppercase tracking-tighter">{k.prefix}</td>
                                     <td className="px-6 py-5 text-xs text-zinc-600 font-medium">{new Date(k.created_at).toLocaleDateString()}</td>
                                     <td className="px-6 py-5 text-right flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-6">
-                                        <button className="p-2 text-zinc-600 hover:text-blue-400 hover:bg-blue-500/5 rounded-lg transition-all" title="Regenerate">
+                                        <button className="p-2 text-zinc-600 hover:text-blue-400 hover:bg-blue-500/5 rounded-none transition-all" title="Regenerate">
                                             <RefreshCw className="w-3.5 h-3.5" />
                                         </button>
-                                        <button className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all" title="Delete">
+                                        <button className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-500/5 rounded-none transition-all" title="Delete">
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </td>
@@ -623,13 +617,13 @@ function NotificationsSection({ onSave }: { onSave: () => void }) {
     });
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Notifications</h2>
-                <p className="text-zinc-500 text-sm">Decide how and when you want to be notified about activity.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Notifications</h2>
+                <p className="text-muted-foreground text-sm">Decide how and when you want to be notified about activity.</p>
             </header>
 
-            <div className="bg-white/2 border border-white/5 rounded-xl p-8 space-y-8">
+            <div className="bg-white/2 border border-white/5 rounded-none p-8 space-y-8">
                 <div className="space-y-6">
                     <NotificationToggle 
                         title="Email Notifications" 
@@ -658,7 +652,7 @@ function NotificationsSection({ onSave }: { onSave: () => void }) {
                 </div>
 
                 <div className="pt-6 border-t border-white/5 flex justify-end">
-                    <Button className="bg-white/5 border border-white/10 hover:bg-white/10 font-bold text-xs h-10 px-8 uppercase tracking-widest" onClick={onSave}>
+                    <Button className="bg-white/5 border border-white/10 hover:bg-white/10 font-bold text-xs h-10 px-8 uppercase tracking-widest rounded-full" onClick={onSave}>
                         Save Preferences
                     </Button>
                 </div>
@@ -681,31 +675,31 @@ function NotificationToggle({ title, desc, checked, onChange }: { title: string;
 
 function BillingSection() {
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Billing & Subscription</h2>
-                <p className="text-zinc-500 text-sm">View your current usage, plans, and download invoices.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Billing & Subscription</h2>
+                <p className="text-muted-foreground text-sm">View your current usage, plans, and download invoices.</p>
             </header>
 
             <div className="grid grid-cols-3 gap-6">
                 <div className="col-span-2 space-y-6">
-                    <div className="bg-white/2 border border-white/5 rounded-xl p-8 flex items-start justify-between">
+                    <div className="bg-white/2 border border-white/5 rounded-none p-8 flex items-start justify-between">
                         <div>
-                            <div className="bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest inline-block mb-3">Professional</div>
+                            <div className="bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-block mb-3">Professional</div>
                             <h3 className="text-xl font-bold text-white mb-1">Elite Captain Plan</h3>
-                            <p className="text-xs text-zinc-500 mb-6">Billed annually • Next payment March 20, 2026</p>
+                            <p className="text-xs text-muted-foreground mb-6">Billed annually • Next payment March 20, 2026</p>
                             <div className="flex gap-3">
-                                <Button className="bg-blue-600 hover:bg-blue-500 text-[10px] font-bold h-9 uppercase tracking-widest">Upgrade Plan</Button>
-                                <Button variant="outline" className="bg-white/5 border-white/10 text-[10px] font-bold h-9 uppercase tracking-widest">Manage</Button>
+                                <Button className="bg-blue-600 hover:bg-blue-500 text-[10px] font-bold h-9 uppercase tracking-widest rounded-full">Upgrade Plan</Button>
+                                <Button variant="outline" className="bg-white/5 border-white/10 text-[10px] font-bold h-9 uppercase tracking-widest rounded-full">Manage</Button>
                             </div>
                         </div>
                         <div className="text-right">
                             <div className="text-3xl font-black text-white">₹299</div>
-                            <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-tight">Per Month</div>
+                            <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">Per Month</div>
                         </div>
                     </div>
 
-                    <div className="bg-white/2 border border-white/5 rounded-xl p-8">
+                    <div className="bg-white/2 border border-white/5 rounded-none p-8">
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-6">Usage Summary</h4>
                         <div className="space-y-6">
                             <UsageBar label="Workflow Executions" used={1420} total={5000} />
@@ -716,7 +710,7 @@ function BillingSection() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="bg-black/40 border border-white/5 rounded-xl p-6 font-mono">
+                    <div className="bg-black/40 border border-white/5 rounded-none p-6 font-mono">
                          <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-700 mb-4">Quick Stats</h4>
                          <div className="space-y-4">
                             <div>
@@ -729,7 +723,7 @@ function BillingSection() {
                             </div>
                          </div>
                     </div>
-                    <Button variant="outline" className="w-full bg-transparent border-white/5 text-zinc-500 hover:text-white text-[10px] font-bold uppercase tracking-widest h-10">
+                    <Button variant="outline" className="w-full bg-transparent border-white/5 text-zinc-500 hover:text-white text-[10px] font-bold uppercase tracking-widest h-10 rounded-full">
                         Download Invoices
                     </Button>
                 </div>
@@ -761,13 +755,13 @@ function UsageBar({ label, used, total, suffix = '' }: { label: string; used: nu
 function DangerZoneSection() {
     const [confirming, setConfirming] = useState(false);
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-10 duration-300">
             <header>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Danger Zone</h2>
-                <p className="text-zinc-500 text-sm">Irreversible actions regarding your CrewSpace account.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Danger Zone</h2>
+                <p className="text-muted-foreground text-sm">Irreversible actions regarding your CrewSpace account.</p>
             </header>
 
-            <div className="border border-red-500/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(239,68,68,0.05)]">
+            <div className="border border-red-500/30 rounded-none overflow-hidden shadow-[0_0_40px_rgba(239,68,68,0.05)]">
                 <div className="bg-red-500/5 p-8 flex items-center justify-between">
                     <div className="max-w-md">
                         <h3 className="text-sm font-bold text-red-500 mb-1 flex items-center gap-2">
@@ -780,7 +774,7 @@ function DangerZoneSection() {
                     </div>
                     <Button 
                         variant="outline" 
-                        className="bg-transparent border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white font-bold text-xs h-10 px-6 uppercase tracking-widest transition-all"
+                        className="bg-transparent border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white font-bold text-xs h-10 px-6 uppercase tracking-widest transition-all rounded-full"
                         onClick={() => setConfirming(true)}
                     >
                         Delete Account
@@ -791,15 +785,15 @@ function DangerZoneSection() {
             {confirming && (
                 <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setConfirming(false)} />
-                    <div className="relative w-full max-w-md bg-[#0b0f14] border border-red-500/30 rounded-xl p-8 shadow-2xl animate-in zoom-in-95">
+                    <div className="relative w-full max-w-md bg-[#0b0f14] border border-red-500/30 rounded-none p-8 shadow-2xl duration-200">
                         <h4 className="text-xl font-black text-white mb-4 tracking-tight">Are you absolutely certain?</h4>
                         <p className="text-sm text-zinc-500 leading-relaxed mb-8">
                             This will completely wipe your account from the CrewSpace universe. To proceed, please type your email below to confirm.
                         </p>
-                        <Input placeholder="Enter your email" className="bg-black/40 border-white/10 mb-6 h-11" />
+                        <Input placeholder="Enter your email" className="bg-black/40 border-white/10 mb-6 h-11 rounded-none" />
                         <div className="flex gap-3">
-                            <Button className="flex-1 bg-red-600 hover:bg-red-500 font-bold h-11 uppercase text-xs tracking-widest">Confirm Deletion</Button>
-                            <Button variant="outline" className="flex-1 bg-transparent border-white/5 font-bold h-11 uppercase text-xs tracking-widest" onClick={() => setConfirming(false)}>Cancel</Button>
+                            <Button className="flex-1 bg-red-600 hover:bg-red-500 font-bold h-11 uppercase text-xs tracking-widest rounded-full">Confirm Deletion</Button>
+                            <Button variant="outline" className="flex-1 bg-transparent border-white/5 font-bold h-11 uppercase text-xs tracking-widest rounded-full" onClick={() => setConfirming(false)}>Cancel</Button>
                         </div>
                     </div>
                 </div>

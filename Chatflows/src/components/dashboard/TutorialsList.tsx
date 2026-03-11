@@ -15,7 +15,7 @@ export default function TutorialsList() {
         <div className="p-8 space-y-12 pb-24">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
                         <BookOpen className="w-8 h-8 text-primary" /> Tutorials
                     </h1>
                     <p className="text-muted-foreground text-sm">
@@ -63,7 +63,7 @@ export default function TutorialsList() {
 
             {/* Detailed Guides */}
             <div className="space-y-8">
-                <h2 className="text-2xl font-bold text-white border-b border-border pb-4">Detailed Core Guides</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-white border-b border-border pb-4">Detailed Core Guides</h2>
                 
                 <div className="space-y-6">
                     {/* The Dashboard */}
