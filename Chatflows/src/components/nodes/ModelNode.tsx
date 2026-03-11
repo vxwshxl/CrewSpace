@@ -35,7 +35,7 @@ function ModelNode(props: NodeProps) {
         setEdges((eds) => eds.filter(edge => edge.source !== id && edge.target !== id));
     };
 
-    const label = (nodeData.label as string) || 'OpenAI Chat Model';
+    const label = (nodeData.label as string) || 'Chat Model';
 
     const outlineColor = 'rgba(168, 85, 247, 0.8)'; // Purple vibe for models
     const shadowColor = 'oklch(0.6 0.2 300)';

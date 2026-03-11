@@ -260,7 +260,7 @@ export const nodeCategories: NodeCategory[] = [
             },
             {
                 id: 'nc-model',
-                name: 'OpenAI Chat Model',
+                name: 'Chat Model',
                 description: 'Connect to an AI model provider',
                 icon: 'bot',
                 type: 'model',

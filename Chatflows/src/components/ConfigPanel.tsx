@@ -85,24 +85,6 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
 
     const renderAgentSpecific = () => (
         <>
-            <div className="space-y-2">
-                <div className="flex items-center gap-1">
-                    <Label className="text-sm font-medium text-white">Model</Label>
-                    <span className="text-red-400 text-sm">*</span>
-                </div>
-                <Select value={agent.model} onValueChange={handleModelChange}>
-                    <SelectTrigger className="w-full h-10 border rounded-lg bg-card border-border text-card-foreground">
-                        <SelectValue placeholder="Select model" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                        <SelectItem value="gemini-flash-latest">gemini-flash-latest</SelectItem>
-                        <SelectItem value="sarvam-m">sarvam-m</SelectItem>
-                        <SelectItem value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-
 
             <div className="space-y-3">
                 <div className="flex items-center gap-1.5">

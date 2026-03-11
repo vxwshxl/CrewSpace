@@ -8,6 +8,8 @@ import {
   useEdgesState,
   ReactFlowProvider,
   useReactFlow,
+  type Connection,
+  addEdge,
 } from '@xyflow/react';
 
 import HeaderBar from '@/components/HeaderBar';
@@ -109,7 +111,7 @@ function DashboardContent() {
       const _type = (nodeData.originalType as string) || node.type || 'agent';
       
       // Disable the config panel for these nodes
-      if (['sticky', 'agent', 'tool', 'model', 'memory'].includes(_type)) {
+      if (['sticky', 'agent'].includes(_type)) {
         return;
       }
       
@@ -271,8 +273,8 @@ function DashboardContent() {
   );
 
   const onConnect = useCallback(
-    () => { },
-    []
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
   );
 
   const handleAIGenerate = useCallback((newNodes: Node[], newEdges: Edge[]) => {

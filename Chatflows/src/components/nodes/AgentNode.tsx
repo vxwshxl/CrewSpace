@@ -198,21 +198,6 @@ function AgentNode(props: NodeProps) {
                     <span className="text-foreground font-bold text-sm">{name}</span>
                 </div>
 
-                {/* Model badge */}
-                <div className="flex items-center gap-2">
-                    <div
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
-                        style={{
-                            background: 'var(--card)',
-                            color: modelInfo.color,
-                            border: `1px solid oklch(1 0 0 / 10%)`,
-                        }}
-                    >
-                        {modelInfo.icon}
-                        <span>{model}</span>
-                    </div>
-                </div>
-
                 {/* Tool icons */}
                 {tools.length > 0 && (
                     <div className="flex items-center gap-1.5 mt-2.5">
@@ -255,7 +240,7 @@ function AgentNode(props: NodeProps) {
                             type="source"
                             position={Position.Bottom}
                             id="agent-model"
-                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm !pointer-events-none"
+                            className="!relative !transform-none !bg-muted-foreground !border-muted-foreground w-2.5 h-2.5 rounded-sm"
                         />
                         <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">Chat Model*</span>
                     </div>
