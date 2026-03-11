@@ -2,16 +2,19 @@
 
 import React, { useState } from 'react';
 import AnimatedLoader from '@/components/AnimatedLoader';
-import Sidebar from '@/components/dashboard/Sidebar';
+import Sidebar, { TabType } from '@/components/dashboard/Sidebar';
 import ChatflowsList from '@/components/dashboard/ChatflowsList';
 import ApiKeysList from '@/components/dashboard/ApiKeysList';
-import { Workflow, Key, BookOpen } from 'lucide-react';
+import { Workflow, Key, BookOpen, ShoppingCart, Settings } from 'lucide-react';
 import TutorialsList from '@/components/dashboard/TutorialsList';
+import MarketplaceList from '@/components/dashboard/MarketplaceList';
+import SettingsList from '@/components/dashboard/SettingsList';
+import SquadsList from '@/components/dashboard/SquadsList';
 import BubbleTutorial from '@/components/BubbleTutorial';
-
+import Image from 'next/image';
 
 export default function DashboardPage() {
-    const [activeTab, setActiveTab] = useState<'chatflows' | 'apikeys' | 'tutorials'>('chatflows');
+    const [activeTab, setActiveTab] = useState<TabType>('chatflows');
     const [mounted, setMounted] = useState(false);
     const [showLoader, setShowLoader] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
@@ -50,22 +53,29 @@ export default function DashboardPage() {
                         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
                         <main className="flex-1 overflow-y-auto">
-                            <header className="h-14 border-b border-border bg-card/50 flex items-center px-6 sticky top-0 z-10 backdrop-blur">
-                                <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                                    {activeTab === 'chatflows' ? (
-                                        <><Workflow className="w-4 h-4" /> Chatflows</>
-                                    ) : activeTab === 'apikeys' ? (
-                                        <><Key className="w-4 h-4" /> API Keys</>
-                                    ) : (
-                                        <><BookOpen className="w-4 h-4" /> Tutorials</>
-                                    )}
-                                </h2>
+                            <header className="h-14 border-b border-border bg-card/50 flex items-center justify-between px-6 sticky top-0 z-10 backdrop-blur w-full">
+                                {/* Left side empty or reserved for potential title/breadcrumbs */}
+                                <div></div>
+
+                                {/* Right side - User Profile */}
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm font-semibold text-white">Guest Captain</span>
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-muted-foreground">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                </div>
                             </header>
 
                             <div className="min-h-[calc(100vh-3.5rem)]">
                                 {activeTab === 'chatflows' && <ChatflowsList />}
                                 {activeTab === 'apikeys' && <ApiKeysList />}
+                                {activeTab === 'squads' && <SquadsList />}
+                                {activeTab === 'marketplace' && <MarketplaceList />}
                                 {activeTab === 'tutorials' && <TutorialsList />}
+                                {activeTab === 'settings' && <SettingsList />}
                             </div>
                         </main>
                     </div>

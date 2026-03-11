@@ -28,19 +28,25 @@ export default function ApiKeysList() {
 
 
     return (
-        <div className="p-8 max-w-6xl mx-auto">
+        <div className="p-8">
 
             {/* API Keys section */}
-            <div className="flex justify-between items-center mb-6 border-b border-border pb-4">
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Key className="w-6 h-6" /> API Keys
-                </h1>
-                <button
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
-                >
-                    <Plus className="w-4 h-4" /> Add Key
-                </button>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+                        <Key className="w-8 h-8 text-primary" /> API Keys
+                    </h1>
+                    <p className="text-muted-foreground mt-1">Configure access keys for different AI model providers used in agents.</p>
+                </div>
+                
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <button
+                        onClick={() => setIsAdding(!isAdding)}
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap"
+                    >
+                        <Plus className="w-4 h-4" /> Add Key
+                    </button>
+                </div>
             </div>
 
             {isAdding && (

@@ -24,17 +24,22 @@ export default function ChatflowsList() {
     };
 
     return (
-        <div className="p-8 max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Workflow className="w-6 h-6" /> Chatflows
-                </h1>
-                <div className="flex items-center gap-3">
+        <div className="p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+                        <Workflow className="w-8 h-8 text-primary" />
+                        Chatflows
+                    </h1>
+                    <p className="text-muted-foreground mt-1">Manage and build your personal AI agents and workflows.</p>
+                </div>
+                
+                <div className="flex items-center gap-3 w-full md:w-auto">
                     <DownloadExtensionBtn />
                     <button
                         id="tutorial-create-new-btn"
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-bold hover:bg-primary/90 transition-colors"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-full text-sm font-medium hover:bg-primary/90 transition-colors whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" /> Add New
                     </button>
@@ -42,8 +47,8 @@ export default function ChatflowsList() {
             </div>
 
             {chatflows.length === 0 ? (
-                <div className="border border-dashed border-border rounded-none p-12 text-center">
-                    <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4">
+                <div className="border-2 border-dashed border-border rounded-none py-20 text-center">
+                    <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4 opacity-50">
                         <Workflow className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg font-medium text-white mb-2">No Chatflows Yet</h3>
@@ -90,7 +95,7 @@ function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: 
     return (
         <div className="group relative">
             <Link href={`/flow/${flow.id}`}>
-                <div className="bg-card border border-border rounded-none p-5 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
+                <div className="bg-card border border-border rounded-none p-6 hover:border-border/80 transition-all shadow-sm hover:shadow-md h-full flex flex-col">
                     <div className="flex-1">
                         {isEditing ? (
                             <input
