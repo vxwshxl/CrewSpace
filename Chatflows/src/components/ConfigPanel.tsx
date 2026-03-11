@@ -248,7 +248,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
     const renderToolConfig = () => {
         const tConfig = agent.toolConfig || {};
         
-        if (agent.name.toLowerCase().includes('email drafter')) {
+        if (agent.name.toLowerCase().includes('gmail')) {
             return (
                 <div className="space-y-4 pt-2">
                     <div className="space-y-2">
@@ -359,6 +359,151 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                             onChange={(e) => handleToolConfigChange('initialTasks', e.target.value)}
                             className="min-h-[80px] text-xs bg-card border-border resize-y"
                         />
+                    </div>
+                </div>
+            );
+        }
+
+        if (agent.name.toLowerCase().includes('shopping')) {
+             return (
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Preferred Color</Label>
+                        <Input 
+                            placeholder="e.g. Black, Blue" 
+                            value={tConfig.color || ''} 
+                            onChange={(e) => handleToolConfigChange('color', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white pb-1 block">Shirt Size</Label>
+                         <div className="flex flex-wrap gap-2">
+                             {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                                 <button
+                                     key={size}
+                                     onClick={() => handleToolConfigChange('shirtSize', size)}
+                                     className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${tConfig.shirtSize === size ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                                 >
+                                     {size}
+                                 </button>
+                             ))}
+                         </div>
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <Label className="text-sm font-medium text-white">Pant Size</Label>
+                        <Input 
+                            placeholder="e.g. 32, 34, M, L" 
+                            value={tConfig.pantSize || ''} 
+                            onChange={(e) => handleToolConfigChange('pantSize', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <Label className="text-sm font-medium text-white">Shoe Size</Label>
+                        <Input 
+                            placeholder="e.g. 9, 10, 42" 
+                            value={tConfig.shoeSize || ''} 
+                            onChange={(e) => handleToolConfigChange('shoeSize', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <Label className="text-sm font-medium text-white">Delivery Address</Label>
+                         <Textarea 
+                            placeholder="Enter full delivery address..." 
+                            value={tConfig.address || ''} 
+                            onChange={(e) => handleToolConfigChange('address', e.target.value)}
+                            className="min-h-[80px] text-xs bg-card border-border resize-y"
+                        />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                        <Label className="text-sm font-medium text-white">Pincode</Label>
+                        <Input 
+                            placeholder="e.g. 100001" 
+                            value={tConfig.pincode || ''} 
+                            onChange={(e) => handleToolConfigChange('pincode', e.target.value)}
+                            className="text-xs bg-card border-border"
+                        />
+                    </div>
+                    <div className="space-y-4 pt-2 border-t border-border mt-2">
+                        <div className="space-y-2 mt-2">
+                            <Label className="text-sm font-medium text-white pb-1 block">Payment Details</Label>
+                             <div className="flex flex-wrap gap-2">
+                                 {['UPI', 'BANK CARD'].map(payment => (
+                                     <button
+                                         key={payment}
+                                         onClick={() => handleToolConfigChange('paymentDetails', payment)}
+                                         className={`px-3 py-1.5 rounded border text-xs cursor-pointer transition-colors ${tConfig.paymentDetails === payment ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted text-muted-foreground'}`}
+                                     >
+                                         {payment}
+                                     </button>
+                                 ))}
+                             </div>
+                        </div>
+
+                        {tConfig.paymentDetails === 'UPI' && (
+                            <div className="space-y-2 animate-fade-in-up">
+                                <Label className="text-sm font-medium text-white">UPI ID</Label>
+                                <Input 
+                                    placeholder="yourname@bank" 
+                                    value={tConfig.upiId || ''} 
+                                    onChange={(e) => handleToolConfigChange('upiId', e.target.value)}
+                                    className="text-xs bg-card border-border"
+                                />
+                            </div>
+                        )}
+
+                        {tConfig.paymentDetails === 'BANK CARD' && (
+                            <div className="space-y-4 animate-fade-in-up">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium text-white">Card Number</Label>
+                                    <Input 
+                                        placeholder="0000 0000 0000 0000" 
+                                        value={tConfig.cardNumber || ''} 
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            const formatted = val.replace(/(.{4})/g, '$1 ').trim();
+                                            handleToolConfigChange('cardNumber', formatted);
+                                        }}
+                                        className="text-xs bg-card border-border tabular-nums tracking-widest"
+                                        maxLength={19}
+                                    />
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="space-y-2 flex-1">
+                                        <Label className="text-sm font-medium text-white">Expiry</Label>
+                                        <Input 
+                                            placeholder="MM/YY" 
+                                            value={tConfig.cardExpiry || ''} 
+                                            onChange={(e) => {
+                                                let val = e.target.value.replace(/\D/g, '');
+                                                if (val.length >= 2) {
+                                                    val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                                                }
+                                                handleToolConfigChange('cardExpiry', val);
+                                            }}
+                                            className="text-xs bg-card border-border text-center"
+                                            maxLength={5}
+                                        />
+                                    </div>
+                                    <div className="space-y-2 flex-1">
+                                        <Label className="text-sm font-medium text-white">CVV</Label>
+                                        <Input 
+                                            placeholder="•••" 
+                                            type="password"
+                                            value={tConfig.cardCvv || ''} 
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').substring(0, 3);
+                                                handleToolConfigChange('cardCvv', val);
+                                            }}
+                                            className="text-xs bg-card border-border text-center tracking-widest"
+                                            maxLength={3}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );

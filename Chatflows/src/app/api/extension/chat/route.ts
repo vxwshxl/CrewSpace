@@ -29,7 +29,7 @@ CRITICAL RULES:
 12. AVOID INFINITE LOOPS: If you have SCROLLed multiple times and cannot find the exact target, STOP scrolling. Choose the best available option visible or return an ANSWER explaining the issue. Do NOT hallucinate elements that are not in the DOM.
 13. E-COMMERCE / SHOPPING: When buying or searching on sites like Amazon, prioritize items with "Amazon's Choice" or high ratings. Click "Add to cart" or the product directly to complete the task.
 14. MEMORY STORAGE: Proactively store context, past tasks completed, and learned user preferences. If you learn something new or complete a task, include a 'memory' property in your JSON. Example: {"action":"ANSWER", "text":"...", "memory":"User prefers dark mode. Completed task: Drafted email."}
-15. EXPLICIT TOOL TRACKING: If you use a tool (e.g. "Web Search", "Summarizer", "Email Drafter") or use your built-in general knowledge to answer, you MUST include a 'usedTool' property in your JSON response. Example: {"action":"ANSWER", "text":"...", "usedTool":"Email Drafter"}
+15. EXPLICIT TOOL TRACKING: If you use a tool (e.g. "Web Search", "Summarizer", "Gmail") or use your built-in general knowledge to answer, you MUST include a 'usedTool' property in your JSON response. Example: {"action":"ANSWER", "text":"...", "usedTool":"Gmail"}
 
 EXAMPLES:
 {"action":"CLICK","elementId":15}
@@ -268,7 +268,7 @@ export async function POST(req: NextRequest) {
                     });
                 }
             });
-            systemContext += `\n\nCRITICAL INSTRUCTION: If the user requests an action matching these tools (e.g., drafting an email, summarizing, managing to-dos), use the provided tool configurations (templates, preferences, details) to automatically complete the request accurately.`;
+            systemContext += `\n\nCRITICAL INSTRUCTION: If the user requests an action matching these tools (e.g., sending an email via Gmail, summarizing, managing to-dos), use the provided tool configurations (templates, preferences, details) to automatically complete the request accurately.`;
             systemContext += `\n\nIf you use any of these tools to generate your response, you MUST include a 'usedTool' property in your JSON output with the exact tool name. E.g. {"action": "ANSWER", "text": "...", "usedTool": "${config.toolsConfig[0]?.name || 'Tool Name'}"}`;
         }
         

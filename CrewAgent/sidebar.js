@@ -628,6 +628,20 @@ async function runAgentLoop() {
 
             // 3. Evaluate Action
             if (data.action && data.action !== "ANSWER") {
+                // 0. Prevent running destructive agentic tools directly on the Chatflows dashboard
+                let currentTab = await getActiveTab();
+                if (currentTab && currentTab.url && currentTab.url.includes('localhost:3000/flow')) {
+                    addActivityLog('system', 'Detected Node Editor. Opening a new tab for agentic actions...');
+                    await new Promise((resolve) => {
+                        chrome.tabs.create({ url: 'https://google.com', active: true }, (newTab) => {
+                            // Wait a tiny bit for the tab to initialize
+                            setTimeout(resolve, 1500);
+                        });
+                    });
+                    // Re-fetch the newly created active tab
+                    currentTab = await getActiveTab();
+                }
+
                 let msgText = `Executing command: ${data.action} ${data.elementId ? `on element #${data.elementId}` : ''}`;
                 if (data.action === "NAVIGATE") msgText = `Navigating to ${data.url}`;
                 if (data.action === "TYPE") msgText = `Typing "${data.text}" into element #${data.elementId}`;

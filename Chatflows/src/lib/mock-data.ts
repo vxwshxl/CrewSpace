@@ -16,9 +16,9 @@ export const tools: Tool[] = [
         category: 'Research',
     },
     {
-        id: 'email-drafter',
-        name: 'Email Drafter',
-        description: 'Draft professional emails',
+        id: 'gmail',
+        name: 'Gmail',
+        description: 'Navigate to Gmail and send emails',
         icon: 'mail',
         category: 'Communication',
     },
@@ -42,6 +42,13 @@ export const tools: Tool[] = [
         description: 'Execute and analyze code snippets',
         icon: 'code',
         category: 'Development',
+    },
+    {
+        id: 'shopping',
+        name: 'Shopping',
+        description: 'Manage shopping preferences and details',
+        icon: 'shopping-cart',
+        category: 'Lifestyle',
     },
 ];
 
@@ -83,7 +90,7 @@ export const defaultAgents: AgentConfig[] = [
         personality: 'Friendly and persuasive',
         model: 'gemini-flash-latest',
         modelIcon: 'gemini',
-        tools: ['web-search', 'email-drafter'],
+        tools: ['web-search', 'gmail'],
         memoryEnabled: true,
         memoryType: 'All Messages',
         messages: [],
