@@ -106,11 +106,16 @@ function DashboardContent() {
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       const nodeData = node.data as Record<string, unknown>;
-      if (node.type === 'sticky' || nodeData.originalType === 'sticky') return;
+      const _type = (nodeData.originalType as string) || node.type || 'agent';
+      
+      // Disable the config panel for these nodes
+      if (['sticky', 'agent', 'tool', 'model', 'memory'].includes(_type)) {
+        return;
+      }
       
       if (nodeData.agentConfig) {
         setSelectedAgent(nodeData.agentConfig as AgentConfig);
-        setSelectedNodeType((nodeData.originalType as string) || 'agent');
+        setSelectedNodeType(_type);
         setShowConfig(true);
         setChatPanelOpen(false);
       }
@@ -198,25 +203,29 @@ function DashboardContent() {
       
       // AgentCanvas supports: start, agent, condition, sticky, tool
       let nodeType = 'agent';
-      if (['start', 'sticky', 'condition', 'tool'].includes(originalType)) {
+      if (['start', 'sticky', 'condition', 'tool', 'model', 'memory'].includes(originalType)) {
         nodeType = originalType;
       }
 
       const isCondition = nodeType === 'condition';
       const isTool = nodeType === 'tool';
+      const isModel = nodeType === 'model';
+      const isMemory = nodeType === 'memory';
       const nodeModelMap: Record<string, { model: string; icon: string }> = {
         agent: { model: 'gemini-flash-latest', icon: 'gemini' },
         condition: { model: 'gemini-flash-latest', icon: 'gemini' },
         http: { model: 'GET', icon: 'globe' },
         flow: { model: 'flow-1', icon: 'workflow' },
         start: { model: 'Manual', icon: 'play' },
-        tool: { model: 'Function', icon: icon || 'bot' }
+        tool: { model: 'Function', icon: icon || 'bot' },
+        model: { model: 'gemini-flash-latest', icon: icon || 'bot' },
+        memory: { model: 'Database', icon: icon || 'database' }
       };
       const modelInfo = nodeModelMap[originalType] || nodeModelMap.agent;
 
       const newAgent: AgentConfig = {
         id: newId,
-        name: label || (isCondition ? 'New Condition' : isTool ? 'Tool' : 'New Node'),
+        name: label || (isCondition ? 'New Condition' : isTool ? 'Tool' : isModel ? 'Model' : isMemory ? 'Memory' : 'New Node'),
         role: isTool ? 'Tool integration' : 'General Assistant',
         personality: isTool ? 'Execute functions seamlessly' : 'Helpful and adaptable',
         model: modelInfo.model,

@@ -606,6 +606,11 @@ async function runAgentLoop() {
                 content: assistantMessageStr
             });
 
+            // Note: Update UI right away if the agent generated new memory.
+            if (data.memory) {
+                fetchMemory();
+            }
+
             // 3. Evaluate Action
             if (data.action && data.action !== "ANSWER") {
                 let msgText = `Executing command: ${data.action} ${data.elementId ? `on element #${data.elementId}` : ''}`;
@@ -1133,6 +1138,52 @@ function addMemoryLog(content) {
 
     item.appendChild(body);
     container.insertBefore(item, container.firstChild);
+}
+
+async function fetchMemory() {
+    const modelSelect = document.getElementById('model-select');
+    const selectedModel = modelSelect ? modelSelect.value : '';
+    if (!selectedModel) return;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/memory?chatflowId=${selectedModel}`, { credentials: 'include' });
+        const data = await response.json();
+        
+        const container = document.getElementById('memory-log');
+        if (!container) return;
+        
+        container.innerHTML = ''; // clear current memory list
+
+        if (data.memory && data.memory.length > 0) {
+            // Memory returns newest first, so we just append them.
+            data.memory.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'memory-item';
+                const body = document.createElement('div');
+                body.className = 'memory-body';
+                body.textContent = item.content;
+                itemDiv.appendChild(body);
+                container.appendChild(itemDiv);
+            });
+        } else {
+            container.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2" />
+                </svg>
+                <p>No memory recorded yet</p>
+            </div>`;
+        }
+    } catch(e) {
+        console.error("Failed to fetch memory", e);
+    }
+}
+
+// Call fetchMemory when switching to memory tab or when a chatflow changes
+document.querySelector('[data-target="memory-view"]').addEventListener('click', fetchMemory);
+const modelSelect = document.getElementById('model-select');
+if (modelSelect) {
+    modelSelect.addEventListener('change', fetchMemory);
 }
 
 // Intercept existing message handling to add logs

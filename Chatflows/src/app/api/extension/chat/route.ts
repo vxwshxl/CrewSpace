@@ -28,6 +28,7 @@ CRITICAL RULES:
 11. Do not provide legal or medical advice through the assistant—always redirect to official sources.
 12. AVOID INFINITE LOOPS: If you have SCROLLed multiple times and cannot find the exact target, STOP scrolling. Choose the best available option visible or return an ANSWER explaining the issue. Do NOT hallucinate elements that are not in the DOM.
 13. E-COMMERCE / SHOPPING: When buying or searching on sites like Amazon, prioritize items with "Amazon's Choice" or high ratings. Click "Add to cart" or the product directly to complete the task.
+14. MEMORY STORAGE: If you learn an important fact about the user or complete a major subtask, include a 'memory' property in your JSON containing this context. E.g. {"action":"ANSWER", "text":"Got it.", "memory":"User prefers dark mode"}
 
 EXAMPLES:
 {"action":"CLICK","elementId":15}
@@ -74,8 +75,12 @@ async function getChatflowConfig(chatflowId: string) {
                     .single();
                 
                 const finalApiKey = apiKeyObj?.key;
+                
+                const hasMemoryNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'memory-out');
 
                 return {
+                    userId: user.id,
+                    hasMemoryNode,
                     model: 'gemini-flash-latest',
                     provider: 'gemini',
                     apiKey: finalApiKey,
@@ -223,9 +228,34 @@ export async function POST(req: NextRequest) {
         if (config.prompt) {
             systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
         }
+        
+        const supabase = await createClient();
+
+        if (config.hasMemoryNode && config.userId) {
+            const { data: memData } = await supabase.from('chatflow_memory')
+                .select('content, created_at')
+                .eq('chatflow_id', chatflowId)
+                .order('created_at', { ascending: false })
+                .limit(10);
+            if (memData && memData.length > 0) {
+                systemContext += `\n\nPREVIOUS DATABASE MEMORY:\n${memData.reverse().map(m => `- ${m.content}`).join('\n')}`;
+            }
+        }
 
         // Force Gemini usage per user settings
         const result = await chatWithGemini(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
+
+        if (result.memory && config.hasMemoryNode && config.userId) {
+            try {
+                await supabase.from('chatflow_memory').insert({
+                    chatflow_id: chatflowId,
+                    user_id: config.userId,
+                    content: result.memory
+                });
+            } catch (e) {
+                console.error("Failed to save memory:", e);
+            }
+        }
 
         return NextResponse.json({
             action: result.action || "ANSWER",
@@ -233,7 +263,8 @@ export async function POST(req: NextRequest) {
             direction: result.direction,
             text: result.text,
             url: result.url,
-            language: result.language
+            language: result.language,
+            memory: result.memory // pass memory back so the extension can log it instantly without polling
         });
 
     } catch (error) {

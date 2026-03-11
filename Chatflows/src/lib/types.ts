@@ -91,5 +91,5 @@ export interface NodeCategoryItem {
     name: string;
     description: string;
     icon: string;
-    type: 'agent' | 'condition' | 'function' | 'reply' | 'flow' | 'http' | 'start' | 'sticky' | 'tool';
+    type: 'agent' | 'condition' | 'function' | 'reply' | 'flow' | 'http' | 'start' | 'sticky' | 'tool' | 'model' | 'memory';
 }

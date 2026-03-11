@@ -102,46 +102,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                 </Select>
             </div>
 
-            <div className="space-y-2">
-                <Label className="text-sm font-medium text-white">Tools</Label>
-                <div className="space-y-1.5">
-                    {agent.tools.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                            {agent.tools.map((toolId) => {
-                                const tool = tools.find((t) => t.id === toolId);
-                                return (
-                                    <Badge
-                                        key={toolId}
-                                        variant="secondary"
-                                        className="text-xs cursor-pointer bg-muted text-primary border-primary hover:bg-red-500/20"
-                                        onClick={() => handleToolToggle(toolId)}
-                                    >
-                                        {tool?.name || toolId} ×
-                                    </Badge>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
 
-                <div className="mt-3 space-y-1">
-                    {tools.map((tool) => (
-                        <div
-                            key={tool.id}
-                            className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
-                            onClick={() => handleToolToggle(tool.id)}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] ${agent.tools.includes(tool.id) ? 'bg-primary/30 text-primary' : 'bg-black/25 text-muted-foreground'}`}>
-                                    {agent.tools.includes(tool.id) ? '✓' : '+'}
-                                </div>
-                                <span className="text-xs font-medium text-muted-foreground">{tool.name}</span>
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">{tool.category}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             <div className="space-y-3">
                 <div className="flex items-center gap-1.5">

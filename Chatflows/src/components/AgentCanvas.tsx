@@ -38,7 +38,9 @@ import StartNode from './nodes/StartNode';
 import AgentNode from './nodes/AgentNode';
 import ConditionNode from './nodes/ConditionNode';
 import StickyNode from './nodes/StickyNode';
-import ToolNode from './nodes/ToolNode'; // Added ToolNode import
+import ToolNode from './nodes/ToolNode';
+import ModelNode from './nodes/ModelNode';
+import MemoryNode from './nodes/MemoryNode';
 import NodePanel from './NodePanel';
 import AIGeneratorInline from './AIGeneratorInline';
 import { useStore } from '@xyflow/react';
@@ -58,7 +60,9 @@ const nodeTypes = {
     agent: AgentNode,
     condition: ConditionNode,
     sticky: StickyNode,
-    tool: ToolNode, // Added ToolNode
+    tool: ToolNode,
+    model: ModelNode,
+    memory: MemoryNode,
 };
 
 const edgeTypes = {
