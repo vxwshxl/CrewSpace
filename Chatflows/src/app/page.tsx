@@ -72,10 +72,10 @@ export default function Home() {
     const scrollTrigger = ScrollTrigger.create({
       trigger: heroSection,
       start: "top top",
-      end: `+=${window.innerHeight * 8}px`,
+      end: `+=${window.innerHeight * 3}px`,
       pin: true,
       pinSpacing: true,
-      scrub: 1,
+      scrub: 0.5,
       onUpdate: (self) => {
         const progress = self.progress;
 
@@ -372,8 +372,12 @@ export default function Home() {
     };
   }, []);
 
-  const goToDashboard = () => {
-    router.push("/dashboard");
+  const goToLogin = () => {
+    router.push("/login");
+  };
+
+  const goToSignup = () => {
+    router.push("/signup");
   };
 
   return (
@@ -385,7 +389,7 @@ export default function Home() {
         </div>
         <div className="nav-right">
           <div className="desktop-nav">
-            <div className="signup" onClick={goToDashboard}>
+            <div className="login" onClick={goToLogin}>
               <svg
                 className="account-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -399,9 +403,9 @@ export default function Home() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <span>Sign up</span>
+              <span>Log in</span>
             </div>
-            <button className="btn-primary" onClick={goToDashboard}>Get Started</button>
+            <button className="btn-primary" onClick={goToSignup}>Get Started</button>
           </div>
           <div className="mobile-nav relative">
             <MonitorSmartphone />
@@ -464,7 +468,7 @@ export default function Home() {
         </div>
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-black/50 font-medium text-segment pointer-events-none">
-          by Team Commit&Run
+          &copy; 2026 CrewSpace. By Team Commit&Run
         </div>
       </section>
     </div>

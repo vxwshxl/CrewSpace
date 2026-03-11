@@ -13,8 +13,6 @@ export const metadata: Metadata = {
     "Build your own AI agent workforce. Create, configure, and deploy personal AI agents with a visual drag-and-drop workflow builder.",
 };
 
-import BubbleTutorial from "@/components/BubbleTutorial";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,7 +22,6 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`} suppressHydrationWarning>
         {children}
-        <BubbleTutorial />
       </body>
     </html>
   );
