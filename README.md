@@ -102,3 +102,4 @@ If you want to tweak how the AI behaves:
 ---
 
 *CrewSpace - Pure Intelligence inside your Browser.*
+*_Built for Prajyukti Hackathon 2026_*
