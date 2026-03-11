@@ -1,26 +1,53 @@
 'use client';
 
-import React from 'react';
-import { useStore } from '@/lib/store';
-import { Workflow, Plus, Trash2, Pencil, Download, X, Chrome, FolderDown, Puzzle, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Workflow, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
 import DownloadExtensionBtn from '@/components/DownloadExtensionBtn';
+import { createClient } from '@/utils/supabase/client';
 
 export default function ChatflowsList() {
-    const { chatflows, deleteChatflow, addChatflow, updateChatflow } = useStore();
+    const [chatflows, setChatflows] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const supabase = createClient();
 
-    const handleCreateNew = () => {
-        const id = `flow-${Date.now()}`;
-        addChatflow({
-            id,
+    useEffect(() => {
+        fetchChatflows();
+    }, []);
+
+    const fetchChatflows = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data } = await supabase.from('chatflows').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
+        if (data) setChatflows(data);
+        setLoading(false);
+    };
+
+    const handleCreateNew = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data } = await supabase.from('chatflows').insert({
+            user_id: user.id,
             name: 'New Chatflow',
-            nodes: [],
-            edges: [],
-        });
-        router.push(`/flow/${id}`);
+            data: { nodes: [], edges: [] }
+        }).select().single();
+
+        if (data) {
+            router.push(`/flow/${data.id}`);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        await supabase.from('chatflows').delete().eq('id', id);
+        fetchChatflows();
+    };
+
+    const handleUpdate = async (id: string, name: string) => {
+        await supabase.from('chatflows').update({ name, updated_at: new Date().toISOString() }).eq('id', id);
+        fetchChatflows();
     };
 
     return (
@@ -46,9 +73,13 @@ export default function ChatflowsList() {
                 </div>
             </div>
 
-            {chatflows.length === 0 ? (
-                <div className="border-2 border-dashed border-border rounded-none py-20 text-center">
-                    <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4 opacity-50">
+            {loading ? (
+                <div className="border border-dashed border-border rounded-none p-12 text-center">
+                    <p className="text-muted-foreground">Loading chatflows...</p>
+                </div>
+            ) : chatflows.length === 0 ? (
+                <div className="border border-dashed border-border rounded-none p-12 text-center">
+                    <div className="w-12 h-12 rounded-full bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4">
                         <Workflow className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg font-medium text-white mb-2">No Chatflows Yet</h3>
@@ -69,8 +100,8 @@ export default function ChatflowsList() {
                         <ChatflowCard
                             key={flow.id}
                             flow={flow}
-                            onDelete={deleteChatflow}
-                            onUpdate={updateChatflow}
+                            onDelete={handleDelete}
+                            onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
                         />
                     ))}
                 </div>
@@ -119,11 +150,11 @@ function ChatflowCard({ flow, onDelete, onUpdate }: { flow: any; onDelete: (id: 
                             </div>
                         )}
                         <p className="text-sm text-muted-foreground">
-                            {flow.nodes.length} Nodes • {flow.edges.length} Connections
+                            {flow.data?.nodes?.length || 0} Nodes • {flow.data?.edges?.length || 0} Connections
                         </p>
                     </div>
                     <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Updated {new Date(flow.updatedAt).toLocaleDateString()}</span>
+                        <span>Updated {new Date(flow.updated_at || flow.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
             </Link>

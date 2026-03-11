@@ -1,28 +1,52 @@
 'use client';
 
 import React from 'react';
-import { useStore } from '@/lib/store';
 import { Trash2, Plus, Key } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 
 export default function ApiKeysList() {
-    const { apiKeys, addApiKey, deleteApiKey } = useStore();
+    const [apiKeys, setApiKeys] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
     const [isAdding, setIsAdding] = React.useState(false);
-    const [newProvider, setNewProvider] = React.useState('sarvam');
+    const [newProvider, setNewProvider] = React.useState('gemini');
     const [newName, setNewName] = React.useState('');
     const [newKey, setNewKey] = React.useState('');
 
+    const supabase = createClient();
 
+    React.useEffect(() => {
+        fetchKeys();
+    }, []);
 
-    const handleAdd = (e: React.FormEvent) => {
+    const fetchKeys = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data } = await supabase.from('apiKeys').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (data) setApiKeys(data);
+        setLoading(false);
+    };
+
+    const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        addApiKey({
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase.from('apiKeys').insert({
+            user_id: user.id,
             provider: newProvider,
             name: newName,
             key: newKey,
         });
+
         setIsAdding(false);
         setNewName('');
         setNewKey('');
+        fetchKeys();
+    };
+
+    const handleDelete = async (id: string) => {
+        await supabase.from('apiKeys').delete().eq('id', id);
+        fetchKeys();
     };
 
 
@@ -61,9 +85,7 @@ export default function ApiKeysList() {
                                 value={newProvider}
                                 onChange={(e) => setNewProvider(e.target.value)}
                             >
-                                <option value="sarvam">Sarvam</option>
                                 <option value="gemini">Google Gemini</option>
-                                <option value="groq">Groq</option>
                             </select>
                         </div>
                         <div className="space-y-1">
@@ -112,7 +134,13 @@ export default function ApiKeysList() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                        {apiKeys.length === 0 ? (
+                        {loading ? (
+                            <tr>
+                                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                                    Loading...
+                                </td>
+                            </tr>
+                        ) : apiKeys.length === 0 ? (
                             <tr>
                                 <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
                                     No API keys added yet. Securely store your model provider keys here.
@@ -128,10 +156,10 @@ export default function ApiKeysList() {
                                         {k.provider}
                                     </td>
                                     <td className="px-6 py-4 text-white font-medium">{k.name}</td>
-                                    <td className="px-6 py-4 text-muted-foreground">{new Date(k.createdAt).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-muted-foreground">{new Date(k.created_at || k.createdAt).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 text-right">
                                         <button
-                                            onClick={() => deleteApiKey(k.id)}
+                                            onClick={() => handleDelete(k.id)}
                                             className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 className="w-4 h-4" />

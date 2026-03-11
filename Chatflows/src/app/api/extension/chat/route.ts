@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@/utils/supabase/server';
-import fs from 'fs';
-import path from 'path';
 
 const baseSystemPrompt = `You are an intelligent, CrewSpace Agentic Engine. You can perform actions on the user's current webpage AND answer general knowledge questions.
 
@@ -58,24 +56,18 @@ async function getChatflowConfig(chatflowId: string) {
             const agentConfig = agentNode?.data?.agentConfig;
 
             if (agentConfig) {
-                let provider = 'gemini';
-                if (agentConfig.model?.includes('gpt') || agentConfig.model?.includes('o1')) provider = 'openai';
-                if (agentConfig.model?.includes('claude')) provider = 'anthropic';
-                if (agentConfig.model?.includes('sarvam')) provider = 'sarvam';
-                if (agentConfig.model?.includes('llama') || agentConfig.model?.includes('mixtral') || agentConfig.model?.includes('gemma')) provider = 'groq';
-
                 const { data: apiKeyObj } = await supabase
                     .from('apiKeys')
                     .select('key')
                     .eq('user_id', chatflow.user_id)
-                    .eq('provider', provider)
+                    .eq('provider', 'gemini')
                     .single();
                 
-                const finalApiKey = apiKeyObj?.key || getEnvApiKey(provider);
+                const finalApiKey = apiKeyObj?.key;
 
                 return {
-                    model: agentConfig.model || 'gemini-flash-latest',
-                    provider,
+                    model: 'gemini-flash-latest',
+                    provider: 'gemini',
                     apiKey: finalApiKey,
                     role: agentConfig.role || 'General Assistant',
                     personality: agentConfig.personality || '',
@@ -84,42 +76,10 @@ async function getChatflowConfig(chatflowId: string) {
             }
         }
     } catch (e) {
-        console.error("DB config fetch failed, falling back to env:", e);
+        console.error("DB config fetch failed:", e);
     }
-
-    // Fallback: use environment variables (for deployed/serverless environments)
-    const fallbackApiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || '';
-    let fallbackProvider = 'gemini';
-    let fallbackModel = 'gemini-flash-latest';
-
-    if (!process.env.GEMINI_API_KEY && process.env.OPENAI_API_KEY) {
-        fallbackProvider = 'openai';
-        fallbackModel = 'gpt-4o-mini';
-    } else if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY && process.env.GROQ_API_KEY) {
-        fallbackProvider = 'groq';
-        fallbackModel = 'llama-3.3-70b-versatile';
-    }
-
-    if (!fallbackApiKey) return null;
-
-    return {
-        model: fallbackModel,
-        provider: fallbackProvider,
-        apiKey: fallbackApiKey,
-        role: 'General Assistant',
-        personality: 'Helpful and adaptable'
-    };
-}
-
-function getEnvApiKey(provider: string): string {
-    const envMap: Record<string, string> = {
-        gemini: process.env.GEMINI_API_KEY || '',
-        openai: process.env.OPENAI_API_KEY || '',
-        anthropic: process.env.ANTHROPIC_API_KEY || '',
-        groq: process.env.GROQ_API_KEY || '',
-        sarvam: process.env.SARVAM_API_KEY || '',
-    };
-    return envMap[provider] || '';
+    
+    return null;
 }
 
 // Gemini Chat helper
@@ -222,206 +182,6 @@ CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g.
     }
 }
 
-// Sarvam Chat helper
-async function chatWithSarvam(messagesArray: any[], pageContent: string, elements: any, url: string, title: string, apiKey: string, modelId: string, systemContext: string) {
-    const apiUrl = "https://api.sarvam.ai/v1/chat/completions";
-    const apiMessages = [...messagesArray];
-
-    if (apiMessages.length === 0) {
-        apiMessages.push({ role: "user", content: "No explicit goal provided." });
-    }
-
-    if (apiMessages[0].role === "user") {
-        apiMessages[0].content = `${systemContext}\n\n${baseSystemPrompt}\n\nUSER GOAL (History):\n${apiMessages[0].content}`;
-    }
-
-    let lastUserMessage = null;
-    for (let i = apiMessages.length - 1; i >= 0; i--) {
-        if (apiMessages[i].role === "user") {
-            lastUserMessage = apiMessages[i];
-            break;
-        }
-    }
-
-    if (lastUserMessage) {
-        lastUserMessage.content = `[CURRENT BROWSER CONTEXT]
-URL: ${url}
-TITLE: ${title}
-
-(Note: The user's query might be completely independent of this page. Only use this context if the user's latest command refers to the page or requires browser automation.)
-
-WEBPAGE CONTENT:
-${pageContent ? pageContent.substring(0, 2000) : "No context provided"}
-
-AVAILABLE INTERACTABLE ELEMENTS (map of unique IDs to elements):
-${JSON.stringify(elements)}
-[END CONTEXT]
-
-LATEST COMMAND:
-${lastUserMessage.content}`;
-    }
-
-    const cleanedMessages = [];
-    if (apiMessages.length > 0) {
-        cleanedMessages.push(apiMessages[0]);
-        for (let i = 1; i < apiMessages.length; i++) {
-            const currentRole = apiMessages[i].role;
-            const prevRole = cleanedMessages[cleanedMessages.length - 1].role;
-
-            if (currentRole === prevRole) {
-                cleanedMessages[cleanedMessages.length - 1].content += `\n${apiMessages[i].content}`;
-            } else {
-                cleanedMessages.push(apiMessages[i]);
-            }
-        }
-    }
-
-    const payload = {
-        model: modelId,
-        messages: cleanedMessages,
-        temperature: 0.1,
-        top_p: 1
-    };
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                "api-subscription-key": apiKey,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        let content = data.choices?.[0]?.message?.content;
-
-        if (!content || content.trim() === "") {
-            return { action: "ANSWER", text: "I'm having trouble understanding right now. Please try again or provide more details." };
-        }
-
-        content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
-        if (!content.startsWith('{')) {
-            const match = content.match(/\{[\s\S]*\}/);
-            if (match) {
-                content = match[0];
-            }
-        }
-
-        return JSON.parse(content);
-
-    } catch (error) {
-        console.error("Sarvam API Error:", error);
-        return { action: "ANSWER", text: "CrewSpace may be incorrect. Please verify important information." };
-    }
-}
-
-// Groq Chat helper (OpenAI-compatible API)
-async function chatWithGroq(messagesArray: any[], pageContent: string, elements: any, url: string, title: string, apiKey: string, modelId: string, systemContext: string) {
-    const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-    const apiMessages = [...messagesArray];
-
-    if (apiMessages.length === 0) {
-        apiMessages.push({ role: "user", content: "No explicit goal provided." });
-    }
-
-    // Prepend system message
-    const systemMessage = {
-        role: "system",
-        content: systemContext + '\n\n' + baseSystemPrompt
-    };
-
-    let lastUserMessage = null;
-    for (let i = apiMessages.length - 1; i >= 0; i--) {
-        if (apiMessages[i].role === "user") {
-            lastUserMessage = apiMessages[i];
-            break;
-        }
-    }
-
-    if (lastUserMessage) {
-        lastUserMessage.content = `[CURRENT BROWSER CONTEXT]
-URL: ${url}
-TITLE: ${title}
-
-(Note: The user's query might be completely independent of this page. Only use this context if the user's latest command refers to the page or requires browser automation.)
-
-WEBPAGE CONTENT:
-${pageContent ? pageContent.substring(0, 2000) : "No context provided"}
-
-AVAILABLE INTERACTABLE ELEMENTS (map of unique IDs to elements):
-${JSON.stringify(elements)}
-[END CONTEXT]
-
-LATEST COMMAND:
-${lastUserMessage.content}`;
-    }
-
-    const cleanedMessages = [];
-    if (apiMessages.length > 0) {
-        cleanedMessages.push(apiMessages[0]);
-        for (let i = 1; i < apiMessages.length; i++) {
-            const currentRole = apiMessages[i].role;
-            const prevRole = cleanedMessages[cleanedMessages.length - 1].role;
-
-            if (currentRole === prevRole) {
-                cleanedMessages[cleanedMessages.length - 1].content += `\n${apiMessages[i].content}`;
-            } else {
-                cleanedMessages.push(apiMessages[i]);
-            }
-        }
-    }
-
-    const payload = {
-        model: modelId,
-        messages: [systemMessage, ...cleanedMessages],
-        temperature: 1,
-        max_completion_tokens: 8192,
-        top_p: 1,
-        stream: false,
-    };
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        let content = data.choices?.[0]?.message?.content;
-
-        if (!content || content.trim() === "") {
-            return { action: "ANSWER", text: "I'm having trouble understanding right now. Please try again or provide more details." };
-        }
-
-        content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
-        if (!content.startsWith('{')) {
-            const match = content.match(/\{[\s\S]*\}/);
-            if (match) {
-                content = match[0];
-            }
-        }
-
-        return JSON.parse(content);
-
-    } catch (error) {
-        console.error("Groq API Error:", error);
-        return { action: "ANSWER", text: "CrewSpace may be incorrect. Please verify important information." };
-    }
-}
-
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
@@ -454,15 +214,8 @@ export async function POST(req: NextRequest) {
             systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
         }
 
-        let result;
-        if (config.provider === 'sarvam') {
-            result = await chatWithSarvam(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
-        } else if (config.provider === 'groq') {
-            result = await chatWithGroq(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
-        } else {
-            // Default to Gemini for unknown or gemini providers
-            result = await chatWithGemini(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
-        }
+        // Force Gemini usage per user settings
+        const result = await chatWithGemini(messages, page_content, elements, url, title, config.apiKey, config.model, systemContext);
 
         return NextResponse.json({
             action: result.action || "ANSWER",

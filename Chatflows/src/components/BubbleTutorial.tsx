@@ -5,6 +5,7 @@ import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
+import { createClient } from '@/utils/supabase/client';
 
 const steps = [
   {
@@ -63,7 +64,7 @@ const steps = [
 ];
 
 export default function BubbleTutorial() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -71,6 +72,20 @@ export default function BubbleTutorial() {
   const router = useRouter();
   const pathname = usePathname();
   const addChatflow = useStore((state) => state.addChatflow);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Check if the user has seen the tutorial in their app_metadata
+    const checkTutorialState = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        if (!user.user_metadata?.tutorial_seen) {
+          setIsVisible(true);
+        }
+      }
+    };
+    checkTutorialState();
+  }, []);
 
   // Auto advance tracking when route changes
   const [lastPath, setLastPath] = useState(pathname);
@@ -112,8 +127,15 @@ export default function BubbleTutorial() {
     };
   }, [currentStep, pathname]);
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setIsVisible(false);
+    // Mark tutorial as seen in Supabase so it never shows up again.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        await supabase.auth.updateUser({
+            data: { tutorial_seen: true }
+        });
+    }
   };
 
   const handlePrev = () => {
@@ -122,15 +144,20 @@ export default function BubbleTutorial() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1 && pathname === '/dashboard') {
        const tutorialFlowId = `flow-tutorial-${Date.now()}`;
-       addChatflow({
-           id: tutorialFlowId,
-           name: 'Amazon Order Agent',
-           nodes: [],
-           edges: [],
-       });
+       
+       const { data: { user } } = await supabase.auth.getUser();
+       if (user) {
+           await supabase.from('chatflows').insert({
+               id: tutorialFlowId,
+               user_id: user.id,
+               name: 'Amazon Order Agent',
+               data: { nodes: [], edges: [] }
+           });
+       }
+
        router.push(`/flow/${tutorialFlowId}`);
        return; // useEffect will handle advancing currentStep on page load
     }
@@ -138,7 +165,7 @@ export default function BubbleTutorial() {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      handleClose();
+      await handleClose();
     }
   };
 
