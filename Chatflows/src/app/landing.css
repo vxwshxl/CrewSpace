@@ -238,7 +238,7 @@
   color: #e3e3db;
 }
 
-.signup {
+.login {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -248,7 +248,7 @@
   transition: opacity 0.2s;
 }
 
-.signup:hover {
+.login:hover {
   opacity: 0.8;
 }
 
@@ -258,7 +258,7 @@
 }
 
 .btn-primary {
-  background-color: #e3e3db;
+  background-color: #fff;
   color: #141414;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -267,12 +267,10 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
 }
 
 .btn-primary:hover {
-  transform: scale(1.05);
-  background-color: #ffffff;
+  background-color: #e3e3db;
 }
 
 @media (max-width: 1000px) {

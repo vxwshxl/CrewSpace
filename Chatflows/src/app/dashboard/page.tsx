@@ -7,6 +7,8 @@ import ChatflowsList from '@/components/dashboard/ChatflowsList';
 import ApiKeysList from '@/components/dashboard/ApiKeysList';
 import { Workflow, Key, BookOpen } from 'lucide-react';
 import TutorialsList from '@/components/dashboard/TutorialsList';
+import BubbleTutorial from '@/components/BubbleTutorial';
+
 
 export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState<'chatflows' | 'apikeys' | 'tutorials'>('chatflows');
@@ -69,6 +71,7 @@ export default function DashboardPage() {
                     </div>
                 )
             )}
+            <BubbleTutorial />
         </>
     );
 }
