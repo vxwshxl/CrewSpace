@@ -166,7 +166,7 @@ export default function AIGeneratorInline({ onGenerate }: AIGeneratorInlineProps
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Describe your workflow..."
-                    className="w-full min-h-[80px] p-3 pr-10 rounded-lg bg-black/40 border border-border text-sm text-white resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 text-foreground transition-all"
+                    className="w-full min-h-[80px] p-3 pr-10 rounded-lg bg-black/40 text-sm text-white resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 text-foreground transition-all"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();

@@ -22,6 +22,11 @@ export interface HttpNodeConfig {
     responseType: string;
 }
 
+export interface MessageObject {
+    role: string;
+    content: string;
+}
+
 export interface AgentConfig {
     id: string;
     name: string;
@@ -32,12 +37,13 @@ export interface AgentConfig {
     tools: string[];
     memoryEnabled: boolean;
     memoryType: string;
-    messages: string[];
+    messages: MessageObject[];
     knowledgeSources: string[];
     inputMessage: string;
     responseFormat: string;
     prompt?: string;
     httpConfig?: HttpNodeConfig;
+    toolConfig?: Record<string, any>;
 }
 
 export interface ActivityEntry {
