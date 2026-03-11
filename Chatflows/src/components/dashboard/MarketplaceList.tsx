@@ -40,46 +40,47 @@ export default function MarketplaceList() {
   const supabase = createClient();
   const router = useRouter();
 
-  useEffect(() => {
-    fetchMarketplaceWorkflows();
-  }, []);
+  // useEffect(() => {
+  //   fetchMarketplaceWorkflows();
+  // }, []);
 
   const fetchMarketplaceWorkflows = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('marketplace_workflows')
-        .select('*')
-        .order('created_at', { ascending: false });
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('marketplace_workflows')
+    //     .select('*')
+    //     .order('created_at', { ascending: false });
 
-      if (error) throw error;
+    //   if (error) throw error;
 
-      if (data) {
-        // Map database records to Workflow interface
-        const dynamicWorkflows: Workflow[] = data.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          category: item.category,
-          icon: item.icon || '🤖',
-          rating: 4.8, 
-          reviews: 0, // Fixed: Added missing property
-          installs: 0,
-          creator: item.creator_name,
-          isPremium: item.is_premium,
-          price: item.price,
-          features: ["Community Submitted", "Verified Logic"],
-          templateData: item.template_data,
-          trending: false,
-          new: true
-        }));
+    //   if (data) {
+    //     // Map database records to Workflow interface
+    //     const dynamicWorkflows: Workflow[] = data.map((item: any) => ({
+    //       id: item.id,
+    //       name: item.name,
+    //       description: item.description,
+    //       category: item.category,
+    //       icon: item.icon || '🤖',
+    //       rating: 4.8, 
+    //       reviews: 0, // Fixed: Added missing property
+    //       installs: 0,
+    //       creator: item.creator_name,
+    //       isPremium: item.is_premium,
+    //       price: item.price,
+    //       features: ["Community Submitted", "Verified Logic"],
+    //       templateData: item.template_data,
+    //       trending: false,
+    //       new: true
+    //     }));
 
-        setAllWorkflows([...WORKFLOWS, ...dynamicWorkflows]);
-      }
-    } catch (err) {
-      console.error("Error fetching dynamic workflows:", err);
-      // Fallback to static data if table doesn't exist yet
-      setAllWorkflows(WORKFLOWS);
-    }
+    //     setAllWorkflows([...WORKFLOWS, ...dynamicWorkflows]);
+    //   }
+    // } catch (err) {
+    //   console.error("Error fetching dynamic workflows:", err);
+    //   // Fallback to static data if table doesn't exist yet
+    //   setAllWorkflows(WORKFLOWS);
+    // }
+    setAllWorkflows(WORKFLOWS);
   };
 
   const filteredWorkflows = useMemo(() => {
@@ -226,23 +227,7 @@ export default function MarketplaceList() {
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border shrink-0",
-                selectedCategory === category
-                  ? "bg-white text-black border-white shadow-sm"
-                  : "bg-transparent text-zinc-600 border-white/5 hover:border-white/20 hover:text-zinc-400"
-              )}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+
       </div>
 
       {/* Grid */}
