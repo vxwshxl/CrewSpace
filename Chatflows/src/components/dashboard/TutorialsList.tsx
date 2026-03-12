@@ -32,8 +32,8 @@ export default function TutorialsList() {
 
             {/* Quick Start Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="group bg-card border border-border rounded-none p-6 hover:border-border/80 transition-all shadow-sm hover:shadow-md">
-                    <div className="w-12 h-12 rounded-none bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform pb-0 border border-primary/20">
+                <div className="group bg-card border border-border rounded-none p-6">
+                    <div className="w-12 h-12 rounded-none bg-primary/10 flex items-center justify-center mb-4 pb-0 border border-primary/20">
                         <PlayCircle className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Introduction</h3>
@@ -41,8 +41,8 @@ export default function TutorialsList() {
                         Learn the core concepts of CrewSpace and how autonomous agents work together to solve complex tasks.
                     </p>
                 </div>
-                <div className="group bg-card border border-border rounded-none p-6 hover:border-border/80 transition-all shadow-sm hover:shadow-md">
-                    <div className="w-12 h-12 rounded-none bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform pb-0 border border-blue-500/20">
+                <div className="group bg-card border border-border rounded-none p-6">
+                    <div className="w-12 h-12 rounded-none bg-blue-500/10 flex items-center justify-center mb-4 pb-0 border border-blue-500/20">
                         <Workflow className="w-6 h-6 text-blue-500" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">First Workflow</h3>
@@ -50,8 +50,8 @@ export default function TutorialsList() {
                         Step-by-step guide to creating your very first multi-agent chatflow from scrap to deployment.
                     </p>
                 </div>
-                <div className="group bg-card border border-border rounded-none p-6 hover:border-border/80 transition-all shadow-sm hover:shadow-md">
-                    <div className="w-12 h-12 rounded-none bg-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform pb-0 border border-green-500/20">
+                <div className="group bg-card border border-border rounded-none p-6">
+                    <div className="w-12 h-12 rounded-none bg-green-500/10 flex items-center justify-center mb-4 pb-0 border border-green-500/20">
                         <ExternalLink className="w-6 h-6 text-green-500" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Using Extension</h3>
@@ -68,9 +68,10 @@ export default function TutorialsList() {
                 <div className="space-y-6">
                     {/* The Dashboard */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted border border-border rounded-none overflow-hidden relative flex items-center justify-center">
-                             <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
-                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">The Dashboard</span>
+                        <div className="md:w-2/3 aspect-[16/8] bg-muted border border-border rounded-none overflow-hidden relative group">
+                             <img src="/tutorials/1.webp" className="w-full h-full object-cover" alt="Dashboard Guide" />
+                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-90 uppercase tracking-widest text-white bg-black/50 px-2 py-1 backdrop-blur-sm border border-white/10">The Dashboard</span>
                         </div>
                         <div className="flex-1 space-y-4">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -78,6 +79,8 @@ export default function TutorialsList() {
                             </h3>
                             <ul className="space-y-3 text-muted-foreground list-disc pl-5">
                                 <li><strong>Chatflows:</strong> This is where your projects live. You can rename, delete, or quickly jump back into editing them.</li>
+                                <li><strong>Squads:</strong> Collaborate with others to build and deploy joint AI agent workforces in real-time.</li>
+                                <li><strong>Marketplace:</strong> Browse and import community-created templates to jumpstart your own agent workflows.</li>
                                 <li><strong>API Keys:</strong> Securely manage your Gemini, Groq, or Sarvam keys. These are stored locally in your browser for privacy.</li>
                                 {/* <li><strong>Global Styles:</strong> Your platform aesthetics are persistent. Customizing once reflects everywhere.</li> */}
                             </ul>
@@ -86,9 +89,10 @@ export default function TutorialsList() {
 
                     {/* The Canvas */}
                     <div className="flex flex-col md:flex-row-reverse gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted border border-border rounded-none overflow-hidden relative flex items-center justify-center">
-                             <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
-                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">The Canvas</span>
+                        <div className="md:w-2/3 aspect-[16/8] bg-muted border border-border rounded-none overflow-hidden relative group">
+                             <img src="/tutorials/2.webp" className="w-full h-full object-cover" alt="Canvas Guide" />
+                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-90 uppercase tracking-widest text-white bg-black/50 px-2 py-1 backdrop-blur-sm border border-white/10">The Canvas</span>
                         </div>
                         <div className="flex-1 space-y-4">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -104,9 +108,10 @@ export default function TutorialsList() {
 
                     {/* Integration */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="md:w-1/3 aspect-video bg-muted border border-border rounded-none overflow-hidden relative flex items-center justify-center">
-                             <img src="/logoCS.png" className="w-16 opacity-20" alt="" />
-                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-50 uppercase tracking-widest text-white">Integration</span>
+                        <div className="md:w-2/3 aspect-[16/8] bg-muted border border-border rounded-none overflow-hidden relative group">
+                             <img src="/tutorials/3.webp" className="w-full h-full object-cover" alt="Integration Guide" />
+                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                             <span className="absolute bottom-3 right-3 text-[10px] font-mono opacity-90 uppercase tracking-widest text-white bg-black/50 px-2 py-1 backdrop-blur-sm border border-white/10">Integration</span>
                         </div>
                         <div className="flex-1 space-y-4">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
