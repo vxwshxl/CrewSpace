@@ -529,18 +529,31 @@ function setButtonState(running) {
         sendBtn.classList.remove('stop-btn');
     }
 
-    getActiveTab().then(tab => {
-        if (tab && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
-            chrome.tabs.sendMessage(tab.id, { 
-                type: "TOGGLE_LOADING_UI", 
-                isAgentRunning: running 
-            }, () => {
-                if (chrome.runtime.lastError) {
-                    // Script might not be fully injected yet, that's okay
+    if (!running) {
+        chrome.tabs.query({}, (tabs) => {
+            tabs.forEach(tab => {
+                if (tab && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
+                    chrome.tabs.sendMessage(tab.id, { 
+                        type: "TOGGLE_LOADING_UI", 
+                        isAgentRunning: false 
+                    }, () => chrome.runtime.lastError);
                 }
             });
-        }
-    }).catch(() => {});
+        });
+    } else {
+        getActiveTab().then(tab => {
+            if (tab && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
+                chrome.tabs.sendMessage(tab.id, { 
+                    type: "TOGGLE_LOADING_UI", 
+                    isAgentRunning: running 
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        // Script might not be fully injected yet, that's okay
+                    }
+                });
+            }
+        }).catch(() => {});
+    }
 }
 
 function stopAgentLoop() {
@@ -1152,6 +1165,28 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 });
             }
         }
+    }
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    // Clear loading UI on all OTHER tabs
+    chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+            if (tab.id !== activeInfo.tabId) {
+                chrome.tabs.sendMessage(tab.id, { 
+                    type: "TOGGLE_LOADING_UI", 
+                    isAgentRunning: false 
+                }, () => chrome.runtime.lastError);
+            }
+        });
+    });
+
+    // Re-inject on the new active tab if running
+    if (typeof isAgentRunning !== 'undefined' && isAgentRunning) {
+        chrome.tabs.sendMessage(activeInfo.tabId, { 
+            type: "TOGGLE_LOADING_UI", 
+            isAgentRunning: true 
+        }, () => chrome.runtime.lastError);
     }
 });
 
