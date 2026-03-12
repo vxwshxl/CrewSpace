@@ -705,7 +705,7 @@ async function sendMessage() {
     const welcomeScreen = document.querySelector('.welcome-screen');
     if (welcomeScreen) welcomeScreen.remove();
 
-    addMessage(text, 'user');
+    addMessage(text, 'user', 'normal', msgImageData);
     chatHistory.push({ role: "user", content: text, image_data: msgImageData });
 
     runAgentLoop();
@@ -807,7 +807,10 @@ async function runAgentLoop() {
 
                     await performTranslation(data.language, langName);
                 } else {
-                    addMessage(msgText, 'ai');
+                if (data.text) {
+                    addMessage(data.text, 'ai');
+                }
+                addMessage(msgText, 'ai');
 
                     // Add typing indicator back for the next step 
                     addTypingIndicator(typingId);
@@ -904,9 +907,22 @@ async function runAgentLoop() {
     }
 }
 
-function addMessage(text, sender, type = 'normal') {
+function addMessage(text, sender, type = 'normal', images = []) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${sender}-message`;
+    
+    // Add image preview wrapper if images exist
+    if (images && images.length > 0) {
+        const imagesWrapper = document.createElement('div');
+        imagesWrapper.className = 'message-images-wrapper';
+        images.forEach(img => {
+            const imgEl = document.createElement('img');
+            imgEl.className = 'message-inline-img';
+            imgEl.src = img;
+            imagesWrapper.appendChild(imgEl);
+        });
+        msgDiv.appendChild(imagesWrapper);
+    }
 
     if (type === 'error' || type === true) {
         msgDiv.innerHTML = `<div class="error-msg">
@@ -1424,6 +1440,12 @@ async function fetchHistory() {
                 }
                 
                 let renderContent = item.content;
+                let renderImages = [];
+                // Load images from history if it exists
+                if (item.image_data) {
+                    renderImages = Array.isArray(item.image_data) ? item.image_data : [item.image_data];
+                }
+
                 if ((item.role === 'assistant' || item.role === 'model' || item.role === 'ai') && typeof item.content === 'string') {
                     try {
                         const parsed = JSON.parse(item.content);
@@ -1439,7 +1461,7 @@ async function fetchHistory() {
                 }
 
                 const sender = item.role === 'user' ? 'user' : 'ai';
-                addMessage(renderContent, sender, 'history-load');
+                addMessage(renderContent, sender, 'history-load', renderImages);
             });
         } else {
             chatContainer.innerHTML = welcomeScreenHTML;
@@ -1451,8 +1473,8 @@ async function fetchHistory() {
 
 // Intercept existing message handling to add logs
 const originalAddMessage = addMessage;
-addMessage = function (text, sender, type = 'normal') {
-    originalAddMessage(text, sender, type);
+addMessage = function (text, sender, type = 'normal', images = []) {
+    originalAddMessage(text, sender, type, images);
     if (type !== 'history-load') {
         if (sender === 'ai' && type !== 'error') {
             if (text.startsWith('Executing') || text.startsWith('Navigating') || text.startsWith('Typing') || text.startsWith('Reading')) {

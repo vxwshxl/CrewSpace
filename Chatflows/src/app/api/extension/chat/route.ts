@@ -131,6 +131,7 @@ async function chatWithGemini(messagesArray: any[], pageContent: string, element
     }
 
     if (lastUserMessage) {
+        const originalContent = lastUserMessage.content || "";
         lastUserMessage.content = `[BROWSER STATE START] (IGNORE THIS if the user's COMMAND is a general question or search query. Only use this if they refer to "this page" or need browser automation)
 URL: ${url}
 TITLE: ${title}
@@ -142,7 +143,7 @@ ELEMENTS:
 ${JSON.stringify(elements)}
 [BROWSER STATE END]
 
-COMMAND: ${lastUserMessage.content}
+COMMAND: ${originalContent}
 
 CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g. "who is [NAME]", "what is [THING]"), you MUST ignore the BROWSER STATE completely and use your Google Search capabilities to find the answer. Output a JSON ANSWER.`;
     }
@@ -156,6 +157,12 @@ CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g.
 
             if (currentRole === prevRole) {
                 cleanedMessages[cleanedMessages.length - 1].content += `\n${apiMessages[i].content}`;
+                // Also merge image data if any
+                if (apiMessages[i].image_data) {
+                    const existingImages = cleanedMessages[cleanedMessages.length - 1].image_data || [];
+                    const newImages = Array.isArray(apiMessages[i].image_data) ? apiMessages[i].image_data : [apiMessages[i].image_data];
+                    cleanedMessages[cleanedMessages.length - 1].image_data = Array.isArray(existingImages) ? [...existingImages, ...newImages] : [existingImages, ...newImages];
+                }
             } else {
                 cleanedMessages.push(apiMessages[i]);
             }
@@ -313,12 +320,18 @@ export async function POST(req: NextRequest) {
                 const newMessages = [];
                 const lastUserMsg = messages[messages.length - 1];
                 if (lastUserMsg && lastUserMsg.role === 'user') {
-                    newMessages.push({
-                        chatflow_id: chatflowId,
-                        user_id: config.userId,
-                        role: 'user',
-                        content: lastUserMsg.content
-                    });
+                    // Do not save internal agentic loop orchestration prompts to history
+                    const isInternalPrompt = typeof lastUserMsg.content === 'string' && lastUserMsg.content.includes('What is the next logical action to achieve the USER GOAL?');
+                    
+                    if (!isInternalPrompt) {
+                        newMessages.push({
+                            chatflow_id: chatflowId,
+                            user_id: config.userId,
+                            role: 'user',
+                            content: lastUserMsg.content,
+                            image_data: lastUserMsg.image_data || null
+                        });
+                    }
                 }
                 
                 newMessages.push({

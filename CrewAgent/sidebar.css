@@ -894,3 +894,19 @@ textarea::placeholder {
   transform: scale(1.1);
   background-color: #dc2626;
 }
+
+/* Images inside chat messages */
+.message-images-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.message-inline-img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
