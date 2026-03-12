@@ -92,153 +92,182 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
   if (!workflow) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop - darker and more solid for focus */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-6">
+      {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200" 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300" 
         onClick={onClose} 
       />
       
-      {/* Modal Container - Minimal & Sharp */}
-      <div className="relative w-full max-w-4xl bg-[#0b0f14] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col md:flex-row max-h-[90vh]">
+      {/* Modal Container */}
+      <div className="relative w-full max-w-5xl bg-card border border-border rounded-none overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 fade-in duration-300 flex flex-col md:flex-row h-full md:h-auto md:max-h-[85vh]">
         
         {/* Close Button Mobile */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-1.5 bg-black/40 rounded-lg text-zinc-500 hover:text-white transition-colors border border-white/10 md:hidden"
+          className="absolute top-6 right-6 z-20 p-2 bg-black/20 text-white transition-all md:hidden"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </button>
 
         {/* Info Column (Left) */}
-        <div className="w-full md:w-[320px] bg-white/2 p-8 flex flex-col items-center border-b md:border-b-0 md:border-r border-white/5">
-          <div className="w-24 h-24 bg-white/5 rounded-2xl flex items-center justify-center text-5xl shadow-inner border border-white/5 mb-6">
+        <div className="w-full md:w-[340px] bg-muted/20 p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/50">
+          <div className="w-20 h-20 bg-card rounded-xl flex items-center justify-center text-4xl shadow-inner border border-border mb-8">
             {workflow.icon}
           </div>
           
-          <h2 className="text-xl font-bold text-center text-white mb-1 tracking-tight">
+          <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
             {workflow.name}
           </h2>
-          <p className="text-zinc-500 text-xs font-medium mb-6">{workflow.category}</p>
+          <div className="flex items-center gap-2 mb-8">
+            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full border border-primary/20">
+              {workflow.category}
+            </span>
+            {workflow.isPremium && (
+              <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-500/20">
+                Premium
+              </span>
+            )}
+          </div>
           
-          <div className="flex items-center gap-6 mb-8 w-full px-4">
-            <div className="flex-1 text-center">
-              <div className="text-lg font-bold text-white flex items-center justify-center gap-1">
-                {Number(workflow.rating).toFixed(1)} <Star className="w-3 h-3 text-amber-500 fill-current" />
+          <div className="grid grid-cols-2 gap-4 mb-10 border-y border-border/30 py-6">
+            <div>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Rating</p>
+              <div className="text-xl font-bold text-white flex items-center gap-1.5">
+                {Number(workflow.rating).toFixed(1)} <Star className="w-4 h-4 text-amber-500 fill-current" />
               </div>
-              <div className="text-[10px] text-zinc-600 uppercase font-bold tracking-tight">Rating</div>
             </div>
-            <div className="w-px h-6 bg-white/5" />
-            <div className="flex-1 text-center">
-              <div className="text-lg font-bold text-white">{workflow.installs > 1000 ? (workflow.installs/1000).toFixed(1) + 'k' : workflow.installs}</div>
-              <div className="text-[10px] text-zinc-600 uppercase font-bold tracking-tight">Installs</div>
+            <div>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Users</p>
+              <div className="text-xl font-bold text-white">
+                {workflow.installs > 1000 ? (workflow.installs/1000).toFixed(1) + 'k' : workflow.installs}
+              </div>
             </div>
           </div>
 
-          {/* Interactive Rating Section - Only shows if installed */}
-          {hasInstalled && (
-             <div className="w-full mb-6 p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center animate-in fade-in duration-300">
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Rate this Workflow</span>
-                <div className="flex items-center gap-1" onMouseLeave={() => setIsHoveringRating(null)}>
-                  {[1, 2, 3, 4, 5].map((starIdx) => {
-                     const isFilled = isHoveringRating ? starIdx <= isHoveringRating : (userRating && starIdx <= userRating);
-                     return (
-                       <button
-                         key={starIdx}
-                         disabled={isSubmittingRating}
-                         onMouseEnter={() => setIsHoveringRating(starIdx)}
-                         onClick={() => handleRate(starIdx)}
-                         className="p-1 transition-transform hover:scale-110 disabled:opacity-50"
-                       >
-                         <Star className={cn("w-5 h-5 transition-colors", isFilled ? "fill-amber-500 text-amber-500" : "text-zinc-600")} />
-                       </button>
-                     )
-                  })}
-                </div>
-             </div>
-          )}
-
-          <Button 
-            className={cn(
-              "w-full h-12 rounded-full font-bold transition-all text-sm",
-              workflow.isPremium 
-                ? "bg-primary text-primary-foreground hover:bg-[#A6E63F] active:scale-95" 
-                : "bg-primary text-primary-foreground hover:bg-[#A6E63F] active:scale-95"
-            )}
-            onClick={() => onInstall(workflow)}
-          >
-            {workflow.isPremium ? (
-              <span className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                Buy for ₹{workflow.price}
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                Install Now
-              </span>
-            )}
-          </Button>
+          <div className="flex flex-col gap-3 mt-auto">
+            <Button 
+              className="w-full h-12 rounded-full font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all text-sm shadow-lg shadow-primary/10"
+              onClick={() => onInstall(workflow)}
+            >
+              {workflow.isPremium ? (
+                <span className="flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4" />
+                  Buy for ₹{workflow.price}
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Install Template
+                </span>
+              )}
+            </Button>
+            
+            <p className="text-[10px] text-muted-foreground text-center mt-2 px-4 italic">
+              Template data will be added to your local library instantly.
+            </p>
+          </div>
           
-          <div className="mt-10 flex flex-col gap-4 w-full">
-            <div className="flex items-center justify-between text-[10px] text-zinc-600 border-t border-white/5 pt-4">
-              <span className="uppercase tracking-widest font-bold">Creator</span>
-              <span className="text-zinc-400 font-medium">{workflow.creator}</span>
+          <div className="mt-12 flex flex-col gap-4">
+            <div className="flex items-center justify-between group cursor-pointer">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Architect</span>
+              <span className="text-white text-xs font-semibold transition-colors">{workflow.creator}</span>
             </div>
-            <div className="flex items-center justify-between text-[10px] text-zinc-600 border-t border-white/5 pt-4">
-              <span className="uppercase tracking-widest font-bold">Release</span>
-              <span className="text-zinc-400 font-medium">{workflow.createdAt || 'v1.0.0'}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Published</span>
+              <span className="text-white text-xs font-semibold">{workflow.createdAt || 'March 2024'}</span>
             </div>
           </div>
         </div>
 
         {/* Content Column (Right) */}
-        <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar relative">
+        <div className="flex-1 overflow-y-auto p-10 md:p-12 custom-scrollbar relative bg-card">
            {/* Close Button Desktop */}
            <button 
             onClick={onClose}
-            className="hidden md:flex absolute top-6 right-6 p-1.5 text-zinc-600 hover:text-white transition-colors"
+            className="hidden md:flex absolute top-10 right-10 p-2 text-muted-foreground transition-all duration-300"
           >
             <X className="w-6 h-6" />
           </button>
 
-          <div className="max-w-2xl">
-            <section className="mb-10">
-              <h4 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">Overview</h4>
-              <p className="text-zinc-400 leading-relaxed text-base">
+          <div className="max-w-3xl">
+            <section className="mb-12">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-primary rounded-full" />
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Blueprint Overview</h4>
+              </div>
+              <p className="text-muted-foreground leading-relaxed text-lg font-medium">
                 {workflow.longDescription || workflow.description}
               </p>
             </section>
 
-            <section className="mb-10">
-              <h4 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-4">Workflow Features</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <section className="mb-12">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-1 h-4 bg-primary rounded-full" />
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Core Capabilities</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {workflow.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-3 p-3 bg-white/2 rounded-lg border border-white/5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500/80 shrink-0" />
-                    <span className="text-zinc-400 text-sm">{feature}</span>
+                  <div key={idx} className="flex items-start gap-3 p-4 bg-muted/10 border border-border transition-colors">
+                    <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    <span className="text-white text-sm font-medium">{feature}</span>
                   </div>
                 ))}
               </div>
             </section>
 
+            {/* Interactive Rating Section - Integrated into content for better flow */}
+            {hasInstalled && (
+              <section className="mb-12 p-8 bg-muted/5 border-2 border-dashed border-border flex flex-col items-center">
+                <h4 className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-4">How is this workflow performing?</h4>
+                <div className="flex items-center gap-2" onMouseLeave={() => setIsHoveringRating(null)}>
+                  {[1, 2, 3, 4, 5].map((starIdx) => {
+                    const isFilled = isHoveringRating ? starIdx <= isHoveringRating : (userRating && starIdx <= userRating);
+                    return (
+                      <button
+                        key={starIdx}
+                        disabled={isSubmittingRating}
+                        onMouseEnter={() => setIsHoveringRating(starIdx)}
+                        onClick={() => handleRate(starIdx)}
+                        className="p-2 transition-all disabled:opacity-50"
+                      >
+                        <Star className={cn("w-7 h-7 transition-colors", isFilled ? "fill-amber-500 text-amber-500" : "text-border")} />
+                      </button>
+                    )
+                  })}
+                </div>
+                {userRating && (
+                  <p className="text-primary text-[10px] font-bold uppercase tracking-widest mt-4">Thank you for your feedback!</p>
+                )}
+              </section>
+            )}
+
             {workflow.exampleOutput && (
-              <section className="mb-10">
-                <h4 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-4">Sample Output</h4>
-                <div className="bg-black/40 border border-white/5 p-5 rounded-lg font-mono text-sm overflow-hidden relative">
-                  <div className="absolute top-0 right-0 p-2">
-                    <Badge variant="outline" className="text-[9px] border-white/10 text-zinc-600 uppercase bg-black">Response</Badge>
+              <section className="mb-12">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-1 h-4 bg-primary rounded-full" />
+                  <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">System Response Preview</h4>
+                </div>
+                <div className="bg-black/60 border border-border p-6 font-mono text-sm overflow-hidden relative group">
+                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500/50" />
+                    <div className="w-2 h-2 rounded-full bg-amber-500/50" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
                   </div>
-                  <div className="text-zinc-500 whitespace-pre-wrap leading-relaxed">
+                  <div className="text-zinc-400 whitespace-pre-wrap leading-relaxed">
                     {workflow.exampleOutput}
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                 </div>
               </section>
             )}
 
-            <div className="pt-6 border-t border-white/5 flex items-center gap-2 text-[10px] text-zinc-600 uppercase tracking-tight font-bold">
-               <Activity className="w-3.5 h-3.5 text-primary" />
-               Compatible with Gemini Flash Latest
+            <div className="pt-8 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+               <div className="flex items-center gap-3">
+                 <Activity className="w-4 h-4 text-primary" />
+                 Compatible with Gemini Flash 2.0
+               </div>
+               <span className="opacity-50">v1.2.4</span>
             </div>
           </div>
         </div>

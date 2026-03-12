@@ -220,7 +220,7 @@ export default function MarketplaceList() {
       )}
 
       {/* Header */}
-      <div className="p-8">
+      <div className="pt-8 pl-8 pr-8 pb-0">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
@@ -277,8 +277,8 @@ export default function MarketplaceList() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="flex-1 overflow-y-auto pt-0 pl-8 pr-8 pb-8 custom-scrollbar">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredWorkflows.map((workflow) => (
             <MarketplaceCard 
               key={workflow.id} 

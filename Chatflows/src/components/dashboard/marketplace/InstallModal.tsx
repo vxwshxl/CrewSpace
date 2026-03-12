@@ -48,7 +48,7 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 bg-blue-500/10 rounded-none flex items-center justify-center border border-blue-500/20">
+            <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/20">
               <Workflow className="w-5 h-5 text-blue-500" />
             </div>
             {!isInstalling && (
@@ -66,13 +66,13 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
             You are creating a new instance of <span className="text-zinc-300 font-bold">{workflow.name}</span>. Give it a personal name in your workspace.
           </p>
 
-          <div className="space-y-6 mb-8">
+          <div className="space-y-6 mb-4">
             <div className="space-y-2">
               <Label htmlFor="workflow-name" className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Workflow Name</Label>
               <Input 
                 id="workflow-name" 
                 placeholder="e.g. My Marketing Flow" 
-                className="h-11 bg-black/40 border-white/10 rounded-none focus:border-blue-500/50 text-white text-sm"
+                className="h-11 bg-black/40 border-white/10 rounded-full focus:border-blue-500/50 text-white text-sm"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
