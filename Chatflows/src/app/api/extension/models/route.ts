@@ -14,12 +14,34 @@ export async function GET(req: NextRequest) {
 
         const { data: userChatflows, error } = await supabase
             .from('chatflows')
-            .select('id, name')
+            .select('id, name, data')
             .eq('user_id', userId);
         
         if (error) throw error;
 
-        const response = NextResponse.json({ models: userChatflows || [] });
+        // Check if the chatflow contains the File Upload tool
+        const processedModels = (userChatflows || []).map(cf => {
+            let hasFileUpload = false;
+            try {
+                if (cf.data && typeof cf.data === 'object' && Array.isArray(cf.data.nodes)) {
+                    hasFileUpload = cf.data.nodes.some((n: any) => 
+                        n.type === 'tool' && n.data?.agentConfig?.id === 'file-upload'
+                    ) || cf.data.nodes.some((n: any) => 
+                        n.data?.agentConfig?.name === 'File Upload'
+                    );
+                }
+            } catch (err) {
+                // Ignore parse errors
+            }
+            
+            return {
+                id: cf.id,
+                name: cf.name,
+                hasFileUpload
+            };
+        });
+
+        const response = NextResponse.json({ models: processedModels });
         
         // Add CORS headers for the extension
         response.headers.set('Access-Control-Allow-Origin', req.headers.get('origin') || '*');
