@@ -4,12 +4,17 @@ import React from 'react';
 import { BookOpen, PlayCircle, MousePointer2, ExternalLink, Bot, Workflow, Layers, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function TutorialsList() {
+export default function TutorialsList({ onStart }: { onStart?: () => void }) {
     const router = useRouter();
 
     const handleStartTutorial = () => {
         localStorage.setItem('tutorial_force_start', 'true');
-        router.push('/dashboard');
+        window.dispatchEvent(new Event('tutorial-start'));
+        if (onStart) {
+            onStart();
+        } else {
+            router.push('/dashboard');
+        }
     };
     return (
         <div className="p-8 space-y-12 pb-24">

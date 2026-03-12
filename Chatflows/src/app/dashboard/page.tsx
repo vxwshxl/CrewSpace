@@ -43,8 +43,13 @@ export default function DashboardPage() {
 
         checkMobile();
         fetchUser();
-        checkMobile();
         window.addEventListener('resize', checkMobile);
+
+        // Check for forced tutorial start
+        if (localStorage.getItem('tutorial_force_start') === 'true') {
+            setActiveTab('chatflows');
+        }
+
         return () => {
              window.removeEventListener('resize', checkMobile);
              clearTimeout(timer);
@@ -120,7 +125,7 @@ export default function DashboardPage() {
                                 {activeTab === 'apikeys' && <ApiKeysList />}
                                 {activeTab === 'squads' && <SquadsList />}
                                 {activeTab === 'marketplace' && <MarketplaceList />}
-                                {activeTab === 'tutorials' && <TutorialsList />}
+                                {activeTab === 'tutorials' && <TutorialsList onStart={() => setActiveTab('chatflows')} />}
                                 {activeTab === 'settings' && <SettingsList onProfileUpdate={() => {
                                     // Re-fetch user to sync navbar
                                     const fetchUser = async () => {

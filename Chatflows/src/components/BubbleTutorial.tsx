@@ -90,11 +90,18 @@ export default function BubbleTutorial() {
   // Separate effect: catches force-start flag from the Tutorials page button
   // Runs on every pathname change so it works even when already mounted at /dashboard
   useEffect(() => {
-    if (localStorage.getItem('tutorial_force_start') === 'true') {
-      localStorage.removeItem('tutorial_force_start');
-      setCurrentStep(0);
-      setIsVisible(true);
-    }
+    const handleForceStart = () => {
+      if (localStorage.getItem('tutorial_force_start') === 'true') {
+        localStorage.removeItem('tutorial_force_start');
+        setCurrentStep(0);
+        setIsVisible(true);
+      }
+    };
+
+    handleForceStart();
+    
+    window.addEventListener('tutorial-start', handleForceStart);
+    return () => window.removeEventListener('tutorial-start', handleForceStart);
   }, [pathname]);
 
   // Auto advance tracking when route changes
