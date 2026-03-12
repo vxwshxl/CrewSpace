@@ -528,6 +528,19 @@ function setButtonState(running) {
         `;
         sendBtn.classList.remove('stop-btn');
     }
+
+    getActiveTab().then(tab => {
+        if (tab && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
+            chrome.tabs.sendMessage(tab.id, { 
+                type: "TOGGLE_LOADING_UI", 
+                isAgentRunning: running 
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    // Script might not be fully injected yet, that's okay
+                }
+            });
+        }
+    }).catch(() => {});
 }
 
 function stopAgentLoop() {
@@ -1125,6 +1138,18 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 setTimeout(() => {
                     performTranslation(data.targetLang, data.langName);
                 }, 500);
+            }
+
+            // Re-inject loading UI if agent is running
+            if (typeof isAgentRunning !== 'undefined' && isAgentRunning) {
+                chrome.tabs.sendMessage(tabId, { 
+                    type: "TOGGLE_LOADING_UI", 
+                    isAgentRunning: true 
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        // ignore if content script isn't ready
+                    }
+                });
             }
         }
     }

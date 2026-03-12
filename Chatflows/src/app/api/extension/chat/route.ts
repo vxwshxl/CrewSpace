@@ -116,7 +116,7 @@ async function getChatflowConfig(chatflowId: string) {
 // Gemini Chat helper
 async function chatWithGemini(messagesArray: any[], pageContent: string, elements: any, url: string, title: string, apiKey: string, modelId: string, systemContext: string) {
     const ai = new GoogleGenAI({ apiKey });
-    const apiMessages = [...messagesArray];
+    const apiMessages = messagesArray.map(msg => ({ ...msg }));
 
     if (apiMessages.length === 0) {
         apiMessages.push({ role: "user", content: "No explicit goal provided." });
