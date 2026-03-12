@@ -9,6 +9,13 @@ export const tools: Tool[] = [
         category: 'Research',
     },
     {
+        id: 'news-authenticity',
+        name: 'News Detector',
+        description: 'Analyze content to aggressively vet if the news is legitimate or fake.',
+        icon: 'check-square',
+        category: 'Research',
+    },
+    {
         id: 'summarizer',
         name: 'Summarizer',
         description: 'Summarize long documents and articles',

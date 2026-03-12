@@ -248,6 +248,55 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
     const renderToolConfig = () => {
         const tConfig = agent.toolConfig || {};
         
+        if (agent.name.toLowerCase().includes('news detector') || agent.name.toLowerCase().includes('authenticity')) {
+             return (
+                 <div className="space-y-4 pt-2">
+                     <div className="space-y-2">
+                         <Label className="text-sm font-medium text-white flex items-center gap-1.5 justify-between">
+                             <span>Fact Check Logic</span>
+                             <TooltipProvider>
+                                 <Tooltip>
+                                     <TooltipTrigger>
+                                         <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                                     </TooltipTrigger>
+                                     <TooltipContent>
+                                         <p className="text-xs">Define what rules Gemini should apply to evaluate credibility.</p>
+                                     </TooltipContent>
+                                 </Tooltip>
+                             </TooltipProvider>
+                         </Label>
+                         <Textarea
+                             placeholder="E.g. Check known bias of the author, hunt for emotional language, inspect citations"
+                             value={tConfig.newsLogic || ''}
+                             onChange={(e) => handleToolConfigChange('newsLogic', e.target.value)}
+                             className="min-h-[80px] text-xs bg-card border-border resize-y"
+                         />
+                     </div>
+                     <div className="space-y-2">
+                         <Label className="text-sm font-medium text-white flex items-center gap-1.5 justify-between">
+                             <span>Content Source Targets</span>
+                             <TooltipProvider>
+                                 <Tooltip>
+                                     <TooltipTrigger>
+                                         <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                                     </TooltipTrigger>
+                                     <TooltipContent>
+                                         <p className="text-xs">Provide the URL or Text variable this tool should scan.</p>
+                                     </TooltipContent>
+                                 </Tooltip>
+                             </TooltipProvider>
+                         </Label>
+                         <Input
+                             placeholder="E.g. The URL from the active browser tab"
+                             value={tConfig.newsSource || ''}
+                             onChange={(e) => handleToolConfigChange('newsSource', e.target.value)}
+                             className="h-8 text-xs bg-card border-border"
+                         />
+                     </div>
+                 </div>
+             );
+        }
+
         if (agent.name.toLowerCase().includes('gmail')) {
             return (
                 <div className="space-y-4 pt-2">

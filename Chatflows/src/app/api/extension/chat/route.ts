@@ -77,16 +77,16 @@ async function getChatflowConfig(chatflowId: string) {
                 
                 const finalApiKey = apiKeyObj?.key;
                 
-                const hasMemoryNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-memory');
-                const hasModelNode = data.edges?.some((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-model');
+                const hasMemoryNode = data.edges?.some((e: any) => e.target === agentNode.id && e.targetHandle === 'agent-memory');
+                const hasModelNode = data.edges?.some((e: any) => e.target === agentNode.id && e.targetHandle === 'agent-model');
 
-                const modelNodeId = data.edges?.find((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-model')?.target;
+                const modelNodeId = data.edges?.find((e: any) => e.target === agentNode.id && e.targetHandle === 'agent-model')?.source;
                 const modelNode = modelNodeId ? data.nodes?.find((n: any) => n.id === modelNodeId) : null;
                 const chatModelMessages = modelNode?.data?.agentConfig?.messages || [];
 
                 const toolNodes = data.edges
-                    ?.filter((e: any) => e.source === agentNode.id && e.sourceHandle === 'agent-tools')
-                    .map((e: any) => data.nodes?.find((n: any) => n.id === e.target))
+                    ?.filter((e: any) => e.target === agentNode.id && e.targetHandle === 'agent-tools')
+                    .map((e: any) => data.nodes?.find((n: any) => n.id === e.source))
                     .filter(Boolean) || [];
 
                 const toolsConfig = toolNodes.map((n: any) => n.data?.agentConfig).filter(Boolean);
@@ -185,12 +185,14 @@ CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g.
     });
 
     try {
+        const finalSystemInstruction = `${systemContext}\n\n=== ACTION RULES ===\n${baseSystemPrompt}`;
+
         const response = await ai.models.generateContent({
             model: modelId,
             contents: contents,
             config: {
-                systemInstruction: { parts: [{ text: systemContext + '\n\n' + baseSystemPrompt }] },
-                temperature: 1,
+                systemInstruction: { parts: [{ text: finalSystemInstruction }] },
+                temperature: 0.7,
                 topP: 0.95,
                 topK: 64,
                 responseMimeType: "application/json",
@@ -251,17 +253,29 @@ export async function POST(req: NextRequest) {
         if (config.prompt) {
             systemContext += `\n\nUSER PROVIDED SYSTEM INSTRUCTIONS:\n${config.prompt}`;
         }
+        
+        let customModelInstructions = "";
         if (config.chatModelMessages && config.chatModelMessages.length > 0) {
-            systemContext += `\n\nADDITIONAL CONTEXT FROM CHAT MODEL SETTINGS:`;
+            customModelInstructions += `=== PRIMARY DIRECTIVE FROM CHAT MODEL SETTINGS ===`;
             config.chatModelMessages.forEach((msg: any) => {
-                systemContext += `\n[${msg.role.toUpperCase()}]: ${msg.content}`;
+                customModelInstructions += `\n[${msg.role.toUpperCase()}]: ${msg.content}`;
             });
+            systemContext = `${customModelInstructions}\n\n${systemContext}`;
         }
         
         if (config.toolsConfig && config.toolsConfig.length > 0) {
             systemContext += `\n\nAVAILABLE TOOLS CONFIGURED BY USER:`;
             config.toolsConfig.forEach((tool: any) => {
                 systemContext += `\n--- Tool: ${tool.name} ---`;
+                
+                // --- SPECIAL TOOL-SPECIFIC SYSTEM OVERRIDES ---
+                if (tool.name.toLowerCase().includes('authenticity') || tool.name.toLowerCase().includes('news detector')) {
+                    systemContext += `\n[CRITICAL DETECTOR INSTRUCTION]: You are a highly professional intelligence analyst and fact-checking engine.`;
+                    systemContext += `\nYou must analyze the provided Content Source Target strictly against the provided 'Fact Check Logic' criteria.`;
+                    systemContext += `\nYou MUST output a professional, structured verdict on its credibility, ending your response comprehensively with a bold "**Final Thoughts:**" section.`;
+                    systemContext += `\nDo not make assumptions outside of the logic provided.`;
+                }
+
                 if (tool.toolConfig) {
                     Object.entries(tool.toolConfig).forEach(([key, value]) => {
                         if (value) systemContext += `\n- ${key}: ${value}`;
