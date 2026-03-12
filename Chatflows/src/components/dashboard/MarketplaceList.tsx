@@ -77,6 +77,7 @@ export default function MarketplaceList() {
         // Map database records to Workflow interface
         const dynamicWorkflows: Workflow[] = data.map((item: any) => ({
           id: item.id,
+          userId: item.user_id,
           name: item.name,
           description: item.description,
           category: item.category,
@@ -129,6 +130,13 @@ export default function MarketplaceList() {
       setWorkflowToBuy(workflow);
     } else {
       setWorkflowToInstall(workflow);
+    }
+  };
+
+  const handleDeleteWorkflow = (id: string) => {
+    setAllWorkflows((prev) => prev.filter((w) => w.id !== id));
+    if (selectedWorkflow?.id === id) {
+      setSelectedWorkflow(null);
     }
   };
 
@@ -305,6 +313,7 @@ export default function MarketplaceList() {
         workflow={selectedWorkflow} 
         onClose={() => setSelectedWorkflow(null)}
         onInstall={handleInstallClick}
+        onDelete={handleDeleteWorkflow}
       />
       <PaymentModal 
         workflow={workflowToBuy}

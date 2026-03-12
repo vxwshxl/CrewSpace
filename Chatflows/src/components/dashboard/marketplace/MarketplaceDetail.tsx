@@ -12,14 +12,24 @@ interface MarketplaceDetailProps {
   workflow: Workflow | null;
   onClose: () => void;
   onInstall: (workflow: Workflow) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function MarketplaceDetail({ workflow, onClose, onInstall }: MarketplaceDetailProps) {
+export default function MarketplaceDetail({ workflow, onClose, onInstall, onDelete }: MarketplaceDetailProps) {
   const [hasInstalled, setHasInstalled] = React.useState(false);
   const [userRating, setUserRating] = React.useState<number | null>(null);
   const [isHoveringRating, setIsHoveringRating] = React.useState<number | null>(null);
   const [isSubmittingRating, setIsSubmittingRating] = React.useState(false);
+  const [liveRating, setLiveRating] = React.useState<number>(0);
+  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const supabase = createClient();
+
+  React.useEffect(() => {
+    if (workflow) {
+      setLiveRating(workflow.rating || 0);
+    }
+  }, [workflow]);
 
   React.useEffect(() => {
     if (!workflow) return;
@@ -27,6 +37,7 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
     const checkUserInstall = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setCurrentUserId(user.id);
 
       // 1. Check if user has this installed in their chatflows
       const { data: chatflows } = await supabase
@@ -81,11 +92,30 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
          setUserRating(ratingValue);
       }
       
-      // Let the user know it succeeded visually
+      // Let the user know it succeeded visually and instantly update average
+      const { data: wfData } = await supabase.from('marketplace_workflows').select('rating').eq('id', workflow.id).single();
+      if (wfData) {
+         setLiveRating(wfData.rating || 0);
+      }
     } catch (e) {
       console.error("Failed to submit rating", e);
     } finally {
       setIsSubmittingRating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!workflow || workflow.id.length <= 20 || isDeleting) return;
+    if (!window.confirm("Are you sure you want to permanently delete this workflow from the Marketplace? This cannot be undone.")) return;
+    
+    setIsDeleting(true);
+    try {
+      await supabase.from('marketplace_workflows').delete().eq('id', workflow.id);
+      onDelete(workflow.id);
+    } catch (err) {
+      console.error("Failed to delete", err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -134,7 +164,7 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
             <div>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Rating</p>
               <div className="text-xl font-bold text-white flex items-center gap-1.5">
-                {Number(workflow.rating).toFixed(1)} <Star className="w-4 h-4 text-amber-500 fill-current" />
+                {Number(liveRating).toFixed(1)} <Star className="w-4 h-4 text-amber-500 fill-current" />
               </div>
             </div>
             <div>
@@ -162,6 +192,17 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall }: Mark
                 </span>
               )}
             </Button>
+            
+            {currentUserId === workflow.userId && workflow.id.length > 20 && (
+              <Button 
+                variant="destructive"
+                className="w-full h-12 rounded-full font-bold transition-all text-sm shadow-lg shadow-red-500/10"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                Remove from Marketplace
+              </Button>
+            )}
             
             <p className="text-[10px] text-muted-foreground text-center mt-2 px-4 italic">
               Template data will be added to your local library instantly.

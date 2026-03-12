@@ -16,12 +16,12 @@ interface MarketplaceCardProps {
 export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: MarketplaceCardProps) {
   return (
     <div 
-      className="group relative bg-card border border-border rounded-none overflow-hidden transition-all duration-200 shadow-sm flex flex-col h-full cursor-pointer"
+      className="group relative bg-[#050505] border border-white/10 rounded-none overflow-hidden hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl flex flex-col h-full cursor-pointer"
       onClick={() => onViewDetails(workflow)}
     >
       {/* Top Section: Icon (left) | (Premium badge OR Rating) (right) */}
       <div className="p-6 pb-3 flex items-start justify-between">
-        <div className="w-10 h-10 bg-muted/50 rounded-lg flex items-center justify-center text-xl shadow-inner border border-border">
+        <div className="w-10 h-10 bg-white/5 rounded-none flex items-center justify-center text-xl shadow-inner border border-white/10">
           {workflow.icon}
         </div>
 
@@ -49,11 +49,11 @@ export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: 
 
         {/* Tags row: Category + Trending */}
         <div className="flex flex-wrap gap-2 mt-auto">
-          <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded-full border border-border">
+          <span className="px-2 py-0.5 bg-white/5 text-zinc-400 text-[10px] font-medium rounded-none border border-white/10">
             {workflow.category}
           </span>
           {workflow.trending && (
-            <span className="px-2 py-0.5 border border-border text-white text-[10px] font-bold uppercase tracking-tight leading-none bg-muted rounded flex items-center">
+            <span className="px-2 py-0.5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-tight leading-none bg-white/5 rounded-none flex items-center">
               Trending
             </span>
           )}
@@ -61,9 +61,9 @@ export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: 
       </div>
 
       {/* Bottom Section: Creator & Action */}
-      <div className="mx-6 py-4 border-t border-border/50 flex items-center justify-between">
+      <div className="mx-6 py-4 border-t border-white/10 flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider mb-0.5">Creator</span>
+          <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Creator</span>
           <span className="text-xs text-white font-medium truncate max-w-[100px]">{workflow.creator}</span>
         </div>
         
@@ -71,9 +71,9 @@ export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: 
           size="sm" 
           variant={workflow.isPremium ? "outline" : "default"}
           className={cn(
-            "rounded-full px-4 font-bold h-8 text-[11px] transition-all",
+            "rounded-none px-4 font-bold h-8 text-[11px] transition-all",
             workflow.isPremium 
-              ? "border-border hover:bg-muted text-zinc-300" 
+              ? "border-white/10 hover:bg-white/5 text-zinc-300" 
               : "bg-primary text-primary-foreground hover:opacity-90 border-none"
           )}
           onClick={(e) => {
