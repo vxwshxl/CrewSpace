@@ -166,16 +166,22 @@ CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g.
         const parts: any[] = [];
         if (msg.content) parts.push({ text: msg.content });
         if (msg.image_data) {
-            const match = msg.image_data.match(/^data:(image\/[^;]+);base64,(.*)$/);
-            if (match) {
-                parts.push({
-                    inlineData: {
-                        mimeType: match[1],
-                        data: match[2]
-                    }
-                });
-            } else {
-                parts.push({ text: `[Image Data was provided but could not be parsed]` });
+            // Check if it's an array of image_data or just a single string (backward compatibility)
+            const images = Array.isArray(msg.image_data) ? msg.image_data : [msg.image_data];
+            
+            for (const imgData of images) {
+                if (!imgData) continue;
+                const match = imgData.match(/^data:(image\/[^;]+);base64,(.*)$/);
+                if (match) {
+                    parts.push({
+                        inlineData: {
+                            mimeType: match[1],
+                            data: match[2]
+                        }
+                    });
+                } else {
+                    parts.push({ text: `[Image Data was provided but could not be parsed]` });
+                }
             }
         }
         return {

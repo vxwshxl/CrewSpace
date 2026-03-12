@@ -57,6 +57,13 @@ export const tools: Tool[] = [
         icon: 'shopping-cart',
         category: 'Lifestyle',
     },
+    {
+        id: 'file-upload',
+        name: 'File Upload',
+        description: 'Allow users to upload files and images to chat',
+        icon: 'upload',
+        category: 'Utility',
+    },
 ];
 
 export const defaultAgents: AgentConfig[] = [

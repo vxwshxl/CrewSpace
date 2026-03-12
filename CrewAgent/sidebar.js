@@ -11,6 +11,9 @@ const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 // Default backend URL — change this to your deployed URL
 let BACKEND_URL = 'https://crewspace-ai.vercel.app/api/extension';
 
+let modelsData = [];
+let attachedImagesData = [];
+
 async function fetchModels() {
     try {
         const select = document.getElementById('model-select');
@@ -53,6 +56,7 @@ async function fetchModels() {
         });
 
         const allModels = Array.from(modelMap.values());
+        modelsData = allModels;
 
         if (select) {
             select.innerHTML = '<option value="">Select Chatflow...</option>';
@@ -70,6 +74,7 @@ async function fetchModels() {
                 } else {
                     select.value = allModels[0].id;
                 }
+                updateUploadButtonVisibility(select.value);
             }
         }
     } catch (e) {
@@ -381,6 +386,107 @@ sendBtn.addEventListener('click', () => {
         sendMessage();
     }
 });
+
+const uploadBtn = document.getElementById('upload-btn');
+const fileUploadInput = document.getElementById('file-upload-input');
+const imagePreviewsContainer = document.getElementById('image-previews-container');
+
+function renderImagePreviews() {
+    if (!imagePreviewsContainer) return;
+    
+    imagePreviewsContainer.innerHTML = '';
+    
+    attachedImagesData.forEach((imgData, index) => {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+        previewItem.style.backgroundImage = `url(${imgData})`;
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-preview-btn';
+        removeBtn.innerHTML = '×';
+        removeBtn.title = 'Remove Image';
+        
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            attachedImagesData.splice(index, 1);
+            if (fileUploadInput) fileUploadInput.value = ''; // Reset input to allow re-uploading the same file
+            renderImagePreviews();
+            updateUploadBtnAppearance();
+        });
+        
+        previewItem.appendChild(removeBtn);
+        imagePreviewsContainer.appendChild(previewItem);
+    });
+}
+
+function updateUploadBtnAppearance() {
+    if (!uploadBtn) return;
+    if (attachedImagesData.length > 0) {
+        uploadBtn.style.color = '#10b981'; // Green to signify attached
+    } else {
+        uploadBtn.style.color = '';
+    }
+}
+
+if (uploadBtn && fileUploadInput) {
+    uploadBtn.addEventListener('click', () => {
+        if (isAgentRunning) return;
+        if (attachedImagesData.length >= 5) {
+            addMessage('Maximum 5 images can be attached.', 'ai', 'error');
+            return;
+        }
+        fileUploadInput.click();
+    });
+
+    fileUploadInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        if (attachedImagesData.length + files.length > 5) {
+            addMessage('Maximum 5 images can be attached. Some files were ignored.', 'ai', 'error');
+            files.splice(5 - attachedImagesData.length);
+        }
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+        
+        for (const file of files) {
+            if (!validTypes.includes(file.type)) {
+                addMessage(`File ${file.name} ignored: Only JPG, PNG, and WEBP supported.`, 'ai', 'error');
+                continue;
+            }
+
+            const dataUrl = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (event) => resolve(event.target.result);
+                reader.readAsDataURL(file);
+            });
+            attachedImagesData.push(dataUrl);
+        }
+        
+        fileUploadInput.value = ''; // Reset allows picking same files again if needed
+        renderImagePreviews();
+        updateUploadBtnAppearance();
+    });
+}
+
+function clearAttachedImage() {
+    attachedImagesData = [];
+    if (fileUploadInput) fileUploadInput.value = '';
+    renderImagePreviews();
+    updateUploadBtnAppearance();
+}
+
+function updateUploadButtonVisibility(modelId) {
+    if (!uploadBtn) return;
+    const model = modelsData.find(m => m.id === modelId);
+    if (model && model.hasFileUpload) {
+        uploadBtn.style.display = 'flex';
+    } else {
+        uploadBtn.style.display = 'none';
+        clearAttachedImage();
+    }
+}
 const welcomeScreenHTML = `
                 <div class="welcome-screen">
                     <div class="welcome-icon">
@@ -586,6 +692,10 @@ async function sendMessage() {
     chatInput.dataset.baseValue = '';
     chatInput.style.height = 'auto';
 
+    // Clone the array in case user attaches more before generation finishes
+    let msgImageData = [...attachedImagesData];
+    clearAttachedImage();
+
     if (isRecording && recognition) {
         recognition.stop();
         stopRecording();
@@ -596,7 +706,7 @@ async function sendMessage() {
     if (welcomeScreen) welcomeScreen.remove();
 
     addMessage(text, 'user');
-    chatHistory.push({ role: "user", content: text });
+    chatHistory.push({ role: "user", content: text, image_data: msgImageData });
 
     runAgentLoop();
 }
@@ -1125,6 +1235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         modelSelect.addEventListener('change', async (e) => {
             await chrome.storage.local.set({ selectedModel: e.target.value });
+            updateUploadButtonVisibility(e.target.value);
             fetchHistory();
             fetchMemory();
             addMessage(`Switched AI model to ${e.target.options[e.target.selectedIndex].text}`, "ai", "success");
@@ -1306,8 +1417,29 @@ async function fetchHistory() {
                     role: item.role,
                     content: item.content
                 });
+                
+                // --- Filter out internal agentic engine prompts & responses ---
+                if (item.role === 'user' && typeof item.content === 'string' && item.content.includes('What is the next logical action to achieve the USER GOAL?')) {
+                    return; // Skip rendering internal user prompt
+                }
+                
+                let renderContent = item.content;
+                if ((item.role === 'assistant' || item.role === 'model' || item.role === 'ai') && typeof item.content === 'string') {
+                    try {
+                        const parsed = JSON.parse(item.content);
+                        if (parsed && typeof parsed === 'object' && parsed.action && parsed.action !== 'ANSWER') {
+                            return; // Skip rendering raw JSON actions from the model
+                        }
+                        if (parsed && parsed.action === 'ANSWER' && parsed.text) {
+                            renderContent = parsed.text; // Just in case it was saved as full JSON
+                        }
+                    } catch (e) {
+                        // Not JSON, render normally
+                    }
+                }
+
                 const sender = item.role === 'user' ? 'user' : 'ai';
-                addMessage(item.content, sender, 'history-load');
+                addMessage(renderContent, sender, 'history-load');
             });
         } else {
             chatContainer.innerHTML = welcomeScreenHTML;

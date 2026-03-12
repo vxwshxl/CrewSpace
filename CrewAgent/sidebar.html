@@ -104,8 +104,14 @@
     </div>
 
     <div class="input-area">
+      <!-- Container for image previews -->
+      <div id="image-previews-container" class="image-previews"></div>
+      
       <div class="input-wrapper">
         <textarea id="chat-input" placeholder="Ask anything..." rows="1" autofocus></textarea>
+        <!-- Added hidden file input -->
+        <input type="file" id="file-upload-input" multiple accept="image/jpeg, image/png, image/webp" style="display: none;" />
+        
         <select id="speech-lang" class="speech-lang-select" title="Speech Language">
           <option value="en-US">EN</option>
           <option value="as-IN">AS</option>
@@ -126,6 +132,12 @@
           <div class="bar"></div>
           <div class="bar"></div>
         </div>
+        <button id="upload-btn" class="send-btn upload-btn" style="display: none;" title="Upload Image">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
         <button id="send-btn" class="send-btn">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M5 12h14M12 5l7 7-7 7" />
