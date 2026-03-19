@@ -6,8 +6,6 @@ import { Workflow, Key, BookOpen, ShoppingCart, Settings, Users } from 'lucide-r
 
 export type TabType = 'chatflows' | 'apikeys' | 'squads' | 'marketplace' | 'tutorials' | 'settings';
 
-
-
 interface SidebarProps {
     activeTab: TabType;
     onTabChange: (tab: TabType) => void;
