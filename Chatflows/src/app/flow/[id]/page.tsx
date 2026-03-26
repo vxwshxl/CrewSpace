@@ -214,13 +214,13 @@ function DashboardContent() {
       const isModel = nodeType === 'model';
       const isMemory = nodeType === 'memory';
       const nodeModelMap: Record<string, { model: string; icon: string }> = {
-        agent: { model: 'gemini-flash-latest', icon: 'gemini' },
-        condition: { model: 'gemini-flash-latest', icon: 'gemini' },
+        agent: { model: 'gemini-pro-latest', icon: 'gemini' },
+        condition: { model: 'gemini-pro-latest', icon: 'gemini' },
         http: { model: 'GET', icon: 'globe' },
         flow: { model: 'flow-1', icon: 'workflow' },
         start: { model: 'Manual', icon: 'play' },
         tool: { model: 'Function', icon: icon || 'bot' },
-        model: { model: 'gemini-flash-latest', icon: icon || 'bot' },
+        model: { model: 'gemini-pro-latest', icon: icon || 'bot' },
         memory: { model: 'Database', icon: icon || 'database' }
       };
       const modelInfo = nodeModelMap[originalType] || nodeModelMap.agent;

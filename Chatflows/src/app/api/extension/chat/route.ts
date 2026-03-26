@@ -97,7 +97,7 @@ async function getChatflowConfig(chatflowId: string) {
                     hasModelNode,
                     chatModelMessages,
                     toolsConfig,
-                    model: 'gemini-flash-latest',
+                    model: 'gemini-pro-latest',
                     provider: 'gemini',
                     apiKey: finalApiKey,
                     role: agentConfig.role || 'General Assistant',

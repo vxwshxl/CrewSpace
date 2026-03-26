@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (provider === 'gemini') {
-            const geminiModel = model.includes('gemini') ? model : 'gemini-flash-latest';
+            const geminiModel = model.includes('gemini') ? model : 'gemini-pro-latest';
             // Convert messages to Gemini format
             const geminiMessages = messages
                 .filter((m: any) => m.role !== 'system')

@@ -174,7 +174,7 @@ export default function ConfigPanel({ agent, nodeType = 'agent', onUpdate, onClo
                         <SelectValue placeholder="Select a model..." />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
-                        <SelectItem value="gemini-flash-latest">gemini-flash-latest</SelectItem>
+                        <SelectItem value="gemini-pro-latest">gemini-pro-latest</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

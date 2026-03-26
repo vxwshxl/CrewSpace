@@ -38,7 +38,7 @@ For "agent" nodes, ALSO add:
     "name": same as label,
     "role": "Specific role, e.g., Data Analyst",
     "personality": "Specific personality, e.g., Professional and concise",
-    "model": "gemini-flash-latest",
+    "model": "gemini-pro-latest",
     "modelIcon": "gemini",
     "tools": [],
     "memoryEnabled": false,
@@ -124,7 +124,7 @@ export default function AIGeneratorInline({ onGenerate, onError }: AIGeneratorIn
                 return;
             }
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=${geminiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
