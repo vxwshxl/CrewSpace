@@ -82,7 +82,7 @@ function ModelNode(props: NodeProps) {
             </div>
             
             <div className="absolute top-[88px] left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground text-center w-48 truncate">
-                {nodeData.description as string || "gemini-flash-latest"}
+                {nodeData.description as string || "gemini-pro-latest"}
             </div>
         </div>
     );

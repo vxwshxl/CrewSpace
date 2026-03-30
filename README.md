@@ -36,7 +36,7 @@ A Chrome Sidebar Extension that acts as your autonomous co-pilot.
 ## Supported LLM Providers
 
 Presently, CrewSpace supports full agentic configuration for:
-- **Google Gemini** (`gemini-flash-latest`, etc.)
+- **Google Gemini** (`gemini-pro-latest`, etc.)
 - **Sarvam AI** (`sarvam-m`)
 
 ---
