@@ -424,7 +424,7 @@ export default function Home() {
       <section className="hero" ref={heroRef} style={{ color: "#e3e3db" }}>
         <div className="hero-header">
           <h1>CrewSpace</h1>
-          <p>Personal Autonomous AI Agent Workforce</p>
+          <p>Open-Source Personal Autonomous AI Agent Workforce</p>
           <div className="mt-4">
             <DownloadExtensionBtn />
           </div>
