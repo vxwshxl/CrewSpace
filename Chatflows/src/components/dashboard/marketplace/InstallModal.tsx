@@ -44,17 +44,17 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
       />
       
       {/* Modal Container - Minimal & Consistent */}
-      <div className="relative w-full max-w-md bg-[#0b0f14] border border-white/10 rounded-none overflow-hidden shadow-2xl duration-200">
+      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl overflow-hidden shadow-2xl duration-200">
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/20">
-              <Workflow className="w-5 h-5 text-blue-500" />
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
+              <Workflow className="w-5 h-5 text-primary" />
             </div>
             {!isInstalling && (
               <button 
                 onClick={onClose}
-                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-none"
+                className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 transition-colors rounded-full"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -72,7 +72,7 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
               <Input 
                 id="workflow-name" 
                 placeholder="e.g. My Marketing Flow" 
-                className="h-11 bg-black/40 border-white/10 rounded-full focus:border-blue-500/50 text-white text-sm"
+                className="h-11 bg-black/40 border-white/10 rounded-xl focus:border-primary/50 text-white text-sm"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
@@ -83,13 +83,13 @@ export default function InstallModal({ workflow, onClose, onConfirm }: InstallMo
           </div>
 
           <Button 
-            className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm shadow-lg shadow-blue-900/10 group overflow-hidden"
+            className="w-full h-11 bg-primary hover:bg-[#A6E63F] text-primary-foreground rounded-full font-bold text-sm shadow-lg shadow-primary/10 group overflow-hidden"
             onClick={handleInstall}
             disabled={!name.trim() || isInstalling}
           >
             {isInstalling ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 <span>Creating flow...</span>
               </div>
             ) : (

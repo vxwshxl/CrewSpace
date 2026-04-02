@@ -51,13 +51,13 @@ export default function WorkflowSelector({ onClose, onSelect }: WorkflowSelector
       <div className="absolute inset-0 bg-black/95 backdrop-blur-sm duration-200" onClick={onClose} />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-md bg-[#050505] border border-white/10 rounded-none overflow-hidden shadow-2xl duration-200">
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl overflow-hidden shadow-2xl duration-200">
+        <div className="p-6 border-b border-border/50 flex items-center justify-between">
           <h3 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            <Layout className="w-5 h-5 text-blue-500" />
+            <Layout className="w-5 h-5 text-primary" />
             Select a Workflow
           </h3>
-          <button onClick={onClose} className="p-1.5 text-zinc-500 hover:text-white transition-colors border border-white/5 rounded-none">
+          <button onClick={onClose} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 transition-colors rounded-full">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -67,7 +67,7 @@ export default function WorkflowSelector({ onClose, onSelect }: WorkflowSelector
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
             <Input 
               placeholder="Search your chatflows..." 
-              className="pl-9 border-white/10 focus:border-blue-500/50 h-10 text-sm rounded-full"
+              className="pl-9 border-border/50 focus:border-primary/50 bg-black/40 h-10 text-sm rounded-full text-white"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -84,27 +84,27 @@ export default function WorkflowSelector({ onClose, onSelect }: WorkflowSelector
                 <button
                   key={w.id}
                   onClick={() => onSelect(w)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-white/5 border border-white/5 hover:border-blue-500/30 rounded-none transition-all group"
+                  className="w-full flex items-center justify-between p-4 hover:bg-white/5 border border-border/50 hover:border-primary/50 rounded-xl transition-all group mb-2 last:mb-0 bg-black/20"
                 >
                   <div className="text-left">
-                    <div className="text-sm font-bold text-zinc-200 group-hover:text-blue-400 transition-colors">{w.name}</div>
+                    <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">{w.name}</div>
                     <div className="text-[10px] text-zinc-600 font-mono mt-0.5 capitalize">
                         {w.data?.nodes?.length || 0} Nodes • {w.data?.edges?.length || 0} Connections
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </button>
               ))
             ) : (
-              <div className="text-center py-12 rounded-none border border-dashed border-white/5">
-                <p className="text-zinc-600 text-sm">No chatflows found</p>
+              <div className="text-center py-12 rounded-xl border border-dashed border-border/50">
+                <p className="text-zinc-500 text-sm">No chatflows found</p>
                 <p className="text-zinc-700 text-[10px] mt-1 uppercase font-bold tracking-widest">Create one in your dashboard first</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="p-6 border-t border-white/5">
+        <div className="p-6 border-t border-border/50 bg-black/20">
           <p className="text-[10px] text-zinc-600 leading-relaxed font-medium">
             Select one of your existing workflows to start the publishing process. You'll be able to add a description and pricing on the next step.
           </p>

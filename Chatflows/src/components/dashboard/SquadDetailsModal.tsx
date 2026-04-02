@@ -16,6 +16,7 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     const [squad, setSquad] = useState<any>(null);
     const [members, setMembers] = useState<any[]>([]);
     const [chatflows, setChatflows] = useState<any[]>([]);
+    const [currentUser, setCurrentUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<'workflows' | 'members'>('workflows');
     const supabase = createClient();
@@ -40,7 +41,10 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
         setLoading(true);
         if (!squadId) return;
 
-        // Fetch Squad Info
+        // Fetch Squad Info & current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) setCurrentUser(user);
+
         const { data: squadData } = await supabase.from('squads').select('*').eq('id', squadId).single();
         if (squadData) setSquad(squadData);
 
@@ -63,6 +67,32 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
         }
 
         setLoading(false);
+    };
+
+    const handleLeaveSquad = async () => {
+        if (!squad || !squadId || !currentUser) return;
+        
+        if (currentUser.id === squad.owner_id) {
+            // Delete entire squad if owner
+            if (confirm('Are you sure you want to delete this squad? This action cannot be undone.')) {
+                await supabase.from('squads').delete().eq('id', squadId);
+                onClose();
+            }
+        } else {
+            // Leave squad if member
+            if (confirm('Are you sure you want to leave this squad?')) {
+                await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', currentUser.id);
+                onClose();
+            }
+        }
+    };
+
+    const handleRemoveMember = async (memberId: string) => {
+        if (!squadId || !currentUser || currentUser.id !== squad?.owner_id) return;
+        if (confirm('Are you sure you want to remove this member from the squad?')) {
+            await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', memberId);
+            setMembers(members.filter(m => m.user_id !== memberId));
+        }
     };
 
     const handleClose = () => {
@@ -109,9 +139,14 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                                     )}
                                 </div>
                             </div>
-                            <button onClick={handleClose} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors flex-shrink-0">
-                                <X className="w-6 h-6" />
-                            </button>
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                                <button onClick={handleClose} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors self-end">
+                                    <X className="w-6 h-6" />
+                                </button>
+                                <button onClick={handleLeaveSquad} className="text-xs font-bold px-4 py-2 mt-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors border border-red-500/20 rounded-full">
+                                    {currentUser?.id === squad.owner_id ? 'Delete Squad' : 'Leave Squad'}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex border-b border-border/50 px-8 pt-4 bg-card/50 shrink-0">
@@ -181,9 +216,19 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 bg-white/5 rounded-md text-muted-foreground">
-                                                {member.role === 'owner' || member.user_id === squad.owner_id ? 'OWNER' : 'MEMBER'}
-                                            </span>
+                                            <div className="flex flex-col items-end gap-1.5">
+                                                <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 bg-white/5 rounded-md text-muted-foreground">
+                                                    {member.role === 'owner' || member.user_id === squad.owner_id ? 'OWNER' : 'MEMBER'}
+                                                </span>
+                                                {currentUser?.id === squad.owner_id && member.user_id !== squad.owner_id && (
+                                                    <button 
+                                                        onClick={() => handleRemoveMember(member.user_id)}
+                                                        className="text-[10px] font-bold text-red-400/80 hover:text-red-400 uppercase underline decoration-red-400/30 underline-offset-2 transition-colors"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

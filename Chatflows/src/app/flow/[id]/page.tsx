@@ -160,6 +160,19 @@ function DashboardContent() {
             });
             setTimeout(() => { isRemoteUpdate.current = false; }, 50);
         })
+        .on('broadcast', { event: 'node-data-update' }, (payload) => {
+            isRemoteUpdate.current = true;
+            const updatedAgent = payload.payload;
+            setSelectedAgent((prev) => prev?.id === updatedAgent.id ? updatedAgent : prev);
+            setNodes((nds) => nds.map((n) => {
+               const nData = n.data as Record<string, unknown>;
+               if (nData.agentConfig && (nData.agentConfig as AgentConfig).id === updatedAgent.id) {
+                   return { ...n, data: { ...n.data, label: updatedAgent.name, agentConfig: updatedAgent } };
+               }
+               return n;
+            }));
+            setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+        })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
             await channel.track({ x: -1000, y: -1000, name: userName, color: userColor });
@@ -265,8 +278,8 @@ function DashboardContent() {
   }, [currentUser]);  const handleAgentUpdate = useCallback(
     (updatedAgent: AgentConfig) => {
       setSelectedAgent(updatedAgent);
-      setNodes((nds) =>
-        nds.map((n) => {
+      setNodes((nds) => {
+        const newNodes = nds.map((n) => {
           const nData = n.data as Record<string, unknown>;
           if (
             nData.agentConfig &&
@@ -282,8 +295,19 @@ function DashboardContent() {
             };
           }
           return n;
-        })
-      );
+        });
+
+        // Broadcast to other users in the squad
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'node-data-update',
+            payload: updatedAgent,
+          });
+        }
+
+        return newNodes;
+      });
     },
     [setNodes]
   );
@@ -403,27 +427,43 @@ function DashboardContent() {
 
   const onConnect = useCallback(
     (params: Connection) => {
-        setEdges((eds) => addEdge(params, eds));
-        
-        // Auto-enable memory on connect
-        setNodes((nds) => nds.map(node => {
-            if (node.id === params.source || node.id === params.target) {
-                const nodeData = node.data as Record<string, any>;
-                if (nodeData.nodeType === 'memory' && nodeData.agentConfig) {
-                    return {
-                        ...node,
-                        data: {
-                            ...nodeData,
-                            agentConfig: {
-                                ...nodeData.agentConfig as AgentConfig,
-                                memoryEnabled: true
-                            }
-                        }
-                    };
+        setEdges((eds) => {
+            const newEds = addEdge(params, eds);
+            if (channelRef.current) {
+                const addedEdge = newEds.find(e => !eds.some(oldE => oldE.id === e.id));
+                if (addedEdge) {
+                    channelRef.current.send({
+                        type: 'broadcast',
+                        event: 'edges-change',
+                        payload: [{ type: 'add', item: addedEdge }]
+                    });
                 }
             }
-            return node;
-        }));
+            return newEds;
+        });
+        
+        // Auto-enable memory on connect
+        setNodes((nds) => {
+            const newNodes = nds.map(node => {
+                if (node.id === params.source || node.id === params.target) {
+                    const nodeData = node.data as Record<string, any>;
+                    if (nodeData.nodeType === 'memory' && nodeData.agentConfig) {
+                        return {
+                            ...node,
+                            data: {
+                                ...nodeData,
+                                agentConfig: {
+                                    ...nodeData.agentConfig as AgentConfig,
+                                    memoryEnabled: true
+                                }
+                            }
+                        };
+                    }
+                }
+                return node;
+            });
+            return newNodes;
+        });
     },
     [setEdges, setNodes]
   );

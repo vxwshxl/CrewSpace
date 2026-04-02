@@ -14,15 +14,30 @@ interface MarketplaceCardProps {
 }
 
 export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: MarketplaceCardProps) {
+  const getColors = (name: string) => {
+    const colors = [
+        ['bg-pink-500', 'bg-purple-500', 'bg-blue-500'],
+        ['bg-green-500', 'bg-teal-500', 'bg-cyan-500'],
+        ['bg-orange-500', 'bg-yellow-500', 'bg-red-500'],
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const palette = getColors(workflow.name);
+
   return (
     <div 
-      className="group relative bg-[#050505] border border-white/10 rounded-none overflow-hidden hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl flex flex-col h-full cursor-pointer"
+      className="group relative bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/50 transition-all shadow-sm hover:shadow-xl flex flex-col h-full cursor-pointer"
       onClick={() => onViewDetails(workflow)}
     >
-      {/* Top Section: Icon (left) | (Premium badge OR Rating) (right) */}
-      <div className="p-6 pb-3 flex items-start justify-between">
-        <div className="w-10 h-10 bg-white/5 rounded-none flex items-center justify-center text-xl shadow-inner border border-white/10">
-          {workflow.icon}
+      {/* Top Section */}
+      <div className="p-6 pb-4 flex items-start justify-between">
+        <div className={`w-12 h-12 rounded-full border-2 border-card ${palette[0]} flex items-center justify-center shrink-0`}>
+          <span className="text-xl font-bold text-white uppercase">{workflow.name.substring(0, 1)}</span>
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
@@ -61,7 +76,7 @@ export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: 
       </div>
 
       {/* Bottom Section: Creator & Action */}
-      <div className="mx-6 py-4 border-t border-white/10 flex items-center justify-between">
+      <div className="mx-6 py-4 border-t border-border/50 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Creator</span>
           <span className="text-xs text-white font-medium truncate max-w-[100px]">{workflow.creator}</span>
@@ -71,9 +86,9 @@ export default function MarketplaceCard({ workflow, onViewDetails, onInstall }: 
           size="sm" 
           variant={workflow.isPremium ? "outline" : "default"}
           className={cn(
-            "rounded-none px-4 font-bold h-8 text-[11px] transition-all",
+            "rounded-xl px-4 font-bold h-9 text-[11px] transition-all",
             workflow.isPremium 
-              ? "border-white/10 hover:bg-white/5 text-zinc-300" 
+              ? "border-primary/50 hover:bg-primary/10 text-primary" 
               : "bg-primary text-primary-foreground hover:opacity-90 border-none"
           )}
           onClick={(e) => {

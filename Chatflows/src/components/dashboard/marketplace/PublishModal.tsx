@@ -37,7 +37,6 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
   const [category, setCategory] = useState('Marketing');
   const [isPremium, setIsPremium] = useState(false);
   const [price, setPrice] = useState(299);
-  const [icon, setIcon] = useState('🤖');
   const [isPublishing, setIsPublishing] = useState(false);
 
   React.useEffect(() => {
@@ -61,7 +60,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
         category,
         isPremium,
         price: isPremium ? price : 0,
-        icon
+        icon: ''
       });
       setIsPublishing(false);
     }, 1500);
@@ -76,7 +75,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
       />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#050505] border border-white/10 rounded-none shadow-2xl duration-200">
+      <div className="relative w-full max-w-lg bg-card border border-border shadow-2xl rounded-2xl overflow-hidden duration-200">
         
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
@@ -86,7 +85,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
             {!isPublishing && (
               <button 
                 onClick={onClose}
-                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-none"
+                className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -131,14 +130,14 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
               <Label className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Short Description</Label>
               <Textarea 
                 placeholder="Briefly explain what this workflow achieves..." 
-                className="bg-black/40 border-white/10 rounded-none focus:border-primary/50 text-white text-sm min-h-[80px]"
+                className="bg-black/40 border-white/10 rounded-xl focus:border-primary/50 text-white text-sm min-h-[80px]"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isPublishing}
               />
             </div>
 
-            <div className="flex items-center gap-6 p-4 bg-white/2 rounded-none border border-white/5">
+            <div className="flex items-center gap-6 p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex-1">
                 <h4 className="text-xs font-bold text-white mb-1">Pricing Model</h4>
                 <p className="text-[10px] text-zinc-500">Choose if this is a free or premium workflow</p>
@@ -152,7 +151,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
                 </button>
                 <button 
                   onClick={() => setIsPremium(true)}
-                  className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${isPremium ? 'bg-orange-500/10 text-orange-400 border-orange-500/30' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${isPremium ? 'bg-primary/10 text-primary border-primary/30' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
                 >
                   Premium
                 </button>
@@ -165,7 +164,7 @@ export default function PublishModal({ workflow, onClose, onConfirm }: PublishMo
                 <div className="relative">
                   <Input 
                     type="number"
-                    className="h-10 bg-black/40 border-white/10 rounded-none pl-8 focus:border-orange-500/50 text-white text-sm"
+                    className="h-10 bg-black/40 border-white/10 rounded-xl pl-8 focus:border-primary/50 text-white text-sm"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     disabled={isPublishing}

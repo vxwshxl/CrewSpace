@@ -14,9 +14,23 @@ interface PaymentModalProps {
 }
 
 export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentModalProps) {
+  const getColors = (name: string) => {
+    const colors = [
+        ['bg-pink-500', 'bg-purple-500', 'bg-blue-500'],
+        ['bg-green-500', 'bg-teal-500', 'bg-cyan-500'],
+        ['bg-orange-500', 'bg-yellow-500', 'bg-red-500'],
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   const [step, setStep] = useState<'checkout' | 'processing' | 'success'>('checkout');
 
   if (!workflow) return null;
+  const palette = getColors(workflow.name);
 
   const handlePayment = () => {
     setStep('processing');
@@ -35,7 +49,7 @@ export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentMo
       />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-md bg-[#0b0f14] border border-white/10 rounded-none overflow-hidden shadow-2xl duration-200">
+      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl overflow-hidden shadow-2xl duration-200">
         
         {step === 'checkout' && (
           <div className="p-8">
@@ -46,16 +60,16 @@ export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentMo
               </div>
               <button 
                 onClick={onClose}
-                className="p-1.5 text-zinc-600 hover:text-white transition-colors border border-white/5 rounded-none"
+                className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 transition-colors rounded-full"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Product Summary */}
-            <div className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-none border border-white/5 mb-8">
-              <div className="w-10 h-10 bg-white/5 rounded-none flex items-center justify-center text-xl">
-                {workflow.icon}
+            <div className="flex items-center gap-4 p-4 bg-black/20 rounded-xl border border-white/5 mb-8">
+              <div className={`w-12 h-12 rounded-full border-2 border-card ${palette[0]} flex items-center justify-center shrink-0`}>
+                <span className="text-xl font-bold text-white uppercase">{workflow.name.substring(0, 1)}</span>
               </div>
               <div className="flex-1">
                 <div className="text-white font-semibold text-sm">{workflow.name}</div>
@@ -70,19 +84,19 @@ export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentMo
             <div className="space-y-4 mb-8">
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Email Address</Label>
-                <Input id="email" placeholder="captain@crewspace.ai" className="h-10 bg-black/40 border-white/10 rounded-none focus:border-blue-500/50 text-sm" />
+                <Input id="email" placeholder="captain@crewspace.ai" className="h-10 bg-black/40 border-white/10 rounded-xl focus:border-primary/50 text-white text-sm" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="card" className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold ml-1">Card Details</Label>
                 <div className="relative">
-                  <Input id="card" placeholder="0000 0000 0000 0000" className="h-10 bg-black/40 border-white/10 rounded-none pl-10 focus:border-blue-500/50 text-sm" />
+                  <Input id="card" placeholder="0000 0000 0000 0000" className="h-10 bg-black/40 border-white/10 rounded-xl pl-10 focus:border-primary/50 text-white text-sm" />
                   <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 </div>
               </div>
             </div>
 
             <Button 
-              className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm shadow-lg shadow-blue-900/10 group"
+              className="w-full h-11 bg-primary hover:bg-[#A6E63F] text-primary-foreground rounded-full font-bold text-sm shadow-lg shadow-primary/10 group"
               onClick={handlePayment}
             >
               Pay ₹{workflow.price}
@@ -95,7 +109,7 @@ export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentMo
                 Secure Payment
               </div>
               <div className="flex items-center gap-1.5 text-[9px] text-zinc-600 font-bold uppercase tracking-tight">
-                <Zap className="w-3.5 h-3.5 text-blue-500/80" />
+                <Zap className="w-3.5 h-3.5 text-primary/80" />
                 Instant Delivery
               </div>
             </div>
@@ -105,8 +119,8 @@ export default function PaymentModal({ workflow, onClose, onSuccess }: PaymentMo
         {step === 'processing' && (
           <div className="p-20 flex flex-col items-center justify-center text-center">
             <div className="relative w-12 h-12 mb-6">
-              <div className="absolute inset-0 border-2 border-blue-500/10 rounded-full" />
-              <div className="absolute inset-0 border-2 border-blue-500 rounded-full border-t-transparent animate-spin" />
+              <div className="absolute inset-0 border-2 border-primary/10 rounded-full" />
+              <div className="absolute inset-0 border-2 border-primary rounded-full border-t-transparent animate-spin" />
             </div>
             <h3 className="text-lg font-bold text-white mb-1">Authorizing</h3>
             <p className="text-zinc-500 text-xs">Securing your purchase...</p>
