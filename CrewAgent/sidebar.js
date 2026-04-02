@@ -1043,12 +1043,17 @@ async function waitAfterAction(action) {
         return;
     }
 
-    if (action === "CLICK" || action === "TYPE") {
-        await delay(300);
+    if (action === "CLICK") {
+        await delay(1500); // Increased for stability during redirects/AJAX
         return;
     }
 
-    await delay(250);
+    if (action === "TYPE") {
+        await delay(1000); // Allow some time for auto-validation/scripts
+        return;
+    }
+
+    await delay(500);
 }
 
 async function injectContentScriptIfNeeded(tabId) {

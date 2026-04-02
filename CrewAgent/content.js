@@ -235,22 +235,7 @@ function executeCommand(command) {
                         el.dispatchEvent(new Event('input', { bubbles: true }));
                         el.dispatchEvent(new Event('change', { bubbles: true }));
 
-                        setTimeout(() => {
-                            // Simulate Enter key to trigger search/submit forms automatically
-                            el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
-                            el.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
-                            el.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true }));
-
-                            if (el.form) {
-                                const submitBtn = el.form.querySelector('button[type="submit"], input[type="submit"], button:not([type="button"])');
-                                if (submitBtn) {
-                                    submitBtn.click();
-                                } else {
-                                    el.form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                                }
-                            }
-                            resolve();
-                        }, 100);
+                        setTimeout(resolve, 300);
                     }, 300);
                 } else {
                     console.warn("Element not found for type (ID):", command.elementId);
