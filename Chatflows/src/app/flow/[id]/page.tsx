@@ -21,6 +21,10 @@ import { AgentConfig, ChatMessage } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
+// Generate a random color for the cursor
+const CURSOR_COLORS = ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+const userColor = CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)];
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
@@ -55,9 +59,15 @@ function DashboardContent() {
   const [errorToast, setErrorToast] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [cursors, setCursors] = useState<Record<string, { x: number, y: number, name: string, color: string }>>({});
+  const channelRef = useRef<any>(null);
+  const isRemoteUpdate = useRef(false);
+
   const supabase = createClient();
 
-  // Load flow data from Supabase
+  // Load flow data from Supabase and setup Realtime
+
   React.useEffect(() => {
     const loadFlow = async () => {
       const { data, error } = await supabase
@@ -73,11 +83,96 @@ function DashboardContent() {
           setEdges(data.data.edges || []);
         }
       }
+
+      // Fetch user profile
+      const { data: { user } } = await supabase.auth.getUser();
+      let userName = 'Guest';
+      if (user) {
+         setCurrentUser(user);
+         userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Captain';
+      }
+
       setLoading(false);
+
+      // Setup Realtime Collaboration
+      const channel = supabase.channel(`flow-${id}`, {
+        config: {
+          presence: { key: user?.id || `anon-${Date.now()}` },
+          broadcast: { self: false }
+        }
+      });
+      channelRef.current = channel;
+
+      channel
+        .on('presence', { event: 'sync' }, () => {
+          const state = channel.presenceState();
+          const newCursors: Record<string, any> = {};
+          
+          for (const key in state) {
+            if (key !== (user?.id || '')) {
+              // Get latest state for this presence
+              const presenceInfo: any = state[key][0];
+              if (presenceInfo.x !== undefined && presenceInfo.y !== undefined) {
+                 newCursors[key] = {
+                   x: presenceInfo.x,
+                   y: presenceInfo.y,
+                   name: presenceInfo.name,
+                   color: presenceInfo.color
+                 };
+              }
+            }
+          }
+          setCursors(newCursors);
+        })
+        .on('broadcast', { event: 'nodes-change' }, (payload) => {
+            isRemoteUpdate.current = true;
+            // Update node positions or other properties instantly
+            setNodes((nds) => {
+                const changes = payload.payload;
+                let newNds = [...nds];
+                // simple apply changes
+                changes.forEach((change: any) => {
+                    if (change.type === 'position' && change.position) {
+                        newNds = newNds.map(n => n.id === change.id ? { ...n, position: change.position } : n);
+                    } else if (change.type === 'add') {
+                        newNds.push(change.item);
+                    } else if (change.type === 'remove') {
+                        newNds = newNds.filter(n => n.id !== change.id);
+                    }
+                });
+                return newNds;
+            });
+            setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+        })
+        .on('broadcast', { event: 'edges-change' }, (payload) => {
+            isRemoteUpdate.current = true;
+            setEdges((eds) => {
+                const changes = payload.payload;
+                let newEds = [...eds];
+                changes.forEach((change: any) => {
+                     if (change.type === 'add') {
+                         newEds.push(change.item);
+                     } else if (change.type === 'remove') {
+                         newEds = newEds.filter(e => e.id !== change.id);
+                     }
+                });
+                return newEds;
+            });
+            setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.track({ x: -1000, y: -1000, name: userName, color: userColor });
+          }
+        });
+        
+        return () => {
+            channel.unsubscribe();
+        };
     };
 
     loadFlow();
-  }, [id]);
+  }, [id, supabase]);
 
   const debouncedNodes = useDebounce(nodes, 1000);
   const debouncedEdges = useDebounce(edges, 1000);
@@ -137,9 +232,37 @@ function DashboardContent() {
     []
   );
 
+  // Wrap onNodesChange to broadcast
+  const onNodesChangeRealtime = useCallback((changes: any) => {
+    onNodesChange(changes);
+    if (!isRemoteUpdate.current && channelRef.current) {
+        // filter out 'select' or merely ephemeral changes, keep position, add, remove
+        const broadcastChanges = changes.filter((c: any) => c.type === 'position' || c.type === 'add' || c.type === 'remove');
+        if (broadcastChanges.length > 0) {
+            channelRef.current.send({
+                type: 'broadcast',
+                event: 'nodes-change',
+                payload: broadcastChanges
+            });
+        }
+    }
+  }, [onNodesChange]);
 
+  const lastMoveTime = useRef(0);
 
-  const handleAgentUpdate = useCallback(
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+      if (!channelRef.current || !reactFlowWrapper.current) return;
+      const bounds = reactFlowWrapper.current.getBoundingClientRect();
+      const x = e.clientX - bounds.left;
+      const y = e.clientY - bounds.top;
+      
+      // Throttle cursor updates slightly
+      if (Date.now() - lastMoveTime.current > 50) {
+          lastMoveTime.current = Date.now();
+          const userName = currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || 'Captain';
+          channelRef.current.track({ x, y, name: userName, color: userColor });
+      }
+  }, [currentUser]);  const handleAgentUpdate = useCallback(
     (updatedAgent: AgentConfig) => {
       setSelectedAgent(updatedAgent);
       setNodes((nds) =>
@@ -263,13 +386,19 @@ function DashboardContent() {
                   setTimeout(() => setErrorToast(null), 3000);
                   return nds;
               }
-              return [...nds, newNode];
+              const result = [...nds, newNode];
+              if (channelRef.current) channelRef.current.send({ type: 'broadcast', event: 'nodes-change', payload: [{ type: 'add', item: newNode }] });
+              return result;
           });
       } else {
-          setNodes((nds) => [...nds, newNode]);
+          setNodes((nds) => {
+             const result = [...nds, newNode];
+             if (channelRef.current) channelRef.current.send({ type: 'broadcast', event: 'nodes-change', payload: [{ type: 'add', item: newNode }] });
+             return result;
+          });
       }
     },
-    [setNodes]
+    [setNodes, screenToFlowPosition]
   );
 
   const onConnect = useCallback(
@@ -302,6 +431,17 @@ function DashboardContent() {
   const onEdgesChange = useCallback(
       (changes: any) => {
           onEdgesChangeBase(changes);
+
+          if (!isRemoteUpdate.current && channelRef.current) {
+              const broadcastEdges = changes.filter((c: any) => c.type === 'remove' || c.type === 'add');
+              if (broadcastEdges.length > 0) {
+                  channelRef.current.send({
+                      type: 'broadcast',
+                      event: 'edges-change',
+                      payload: broadcastEdges
+                  });
+              }
+          }
 
           // Need to wait slightly for state to settle to check remaining edges,
           // or we can calculate it manually based on the current edges minus the removed ones.
@@ -402,12 +542,35 @@ function DashboardContent() {
         chatPanelOpen={chatPanelOpen || showConfig}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative" onPointerMove={onPointerMove}>
+        
+        {/* Collaborative Cursors Layer */}
+        <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+            {Object.entries(cursors)
+              .filter(([_, cursor]) => cursor.x >= 0 && cursor.y >= 0)
+              .map(([id, cursor]) => (
+                <div 
+                    key={id}
+                    className="absolute flex items-center justify-center transition-all duration-75 ease-linear will-change-transform"
+                    style={{ 
+                        transform: `translate(${cursor.x}px, ${cursor.y}px)`,
+                    }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ fill: cursor.color, stroke: 'white', strokeWidth: 1.5 }}>
+                        <path d="M5.5 3.21V20.8C5.5 21.46 6.27 21.82 6.78 21.4L11.45 17.15C11.64 16.98 11.89 16.89 12.14 16.89H19.5C20.16 16.89 20.51 16.09 20.08 15.6L6.58 2.5C6.16 2.06 5.5 2.36 5.5 3.21Z" />
+                    </svg>
+                    <div className="ml-2 px-2 py-0.5 rounded text-xs font-semibold shadow-md whitespace-nowrap text-white" style={{ backgroundColor: cursor.color }}>
+                        {cursor.name}
+                    </div>
+                </div>
+            ))}
+        </div>
+
         {/* Center canvas */}
         <AgentCanvas
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
+          onNodesChange={onNodesChangeRealtime}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}

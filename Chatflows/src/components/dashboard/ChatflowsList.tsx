@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Workflow, Plus, Trash2, Pencil, Globe, CheckCircle2 } from 'lucide-react';
+import { Workflow, Plus, Trash2, Pencil, Globe, CheckCircle2, ChevronDown, ChevronRight, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DownloadExtensionBtn from '@/components/DownloadExtensionBtn';
@@ -10,8 +10,11 @@ import { createClient } from '@/utils/supabase/client';
 import PublishModal, { PublishDetails } from './marketplace/PublishModal';
 
 export default function ChatflowsList() {
-    const [chatflows, setChatflows] = useState<any[]>([]);
+    const [personalChatflows, setPersonalChatflows] = useState<any[]>([]);
+    const [squadChatflows, setSquadChatflows] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPersonalOpen, setIsPersonalOpen] = useState(true);
+    const [isSquadOpen, setIsSquadOpen] = useState(true);
     const [workflowToPublish, setWorkflowToPublish] = useState<any | null>(null);
     const [successToast, setSuccessToast] = useState<string | null>(null);
     
@@ -26,11 +29,31 @@ export default function ChatflowsList() {
     const fetchChatflows = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
-        const { data } = await supabase.from('chatflows').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
-        if (data) {
-            setChatflows(data);
+        
+        // Fetch all chatflows user has access to
+        const { data: allFlows } = await supabase.from('chatflows').select('*').order('updated_at', { ascending: false });
+        
+        // Fetch squad chatflow associations
+        const { data: squadAssocs } = await supabase.from('squad_chatflows').select('chatflow_id');
+        const squadFlowIds = new Set((squadAssocs || []).map(a => a.chatflow_id));
+
+        if (allFlows) {
+            const personal: any[] = [];
+            const squad: any[] = [];
+
+            allFlows.forEach(f => {
+                if (squadFlowIds.has(f.id)) {
+                    squad.push(f);
+                } else if (f.user_id === user.id) {
+                    personal.push(f);
+                }
+            });
+
+            setPersonalChatflows(personal);
+            setSquadChatflows(squad);
+
             // Sync with Zustand store for extension
-            storeSetChatflows(data.map(f => ({
+            storeSetChatflows(allFlows.map(f => ({
                 id: f.id,
                 name: f.name,
                 nodes: f.data?.nodes || [],
@@ -73,7 +96,7 @@ export default function ChatflowsList() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const workflow = chatflows.find(f => f.id === details.id);
+            const workflow = [...personalChatflows, ...squadChatflows].find(f => f.id === details.id);
             if (!workflow) return;
 
             // Submit to marketplace_workflows table
@@ -136,7 +159,7 @@ export default function ChatflowsList() {
                 <div className="border border-dashed border-white/10 rounded-xl p-12 text-center">
                     <p className="text-muted-foreground">Loading chatflows...</p>
                 </div>
-            ) : chatflows.length === 0 ? (
+            ) : personalChatflows.length === 0 && squadChatflows.length === 0 ? (
                 <div className="border border-dashed border-white/10 rounded-xl p-12 text-center">
                     <div className="w-12 h-12 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center mx-auto mb-4 border border-white/5">
                         <Workflow className="w-6 h-6" />
@@ -153,16 +176,61 @@ export default function ChatflowsList() {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {chatflows.map((flow) => (
-                        <ChatflowCard
-                            key={flow.id}
-                            flow={flow}
-                            onDelete={handleDelete}
-                            onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
-                            onPublish={(f) => setWorkflowToPublish(f)}
-                        />
-                    ))}
+                <div className="space-y-8">
+                    {/* Personal Chatflows */}
+                    {personalChatflows.length > 0 && (
+                        <div>
+                            <button 
+                                onClick={() => setIsPersonalOpen(!isPersonalOpen)}
+                                className="flex items-center gap-2 text-lg font-bold text-white mb-4 hover:text-primary transition-colors"
+                            >
+                                {isPersonalOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                                Personal
+                            </button>
+                            
+                            {isPersonalOpen && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {personalChatflows.map((flow) => (
+                                        <ChatflowCard
+                                            key={flow.id}
+                                            flow={flow}
+                                            onDelete={handleDelete}
+                                            onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
+                                            onPublish={(f) => setWorkflowToPublish(f)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Squad Chatflows */}
+                    {squadChatflows.length > 0 && (
+                        <div>
+                            <button 
+                                onClick={() => setIsSquadOpen(!isSquadOpen)}
+                                className="flex items-center gap-2 text-lg font-bold text-white mb-4 hover:text-primary transition-colors"
+                            >
+                                {isSquadOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                                Squad
+                            </button>
+                            
+                            {isSquadOpen && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {squadChatflows.map((flow) => (
+                                        <ChatflowCard
+                                            key={flow.id}
+                                            flow={flow}
+                                            onDelete={handleDelete}
+                                            onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
+                                            onPublish={(f) => setWorkflowToPublish(f)}
+                                            isSquad={true}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -175,11 +243,12 @@ export default function ChatflowsList() {
     );
 }
 
-function ChatflowCard({ flow, onDelete, onUpdate, onPublish }: { 
+function ChatflowCard({ flow, onDelete, onUpdate, onPublish, isSquad }: { 
     flow: any; 
     onDelete: (id: string) => void; 
     onUpdate: (id: string, data: any) => void;
     onPublish: (flow: any) => void;
+    isSquad?: boolean;
 }) {
     const [isEditing, setIsEditing] = React.useState(false);
     const [editValue, setEditValue] = React.useState(flow.name);
@@ -215,8 +284,15 @@ function ChatflowCard({ flow, onDelete, onUpdate, onPublish }: {
                                 className="text-lg font-bold text-white mb-2 bg-transparent border-b border-primary outline-none w-full"
                             />
                         ) : (
-                            <div className="flex items-center gap-2 mb-2 group-hover:text-primary transition-colors">
-                                <h3 className="text-lg font-bold text-white tracking-tight">{flow.name}</h3>
+                            <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center gap-2 group-hover:text-primary transition-colors">
+                                    <h3 className="text-lg font-bold text-white tracking-tight">{flow.name}</h3>
+                                </div>
+                                {isSquad && (
+                                    <div className="bg-primary/10 p-1.5 rounded-md" title="Squad Workflow">
+                                        <Users className="w-4 h-4 text-primary" />
+                                    </div>
+                                )}
                             </div>
                         )}
                         <p className="text-sm text-zinc-500 leading-relaxed font-medium">
