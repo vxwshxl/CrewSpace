@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Users, Workflow as WorkflowIcon, Calendar, Crown, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { X, Users, Workflow as WorkflowIcon, Calendar, Crown, ExternalLink, Plus, Check } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -11,12 +11,14 @@ interface SquadDetailsModalProps {
     isOpen: boolean;
     squadId: string | null;
     onClose: () => void;
+    onJoin?: (id: string) => Promise<void> | void;
 }
 
-export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDetailsModalProps) {
+export default function SquadDetailsModal({ isOpen, squadId, onClose, onJoin }: SquadDetailsModalProps) {
     const [squad, setSquad] = useState<any>(null);
     const [members, setMembers] = useState<any[]>([]);
     const [chatflows, setChatflows] = useState<any[]>([]);
+    const [workflowCount, setWorkflowCount] = useState(0);
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<'workflows' | 'members'>('workflows');
@@ -24,25 +26,14 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     const [confirmMemberRemove, setConfirmMemberRemove] = useState<string | null>(null);
     const [confirmWorkflowRemove, setConfirmWorkflowRemove] = useState<string | null>(null);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [availableChatflows, setAvailableChatflows] = useState<any[]>([]);
+    const [selectedChatflowId, setSelectedChatflowId] = useState('');
     const supabase = createClient();
     
     const modalRef = React.useRef<HTMLDivElement>(null);
     const overlayRef = React.useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (isOpen && squadId) {
-            gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-            gsap.fromTo(modalRef.current, { y: 20, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.5)' });
-            
-            fetchSquadDetails();
-        } else {
-            setSquad(null);
-            setMembers([]);
-            setChatflows([]);
-        }
-    }, [isOpen, squadId]);
-
-    const fetchSquadDetails = async () => {
+    async function fetchSquadDetails() {
         setLoading(true);
         if (!squadId) return;
 
@@ -57,7 +48,14 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
         const { data: membersData } = await supabase.rpc('get_squad_members_details', { p_squad_id: squadId });
         if (membersData) setMembers(membersData);
 
-        // Fetch Chatflows
+        const { count } = await supabase
+            .from('squad_chatflows')
+            .select('*', { count: 'exact', head: true })
+            .eq('squad_id', squadId);
+
+        setWorkflowCount(count || 0);
+
+        // Fetch visible chatflows for the current user
         const { data: chatflowsData } = await supabase
             .from('squad_chatflows')
             .select(`
@@ -71,8 +69,49 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
             setChatflows(chatflowsData.map((d: any) => d.chatflows).filter(Boolean));
         }
 
+        if (user) {
+            const { data: ownChatflows } = await supabase
+                .from('chatflows')
+                .select('id, name, updated_at')
+                .eq('user_id', user.id)
+                .order('updated_at', { ascending: false });
+
+            if (ownChatflows) {
+                const sharedIds = new Set((chatflowsData || []).map((d: any) => d.chatflow_id));
+                const addableChatflows = ownChatflows.filter((chatflow: any) => !sharedIds.has(chatflow.id));
+                setAvailableChatflows(addableChatflows);
+                setSelectedChatflowId((currentId) => {
+                    if (currentId && addableChatflows.some((chatflow: any) => chatflow.id === currentId)) {
+                        return currentId;
+                    }
+                    return addableChatflows[0]?.id || '';
+                });
+            } else {
+                setAvailableChatflows([]);
+                setSelectedChatflowId('');
+            }
+        }
+
         setLoading(false);
-    };
+    }
+
+    useEffect(() => {
+        if (isOpen && squadId) {
+            gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+            gsap.fromTo(modalRef.current, { y: 20, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.5)' });
+            
+            void fetchSquadDetails();
+        } else {
+            setSquad(null);
+            setMembers([]);
+            setChatflows([]);
+            setWorkflowCount(0);
+        }
+    }, [isOpen, squadId]);
+
+    const isMember = members.some(m => m.user_id === currentUser?.id);
+    const canAccessWorkflows = Boolean(currentUser?.id && (currentUser.id === squad?.owner_id || isMember));
+    const canManageWorkflows = canAccessWorkflows;
 
     const performLeaveSquad = async () => {
         if (!squad || !squadId || !currentUser) return;
@@ -106,10 +145,19 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     };
 
     const performRemoveWorkflow = async () => {
-        if (!squadId || !currentUser || currentUser.id !== squad?.owner_id || !confirmWorkflowRemove) return;
+        if (!squadId || !currentUser || !canManageWorkflows || !confirmWorkflowRemove) return;
         setIsActionLoading(true);
         await supabase.from('squad_chatflows').delete().eq('squad_id', squadId).eq('chatflow_id', confirmWorkflowRemove);
+        const removedWorkflow = chatflows.find(cf => cf.id === confirmWorkflowRemove);
         setChatflows(chatflows.filter(cf => cf.id !== confirmWorkflowRemove));
+        setWorkflowCount((count) => Math.max(0, count - 1));
+        if (removedWorkflow?.user_id === currentUser.id) {
+            const nextChatflows = [...availableChatflows, removedWorkflow].sort(
+                (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            );
+            setAvailableChatflows(nextChatflows);
+            setSelectedChatflowId((currentId) => currentId || removedWorkflow.id);
+        }
         setIsActionLoading(false);
         setConfirmWorkflowRemove(null);
     };
@@ -123,6 +171,30 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     const handleClose = () => {
         gsap.to(overlayRef.current, { opacity: 0, duration: 0.2 });
         gsap.to(modalRef.current, { y: 20, opacity: 0, scale: 0.95, duration: 0.2, onComplete: onClose });
+    };
+
+    const handleJoinSquad = async () => {
+        if (!squad?.id || !onJoin || isActionLoading) return;
+        setIsActionLoading(true);
+        await onJoin(squad.id);
+        await fetchSquadDetails();
+        setIsActionLoading(false);
+    };
+
+    const handleAddWorkflow = async () => {
+        if (!squadId || !currentUser || !canManageWorkflows || !selectedChatflowId || isActionLoading) return;
+        setIsActionLoading(true);
+        const { error } = await supabase.from('squad_chatflows').insert({
+            squad_id: squadId,
+            chatflow_id: selectedChatflowId,
+            added_by: currentUser.id
+        });
+
+        if (!error) {
+            await fetchSquadDetails();
+        }
+
+        setIsActionLoading(false);
     };
 
     if (!isOpen) return null;
@@ -169,9 +241,15 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                                 <button onClick={handleClose} className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors self-end">
                                     <X className="w-6 h-6" />
                                 </button>
-                                <button onClick={handleLeaveSquad} className="text-xs font-bold px-4 py-2 mt-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors border border-red-500/20 rounded-full">
-                                    {currentUser?.id === squad.owner_id ? 'Delete Squad' : 'Leave Squad'}
-                                </button>
+                                {isMember ? (
+                                    <button onClick={handleLeaveSquad} className="text-xs font-bold px-4 py-2 mt-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors border border-red-500/20 rounded-full">
+                                        {currentUser?.id === squad.owner_id ? 'Delete Squad' : 'Leave Squad'}
+                                    </button>
+                                ) : (
+                                    <button onClick={handleJoinSquad} disabled={isActionLoading} className="text-xs font-bold px-4 py-2 mt-2 bg-primary text-primary-foreground hover:bg-[#A6E63F] transition-colors rounded-full shadow-lg shadow-primary/10 tracking-tight disabled:opacity-60 disabled:cursor-not-allowed">
+                                        {isActionLoading ? 'Joining...' : 'Join Squad'}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -182,7 +260,7 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                             >
                                 <div className="flex items-center gap-2">
                                     <WorkflowIcon className="w-4 h-4" />
-                                    Workflows ({chatflows.length})
+                                    Workflows ({workflowCount})
                                 </div>
                             </button>
                             <button 
@@ -199,37 +277,125 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                         <div className="p-8 overflow-y-auto flex-1 bg-background">
                             {tab === 'workflows' && (
                                 <div className="space-y-4">
+                                    {canManageWorkflows && (
+                                        <div className="rounded-xl border border-border bg-card p-4">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-white">Add Chatflow</p>
+                                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                                        Share one of your personal chatflows with this squad.
+                                                    </p>
+                                                </div>
+                                                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
+                                                    {availableChatflows.length} available
+                                                </span>
+                                            </div>
+
+                                            {availableChatflows.length > 0 ? (
+                                                <div className="mt-4 flex flex-col gap-3 md:flex-row">
+                                                    <select
+                                                        value={selectedChatflowId}
+                                                        onChange={(e) => setSelectedChatflowId(e.target.value)}
+                                                        className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                                    >
+                                                        {availableChatflows.map((chatflow) => (
+                                                            <option key={chatflow.id} value={chatflow.id}>
+                                                                {chatflow.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <button
+                                                        onClick={handleAddWorkflow}
+                                                        disabled={!selectedChatflowId || isActionLoading}
+                                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition-colors hover:bg-[#A6E63F] disabled:cursor-not-allowed disabled:opacity-60"
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                        {isActionLoading ? 'Adding...' : 'Add Chatflow'}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-4 flex items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-xs text-muted-foreground">
+                                                    <Check className="h-4 w-4 text-primary" />
+                                                    All of your personal chatflows are already shared here.
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {chatflows.length === 0 ? (
                                         <div className="text-center py-12 border border-dashed border-border rounded-xl">
                                             <WorkflowIcon className="w-8 h-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-                                            <p className="text-white font-medium">No workflows found</p>
-                                            <p className="text-sm text-muted-foreground mt-1">This squad doesn't have any shared workflows yet.</p>
+                                            <p className="text-white font-medium">
+                                                {workflowCount > 0 && !isMember ? 'Join squad to view workflows' : 'No workflows found'}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                {workflowCount > 0 && !isMember
+                                                    ? `This squad has ${workflowCount} shared workflow${workflowCount === 1 ? '' : 's'}. Join to access them.`
+                                                    : "This squad doesn't have any shared workflows yet."}
+                                            </p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {chatflows.map(cf => (
-                                                <Link href={`/flow/${cf.id}`} key={cf.id} className="group p-5 rounded-xl border border-border bg-card hover:border-primary/50 transition-all flex flex-col h-full relative overflow-hidden">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <h4 className="font-bold text-white group-hover:text-primary transition-colors">{cf.name}</h4>
-                                                        <div className="flex items-center gap-2">
-                                                            {currentUser?.id === squad.owner_id && (
-                                                              <button 
-                                                                  onClick={(e) => handleRemoveWorkflow(e, cf.id)}
-                                                                  className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100"
-                                                                  title="Remove from squad"
-                                                              >
-                                                                  <X className="w-4 h-4" />
-                                                              </button>
-                                                            )}
-                                                            <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            {chatflows.map(cf => {
+                                                const cardClasses = `group p-5 rounded-xl border bg-card transition-all flex flex-col h-full relative overflow-hidden ${
+                                                    canAccessWorkflows
+                                                        ? 'border-border hover:border-primary/50'
+                                                        : 'border-border/70 opacity-90'
+                                                }`;
+
+                                                const cardContent = (
+                                                    <>
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div className="min-w-0 pr-3">
+                                                                <h4 className={`text-lg font-bold text-white truncate ${canAccessWorkflows ? 'group-hover:text-primary transition-colors' : ''}`}>
+                                                                    {cf.name}
+                                                                </h4>
+                                                                <p className="mt-2 text-sm text-zinc-400">
+                                                                    {cf.data?.nodes?.length || 0} Nodes • {cf.data?.edges?.length || 0} Connections
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                {canManageWorkflows && (
+                                                                  <button 
+                                                                      onClick={(e) => handleRemoveWorkflow(e, cf.id)}
+                                                                      className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100"
+                                                                      title="Remove from squad"
+                                                                  >
+                                                                      <X className="w-4 h-4" />
+                                                                  </button>
+                                                                )}
+                                                                <ExternalLink className={`w-4 h-4 text-muted-foreground transition-opacity ${canAccessWorkflows ? 'opacity-0 group-hover:opacity-100' : 'opacity-40'}`} />
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="mt-auto pt-4 flex items-center justify-between text-xs text-muted-foreground border-t border-white/5">
-                                                        <span>{cf.data?.nodes?.length || 0} Nodes</span>
-                                                        <span>Updated {new Date(cf.updated_at).toLocaleDateString()}</span>
-                                                    </div>
-                                                </Link>
-                                            ))}
+                                                        {!canAccessWorkflows && (
+                                                            <p className="mb-3 text-[11px] font-medium text-primary">
+                                                                Join this squad to open this workflow.
+                                                            </p>
+                                                        )}
+                                                        <div className="mt-auto pt-4 flex items-center justify-between text-[11px] text-muted-foreground border-t border-white/5">
+                                                            <span>Updated {new Date(cf.updated_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </>
+                                                );
+
+                                                if (!canAccessWorkflows) {
+                                                    return (
+                                                        <div
+                                                            key={cf.id}
+                                                            className={cardClasses}
+                                                            aria-disabled="true"
+                                                        >
+                                                            {cardContent}
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <Link href={`/flow/${cf.id}`} key={cf.id} className={cardClasses}>
+                                                        {cardContent}
+                                                    </Link>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>

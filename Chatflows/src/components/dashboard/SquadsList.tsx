@@ -76,7 +76,8 @@ export default function SquadsList() {
     const handleJoinSquad = async (squadId: string) => {
         if (!currentUserId) return;
         await supabase.from('squad_members').insert({ squad_id: squadId, user_id: currentUserId, role: 'member' });
-        fetchSquads();
+        await fetchSquads();
+        setTab('my_squads');
     };
 
     useEffect(() => {
@@ -175,8 +176,8 @@ export default function SquadsList() {
                     {activeSquads.map((squad) => {
                         const palette = getColors(squad.name);
                         return (
-                        <div key={squad.id} className="group bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all shadow-sm hover:shadow-xl cursor-default flex flex-col h-full"
-                             onClick={() => tab === 'my_squads' && setSelectedSquadId(squad.id)}>
+                        <div key={squad.id} className="group bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all shadow-sm hover:shadow-xl cursor-default flex flex-col h-full cursor-pointer"
+                             onClick={() => setSelectedSquadId(squad.id)}>
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-3">
                                     <div className="flex -space-x-2">
@@ -233,10 +234,13 @@ export default function SquadsList() {
 
                             {tab === 'explore' && (
                                 <button 
-                                    onClick={() => handleJoinSquad(squad.id)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedSquadId(squad.id);
+                                    }}
                                     className="w-full mt-auto py-2.5 rounded-xl border border-primary text-primary hover:bg-primary/10 font-semibold transition-colors text-sm"
                                 >
-                                    Join Squad
+                                    View Squad
                                 </button>
                             )}
                         </div>
@@ -274,6 +278,9 @@ export default function SquadsList() {
                 isOpen={!!selectedSquadId}
                 squadId={selectedSquadId}
                 onClose={() => setSelectedSquadId(null)}
+                onJoin={async (id) => {
+                    await handleJoinSquad(id);
+                }}
             />
         </div>
     );
