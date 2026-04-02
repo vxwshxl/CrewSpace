@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import DownloadExtensionBtn from '@/components/DownloadExtensionBtn';
 import { createClient } from '@/utils/supabase/client';
 import PublishModal, { PublishDetails } from './marketplace/PublishModal';
+import ConfirmModal from './ConfirmModal';
 
 export default function ChatflowsList() {
     const [personalChatflows, setPersonalChatflows] = useState<any[]>([]);
@@ -17,6 +18,9 @@ export default function ChatflowsList() {
     const [isSquadOpen, setIsSquadOpen] = useState(true);
     const [workflowToPublish, setWorkflowToPublish] = useState<any | null>(null);
     const [successToast, setSuccessToast] = useState<string | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+    const [confirmRemoveSquad, setConfirmRemoveSquad] = useState<string | null>(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
     
     const router = useRouter();
     const supabase = createClient();
@@ -80,10 +84,24 @@ export default function ChatflowsList() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        await supabase.from('chatflows').delete().eq('id', id);
-        storeDeleteChatflow(id);
-        fetchChatflows();
+    const performDelete = async () => {
+        if (!confirmDelete) return;
+        setIsActionLoading(true);
+        await supabase.from('chatflows').delete().eq('id', confirmDelete);
+        storeDeleteChatflow(confirmDelete);
+        await fetchChatflows();
+        setIsActionLoading(false);
+        setConfirmDelete(null);
+    };
+
+    const performRemoveSquad = async () => {
+        if (!confirmRemoveSquad) return;
+        setIsActionLoading(true);
+        // Specifically remove from the squad_chatflows table so it reverts to personal
+        await supabase.from('squad_chatflows').delete().eq('chatflow_id', confirmRemoveSquad);
+        await fetchChatflows();
+        setIsActionLoading(false);
+        setConfirmRemoveSquad(null);
     };
 
     const handleUpdate = async (id: string, name: string) => {
@@ -190,11 +208,11 @@ export default function ChatflowsList() {
                             
                             {isPersonalOpen && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {personalChatflows.map((flow) => (
+                                     {personalChatflows.map((flow) => (
                                         <ChatflowCard
                                             key={flow.id}
                                             flow={flow}
-                                            onDelete={handleDelete}
+                                            onDelete={(id) => setConfirmDelete(id)}
                                             onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
                                             onPublish={(f) => setWorkflowToPublish(f)}
                                         />
@@ -217,11 +235,12 @@ export default function ChatflowsList() {
                             
                             {isSquadOpen && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {squadChatflows.map((flow) => (
+                                     {squadChatflows.map((flow) => (
                                         <ChatflowCard
                                             key={flow.id}
                                             flow={flow}
-                                            onDelete={handleDelete}
+                                            onDelete={(id) => setConfirmDelete(id)}
+                                            onRemoveFromSquad={(id) => setConfirmRemoveSquad(id)}
                                             onUpdate={(id, updateData) => handleUpdate(id, updateData.name!)}
                                             onPublish={(f) => setWorkflowToPublish(f)}
                                             isSquad={true}
@@ -239,13 +258,36 @@ export default function ChatflowsList() {
                 onClose={() => setWorkflowToPublish(null)}
                 onConfirm={handleConfirmPublish}
             />
+
+            <ConfirmModal
+                isOpen={!!confirmDelete}
+                title="Delete Chatflow"
+                description="Are you sure you want to permanently delete this chatflow? This will remove all of its nodes and logic. This action cannot be undone."
+                confirmText="Delete Flow"
+                destructive={true}
+                onConfirm={performDelete}
+                onCancel={() => setConfirmDelete(null)}
+                loading={isActionLoading}
+            />
+
+            <ConfirmModal
+                isOpen={!!confirmRemoveSquad}
+                title="Unlink from Squad"
+                description="Are you sure you want to remove this workflow from the collaborative squad? It will instantly be returned to your personal workflows."
+                confirmText="Unlink Workflow"
+                destructive={true}
+                onConfirm={performRemoveSquad}
+                onCancel={() => setConfirmRemoveSquad(null)}
+                loading={isActionLoading}
+            />
         </div>
     );
 }
 
-function ChatflowCard({ flow, onDelete, onUpdate, onPublish, isSquad }: { 
+function ChatflowCard({ flow, onDelete, onRemoveFromSquad, onUpdate, onPublish, isSquad }: { 
     flow: any; 
-    onDelete: (id: string) => void; 
+    onDelete: (id: string) => void;
+    onRemoveFromSquad?: (id: string) => void;
     onUpdate: (id: string, data: any) => void;
     onPublish: (flow: any) => void;
     isSquad?: boolean;
@@ -331,10 +373,14 @@ function ChatflowCard({ flow, onDelete, onUpdate, onPublish, isSquad }: {
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        onDelete(flow.id);
+                        if (isSquad && onRemoveFromSquad) {
+                            onRemoveFromSquad(flow.id);
+                        } else {
+                            onDelete(flow.id);
+                        }
                     }}
                     className="p-1.5 text-zinc-500 hover:text-red-400 bg-black/40 backdrop-blur border border-white/5 rounded-lg transition-colors shadow-xl"
-                    title="Delete"
+                    title={isSquad ? "Remove from Squad" : "Delete"}
                 >
                     <Trash2 className="w-3.5 h-3.5" />
                 </button>

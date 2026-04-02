@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/utils/supabase/client';
+import ConfirmModal from '../ConfirmModal';
 
 interface MarketplaceDetailProps {
   workflow: Workflow | null;
@@ -23,6 +24,7 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall, onDele
   const [liveRating, setLiveRating] = React.useState<number>(0);
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = React.useState(false);
   const supabase = createClient();
 
   React.useEffect(() => {
@@ -104,11 +106,10 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall, onDele
     }
   };
 
-  const handleDelete = async () => {
-    if (!workflow || workflow.id.length <= 20 || isDeleting) return;
-    if (!window.confirm("Are you sure you want to permanently delete this workflow from the Marketplace? This cannot be undone.")) return;
-    
+  const performDelete = async () => {
+    if (!workflow || workflow.id.length <= 20) return;
     setIsDeleting(true);
+    setShowConfirmDelete(false);
     try {
       await supabase.from('marketplace_workflows').delete().eq('id', workflow.id);
       onDelete(workflow.id);
@@ -117,6 +118,11 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall, onDele
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!workflow || workflow.id.length <= 20 || isDeleting) return;
+    setShowConfirmDelete(true);
   };
 
   if (!workflow) return null;
@@ -313,6 +319,17 @@ export default function MarketplaceDetail({ workflow, onClose, onInstall, onDele
           </div>
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        title="Delete Workflow"
+        description="Are you sure you want to permanently delete this workflow from the Marketplace? This cannot be undone."
+        confirmText="Remove from Marketplace"
+        destructive={true}
+        loading={isDeleting}
+        onConfirm={performDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </div>
   );
 }

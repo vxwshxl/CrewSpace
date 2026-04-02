@@ -5,6 +5,7 @@ import { X, Users, Workflow as WorkflowIcon, Calendar, Crown, Link as LinkIcon, 
 import { createClient } from '@/utils/supabase/client';
 import gsap from 'gsap';
 import Link from 'next/link';
+import ConfirmModal from './ConfirmModal';
 
 interface SquadDetailsModalProps {
     isOpen: boolean;
@@ -19,6 +20,10 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<'workflows' | 'members'>('workflows');
+    const [confirmLeave, setConfirmLeave] = useState(false);
+    const [confirmMemberRemove, setConfirmMemberRemove] = useState<string | null>(null);
+    const [confirmWorkflowRemove, setConfirmWorkflowRemove] = useState<string | null>(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
     const supabase = createClient();
     
     const modalRef = React.useRef<HTMLDivElement>(null);
@@ -69,30 +74,50 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
         setLoading(false);
     };
 
+    const performLeaveSquad = async () => {
+        if (!squad || !squadId || !currentUser) return;
+        setIsActionLoading(true);
+        if (currentUser.id === squad.owner_id) {
+            await supabase.from('squads').delete().eq('id', squadId);
+        } else {
+            await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', currentUser.id);
+        }
+        setIsActionLoading(false);
+        setConfirmLeave(false);
+        onClose();
+    };
+
     const handleLeaveSquad = async () => {
         if (!squad || !squadId || !currentUser) return;
-        
-        if (currentUser.id === squad.owner_id) {
-            // Delete entire squad if owner
-            if (confirm('Are you sure you want to delete this squad? This action cannot be undone.')) {
-                await supabase.from('squads').delete().eq('id', squadId);
-                onClose();
-            }
-        } else {
-            // Leave squad if member
-            if (confirm('Are you sure you want to leave this squad?')) {
-                await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', currentUser.id);
-                onClose();
-            }
-        }
+        setConfirmLeave(true);
+    };
+
+    const performRemoveMember = async () => {
+        if (!squadId || !currentUser || currentUser.id !== squad?.owner_id || !confirmMemberRemove) return;
+        setIsActionLoading(true);
+        await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', confirmMemberRemove);
+        setMembers(members.filter(m => m.user_id !== confirmMemberRemove));
+        setIsActionLoading(false);
+        setConfirmMemberRemove(null);
     };
 
     const handleRemoveMember = async (memberId: string) => {
-        if (!squadId || !currentUser || currentUser.id !== squad?.owner_id) return;
-        if (confirm('Are you sure you want to remove this member from the squad?')) {
-            await supabase.from('squad_members').delete().eq('squad_id', squadId).eq('user_id', memberId);
-            setMembers(members.filter(m => m.user_id !== memberId));
-        }
+        setConfirmMemberRemove(memberId);
+    };
+
+    const performRemoveWorkflow = async () => {
+        if (!squadId || !currentUser || currentUser.id !== squad?.owner_id || !confirmWorkflowRemove) return;
+        setIsActionLoading(true);
+        await supabase.from('squad_chatflows').delete().eq('squad_id', squadId).eq('chatflow_id', confirmWorkflowRemove);
+        setChatflows(chatflows.filter(cf => cf.id !== confirmWorkflowRemove));
+        setIsActionLoading(false);
+        setConfirmWorkflowRemove(null);
+    };
+
+    const handleRemoveWorkflow = (e: React.MouseEvent, workflowId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setConfirmWorkflowRemove(workflowId);
     };
 
     const handleClose = () => {
@@ -103,8 +128,9 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div ref={overlayRef} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div ref={overlayRef} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
             <div ref={modalRef} className="relative w-full max-w-3xl bg-card border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center p-20">
@@ -182,10 +208,21 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {chatflows.map(cf => (
-                                                <Link href={`/flow/${cf.id}`} key={cf.id} className="group p-5 rounded-xl border border-border bg-card hover:border-primary/50 transition-all flex flex-col h-full">
+                                                <Link href={`/flow/${cf.id}`} key={cf.id} className="group p-5 rounded-xl border border-border bg-card hover:border-primary/50 transition-all flex flex-col h-full relative overflow-hidden">
                                                     <div className="flex justify-between items-start mb-3">
                                                         <h4 className="font-bold text-white group-hover:text-primary transition-colors">{cf.name}</h4>
-                                                        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="flex items-center gap-2">
+                                                            {currentUser?.id === squad.owner_id && (
+                                                              <button 
+                                                                  onClick={(e) => handleRemoveWorkflow(e, cf.id)}
+                                                                  className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100"
+                                                                  title="Remove from squad"
+                                                              >
+                                                                  <X className="w-4 h-4" />
+                                                              </button>
+                                                            )}
+                                                            <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        </div>
                                                     </div>
                                                     <div className="mt-auto pt-4 flex items-center justify-between text-xs text-muted-foreground border-t border-white/5">
                                                         <span>{cf.data?.nodes?.length || 0} Nodes</span>
@@ -240,5 +277,41 @@ export default function SquadDetailsModal({ isOpen, squadId, onClose }: SquadDet
                 )}
             </div>
         </div>
+
+        <ConfirmModal
+            isOpen={confirmLeave}
+            title={currentUser?.id === squad?.owner_id ? "Delete Squad" : "Leave Squad"}
+            description={currentUser?.id === squad?.owner_id 
+                ? "Are you sure you want to permanently delete this squad? This will tear down the collaborative space for all members."
+                : "Are you sure you want to leave this squad? You will lose access to its shared workflows."}
+            confirmText={currentUser?.id === squad?.owner_id ? "Delete Squad" : "Leave Squad"}
+            destructive={true}
+            onConfirm={performLeaveSquad}
+            onCancel={() => setConfirmLeave(false)}
+            loading={isActionLoading}
+        />
+        
+        <ConfirmModal
+            isOpen={!!confirmMemberRemove}
+            title="Remove Member"
+            description="Are you sure you want to kick this member from the squad? They will lose access to collaboratively edit the shared chatflows."
+            confirmText="Remove"
+            destructive={true}
+            onConfirm={performRemoveMember}
+            onCancel={() => setConfirmMemberRemove(null)}
+            loading={isActionLoading}
+        />
+
+        <ConfirmModal
+            isOpen={!!confirmWorkflowRemove}
+            title="Unlink Workflow"
+            description="Are you sure you want to remove this workflow from the squad? It will no longer be visible to squad members."
+            confirmText="Remove"
+            destructive={true}
+            onConfirm={performRemoveWorkflow}
+            onCancel={() => setConfirmWorkflowRemove(null)}
+            loading={isActionLoading}
+        />
+        </>
     );
 }
