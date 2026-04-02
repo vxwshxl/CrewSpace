@@ -28,8 +28,9 @@ CRITICAL RULES:
 11. Do not provide legal or medical advice through the assistant—always redirect to official sources.
 12. AVOID INFINITE LOOPS: If you have SCROLLed multiple times and cannot find the exact target, STOP scrolling. Choose the best available option visible or return an ANSWER explaining the issue. Do NOT hallucinate elements that are not in the DOM.
 13. E-COMMERCE / SHOPPING: When the user wants to "Buy" something, you MUST navigate through the entire checkout process (Cart -> Address -> Payment -> Place Order). Do NOT stop at "Add to cart". Proactively use provided user details (Address, Pincode, Payment Info, UPI ID, etc.) from the TOOL configurations to fill in fields. Continue issuing actions until you see a final "Thank You", "Order Placed", or a clear order confirmation page. Only then use the ANSWER action to report success.
-14. MEMORY STORAGE: Proactively store context, past tasks completed, and learned user preferences. If you learn something new or complete a task, include a 'memory' property in your JSON. Example: {"action":"ANSWER", "text":"...", "memory":"User prefers dark mode. Completed task: Drafted email."}
-15. EXPLICIT TOOL TRACKING: If you use a tool (e.g. "Web Search", "Summarizer", "Gmail") or use your built-in general knowledge to answer, you MUST include a 'usedTool' property in your JSON response. Example: {"action":"ANSWER", "text":"...", "usedTool":"Gmail"}
+14. GMAIL / EMAIL: When sending an email in Gmail, you MUST fulfill the complete workflow: Click Compose -> Fill RECIPIENT -> Fill SUBJECT -> Fill BODY -> Click SEND. Do NOT skip any field. Prioritize the Recipient field first. If you cannot find a field, SCROLL to locate it. Only click SEND once all fields are visibly populated.
+15. MEMORY STORAGE: Proactively store context, past tasks completed, and learned user preferences. If you learn something new or complete a task, include a 'memory' property in your JSON. Example: {"action":"ANSWER", "text":"...", "memory":"User prefers dark mode. Completed task: Drafted email."}
+16. EXPLICIT TOOL TRACKING: If you use a tool (e.g. "Web Search", "Summarizer", "Gmail") or use your built-in general knowledge to answer, you MUST include a 'usedTool' property in your JSON response. Example: {"action":"ANSWER", "text":"...", "usedTool":"Gmail"}
 
 EXAMPLES:
 {"action":"CLICK","elementId":15}
@@ -295,8 +296,8 @@ export async function POST(req: NextRequest) {
                     });
                 }
             });
-            systemContext += `\n\nCRITICAL INSTRUCTION: If the user requests an action matching these tools (e.g., sending an email via Gmail, summarizing, managing to-dos), use the provided tool configurations (templates, preferences, details) to automatically complete the request accurately.`;
-            systemContext += `\n\nIf you use any of these tools to generate your response, you MUST include a 'usedTool' property in your JSON output with the exact tool name. E.g. {"action": "ANSWER", "text": "...", "usedTool": "${config.toolsConfig[0]?.name || 'Tool Name'}"}`;
+            systemContext += `\n\nCRITICAL INSTRUCTION: If the user requests an action matching these tools (e.g., Gmail, Shopping, LinkedIn), you MUST NOT substitute the task with an ANSWER response. You MUST use browser-agent actions (NAVIGATE, CLICK, TYPE) to perform the actual workflow on the website (e.g. going to gmail.com, composing, and clicking Send).`;
+            systemContext += `\n\nIf you use any of these tools to generate your response, you MUST include a 'usedTool' property in your JSON output with the exact tool name. E.g. {"action": "NAVIGATE", "url": "...", "usedTool": "${config.toolsConfig[0]?.name || 'Tool Name'}"}`;
         }
         
         const supabase = await createClient();

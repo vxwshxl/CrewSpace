@@ -118,12 +118,14 @@ function extractContext() {
 
     const inputs = [];
     try {
-        document.querySelectorAll('input:not([type="hidden"]), textarea, select, [contenteditable="true"]').forEach(i => {
+        document.querySelectorAll('input:not([type="hidden"]), textarea, select, [contenteditable="true"], [role="textbox"], [role="combobox"]').forEach(i => {
             if (i.offsetParent !== null) {
-                const label = (i.placeholder || i.name || i.id || i.value || i.innerText || i.getAttribute('aria-label') || "input").substring(0, 50);
-                i.setAttribute('data-1e-id', nextElementId);
-                inputs.push({ id: nextElementId, name: label, type: i.type || i.tagName.toLowerCase() });
-                nextElementId++;
+                const label = (i.placeholder || i.name || i.id || i.value || i.innerText || i.getAttribute('aria-label') || i.getAttribute('title') || "input").substring(0, 50);
+                if (!i.hasAttribute('data-1e-id')) {
+                    i.setAttribute('data-1e-id', nextElementId);
+                    inputs.push({ id: nextElementId, name: label, type: i.type || i.tagName.toLowerCase(), role: i.getAttribute('role') });
+                    nextElementId++;
+                }
             }
         });
     } catch (e) {
@@ -216,10 +218,19 @@ function executeCommand(command) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     setTimeout(() => {
                         el.focus();
+                        
+                        // Select existing text to overwrite it
+                        const range = document.createRange();
+                        range.selectNodeContents(el);
+                        const selection = window.getSelection();
+                        if (selection) {
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
 
-                        // Deal with React/React DOM inputs and contenteditables
                         if (el.isContentEditable) {
-                            el.innerText = command.text;
+                            // Using insertText is much more reliable for triggering React/Angular/Vue listeners
+                            document.execCommand('insertText', false, command.text);
                         } else {
                             const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
                             const nativeTextAreaValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
@@ -230,10 +241,9 @@ function executeCommand(command) {
                             } else {
                                 el.value = command.text;
                             }
+                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
                         }
-
-                        el.dispatchEvent(new Event('input', { bubbles: true }));
-                        el.dispatchEvent(new Event('change', { bubbles: true }));
 
                         setTimeout(resolve, 300);
                     }, 300);
