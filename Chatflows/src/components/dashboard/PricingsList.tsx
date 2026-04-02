@@ -7,20 +7,20 @@ const individualPlans: PricingPlan[] = [
   {
     title: 'Free',
     price: '₹0',
-    description: '3 agents, 5 flows/month',
-    features: ['3 AI credits', 'Up to 3 agents', '5 flows per month', 'Access to Basic Crewspace built Templates', 'Community support'],
+    description: '5 AI credits/month',
+    features: ['5 AI credits', '5 flows per month', 'Access to Basic Crewspace built Templates', 'Community support'],
   },
   {
     title: 'Starter',
     price: '₹199/mo',
-    description: '10 agents, 50 flows/month',
-    features: ['50 AI credits', 'Up to 10 agents', '50 flows per month', 'Access to All Crewspace built Templates', 'Email support'],
+    description: '50 AI credits/month',
+    features: ['50 AI credits', '50 flows per month', 'Access to All Crewspace built Templates', 'Email support'],
   },
   {
     title: 'Pro',
     price: '₹299/mo',
-    description: 'Unlimited agents, 500 flows/month',
-    features: ['200 AI credits', 'Unlimited agents', '500 flows per month', 'Priority support', 'Workflow analytics'],
+    description: '200 AI credits/month',
+    features: ['200 AI credits', '200 flows per month', 'Priority support', 'Workflow analytics'],
     isPro: true,
     highlight: 'Most popular',
   },
@@ -48,8 +48,8 @@ const teamPlans: PricingPlan[] = [
   {
     title: 'Squad Pro',
     price: '₹799/mo',
-    description: 'Up to 10 editors, 3rd member view-only',
-    features: ['Up to 10 editors', 'Read-only for 3rd member', 'Advanced permissions', 'Team templates'],
+    description: 'Up to 10 editors, 7th member view-only',
+    features: ['Up to 10 editors', 'Read-only for 7th member', 'Advanced permissions', 'Team templates'],
     isPro: true,
   },
   {
