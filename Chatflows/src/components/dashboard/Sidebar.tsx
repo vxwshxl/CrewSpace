@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Workflow, Key, BookOpen, ShoppingCart, Settings, Users } from 'lucide-react';
+import { Workflow, Key, BookOpen, ShoppingCart, Settings, Users, Tag } from 'lucide-react';
 
-export type TabType = 'chatflows' | 'apikeys' | 'squads' | 'marketplace' | 'tutorials' | 'settings';
+export type TabType = 'chatflows' | 'apikeys' | 'squads' | 'marketplace' | 'pricings' | 'tutorials' | 'settings';
 
 interface SidebarProps {
     activeTab: TabType;
@@ -29,6 +29,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                     { id: 'squads', label: 'Squads', icon: Users },
                     { type: 'divider' },
                     { id: 'marketplace', label: 'Marketplace', icon: ShoppingCart },
+                    { id: 'pricings', label: 'Pricing', icon: Tag },
                     { id: 'tutorials', label: 'Tutorials', icon: BookOpen },
                     { id: 'settings', label: 'Profile Settings', icon: Settings },
                 ].map((item, idx) => {

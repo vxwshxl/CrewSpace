@@ -10,6 +10,7 @@ import TutorialsList from '@/components/dashboard/TutorialsList';
 import MarketplaceList from '@/components/dashboard/MarketplaceList';
 import SettingsList from '@/components/dashboard/SettingsList';
 import SquadsList from '@/components/dashboard/SquadsList';
+import PricingsList from '@/components/dashboard/PricingsList';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -125,6 +126,7 @@ export default function DashboardPage() {
                                 {activeTab === 'apikeys' && <ApiKeysList />}
                                 {activeTab === 'squads' && <SquadsList />}
                                 {activeTab === 'marketplace' && <MarketplaceList />}
+                                {activeTab === 'pricings' && <PricingsList />}
                                 {activeTab === 'tutorials' && <TutorialsList onStart={() => setActiveTab('chatflows')} />}
                                 {activeTab === 'settings' && <SettingsList onProfileUpdate={() => {
                                     // Re-fetch user to sync navbar
