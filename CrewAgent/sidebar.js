@@ -819,12 +819,8 @@ async function runAgentLoop() {
                     executedResponse = await executeCommandInPage(data);
                 }
 
-                // We need to give the page time to react (navigate, modal open, DOM update)
-                // If it's a navigation, wait longer for the new page to load
-                if (data.action === "NAVIGATE") {
-                    await new Promise(r => setTimeout(r, 6000));
-                } else if (data.action !== "TRANSLATE") {
-                    await new Promise(r => setTimeout(r, 1500));
+                if (data.action !== "TRANSLATE") {
+                    await waitAfterAction(data.action);
                 }
 
                 if (userRequestedStop) break;
@@ -1001,6 +997,58 @@ function scrollToBottom() {
 async function getActiveTab() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     return tab;
+}
+
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForTabReady(tabId, timeoutMs = 4500) {
+    return new Promise((resolve) => {
+        let done = false;
+        const timer = setTimeout(() => {
+            if (!done) {
+                done = true;
+                chrome.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        }, timeoutMs);
+
+        const listener = (updatedTabId, changeInfo) => {
+            if (updatedTabId === tabId && changeInfo.status === 'complete' && !done) {
+                done = true;
+                clearTimeout(timer);
+                chrome.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        };
+
+        chrome.tabs.onUpdated.addListener(listener);
+    });
+}
+
+async function waitAfterAction(action) {
+    if (action === "NAVIGATE") {
+        const tab = await getActiveTab();
+        if (tab?.id) {
+            await waitForTabReady(tab.id);
+        } else {
+            await delay(1200);
+        }
+        return;
+    }
+
+    if (action === "SCROLL") {
+        await delay(180);
+        return;
+    }
+
+    if (action === "CLICK" || action === "TYPE") {
+        await delay(300);
+        return;
+    }
+
+    await delay(250);
 }
 
 async function injectContentScriptIfNeeded(tabId) {

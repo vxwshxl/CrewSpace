@@ -19,8 +19,43 @@ export async function GET(req: NextRequest) {
         
         if (error) throw error;
 
+        const { data: memberships, error: membershipsError } = await supabase
+            .from('squad_members')
+            .select('squad_id')
+            .eq('user_id', userId);
+
+        if (membershipsError) throw membershipsError;
+
+        const memberSquadIds = (memberships || []).map((membership) => membership.squad_id);
+
+        let squadChatflows: Array<{ id: string; name: string; data: any }> = [];
+        if (memberSquadIds.length > 0) {
+            const { data: squadWorkflowLinks, error: squadWorkflowsError } = await supabase
+                .from('squad_chatflows')
+                .select(`
+                    chatflow_id,
+                    chatflows (
+                        id,
+                        name,
+                        data
+                    )
+                `)
+                .in('squad_id', memberSquadIds);
+
+            if (squadWorkflowsError) throw squadWorkflowsError;
+
+            squadChatflows = (squadWorkflowLinks || [])
+                .map((item: any) => item.chatflows)
+                .filter(Boolean);
+        }
+
         // Check if the chatflow contains the File Upload tool
-        const processedModels = (userChatflows || []).map(cf => {
+        const combinedChatflows = [...(userChatflows || []), ...squadChatflows];
+        const uniqueChatflows = Array.from(
+            new Map(combinedChatflows.map((chatflow) => [chatflow.id, chatflow])).values()
+        );
+
+        const processedModels = uniqueChatflows.map(cf => {
             let hasFileUpload = false;
             try {
                 if (cf.data && typeof cf.data === 'object' && Array.isArray(cf.data.nodes)) {

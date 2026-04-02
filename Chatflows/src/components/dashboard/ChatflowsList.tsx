@@ -70,8 +70,10 @@ export default function ChatflowsList() {
             setPersonalChatflows(personal);
             setSquadChatflows(squad);
 
+            const accessibleChatflows = [...personal, ...squad];
+
             // Sync with Zustand store for extension
-            storeSetChatflows(allFlows.map(f => ({
+            storeSetChatflows(accessibleChatflows.map(f => ({
                 id: f.id,
                 name: f.name,
                 nodes: f.data?.nodes || [],
