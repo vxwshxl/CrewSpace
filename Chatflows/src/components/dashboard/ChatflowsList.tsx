@@ -36,10 +36,24 @@ export default function ChatflowsList() {
         
         // Fetch all chatflows user has access to
         const { data: allFlows } = await supabase.from('chatflows').select('*').order('updated_at', { ascending: false });
-        
-        // Fetch squad chatflow associations
-        const { data: squadAssocs } = await supabase.from('squad_chatflows').select('chatflow_id');
-        const squadFlowIds = new Set((squadAssocs || []).map(a => a.chatflow_id));
+
+        // Only treat workflows as squad workflows if the current user is a member of that squad.
+        const { data: memberships } = await supabase
+            .from('squad_members')
+            .select('squad_id')
+            .eq('user_id', user.id);
+
+        const memberSquadIds = (memberships || []).map((membership) => membership.squad_id);
+
+        let squadFlowIds = new Set<string>();
+        if (memberSquadIds.length > 0) {
+            const { data: squadAssocs } = await supabase
+                .from('squad_chatflows')
+                .select('chatflow_id')
+                .in('squad_id', memberSquadIds);
+
+            squadFlowIds = new Set((squadAssocs || []).map((assoc) => assoc.chatflow_id));
+        }
 
         if (allFlows) {
             const personal: any[] = [];
