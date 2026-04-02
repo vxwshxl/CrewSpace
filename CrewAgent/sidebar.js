@@ -711,6 +711,16 @@ async function sendMessage() {
     runAgentLoop();
 }
 
+// Extract the first, original user message from chat history
+function getOriginalUserGoal() {
+    for (const msg of chatHistory) {
+        if (msg.role === 'user' && !msg.content.includes('ORIGINAL USER GOAL') && !msg.content.includes('Action ') && !msg.content.includes('What is the next logical action')) {
+            return msg.content;
+        }
+    }
+    return '';
+}
+
 async function runAgentLoop() {
     isAgentRunning = true;
     userRequestedStop = false;
@@ -825,7 +835,21 @@ async function runAgentLoop() {
 
                 if (userRequestedStop) break;
 
-                let nextGoal = `Action ${data.action} executed. Review the new WEBPAGE CONTENT and AVAILABLE ELEMENTS. What is the next logical action to achieve the USER GOAL? If you meet the goal, or need the user to input something, return {"action":"ANSWER", "text":"..."}.`;
+                const originalGoal = getOriginalUserGoal();
+                let nextGoal = `Action ${data.action} was executed.
+
+ORIGINAL USER GOAL: "${originalGoal}"
+
+Review the updated WEBPAGE CONTENT and AVAILABLE ELEMENTS carefully.
+
+CRITICAL ANTI-HALLUCINATION RULES:
+- DO NOT say "Task completed" unless you have VISUALLY CONFIRMED the final outcome on the page.
+- For Gmail/Email: The task is ONLY complete when you see the "Message sent" snackbar or confirmation. Filling the recipient field alone is NOT completion. You must also fill Subject and Body and click SEND.
+- For Shopping/E-commerce: The task is ONLY complete when you see an "Order Confirmed" or "Thank You" page.
+- For any multi-step form: Every required field must be filled before submitting.
+- If a dropdown/suggestion appeared after your last action (e.g. an autocomplete suggestion), you MUST click the correct suggestion first before moving to the next field.
+
+What is the next logical action? Only return {"action":"ANSWER"} if the final on-screen confirmation is visible.`;
                 let additionalData = null;
 
                 if (executedResponse && executedResponse.rect) {
